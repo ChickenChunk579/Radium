@@ -10,3 +10,4 @@ subprojects/SDL
 subprojects/SDL_image
 subprojects/SDL_ttf
 subprojects/spdlog
+subprojects/RmlUi
