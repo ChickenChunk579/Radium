@@ -558,7 +558,6 @@ namespace Rune
 
         if (uniformBuffer)
         {
-            Rune::Log("Writing data to buffer.");
 
             size_t writeSize = objectCount * sizeof(SpriteData);
             if (writeSize > uniformBufferSize)
@@ -572,7 +571,6 @@ namespace Rune
             Rune::Log("TRIED TO WRITE TO BUFFER THAT DOESNT EXIST");
             exit(-1);
         }
-        Rune::Log("Wrote data to buffer.");
 
         bufferCreated = true;
 

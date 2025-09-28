@@ -2,6 +2,9 @@
 #include <spdlog/spdlog.h>
 #include <Rune/Rune.hpp>
 #include <SDL2/SDL_syswm.h>
+#include "imgui.h"
+#include "imgui_impl_rune.h"
+#include "backends/imgui_impl_sdl2.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -187,6 +190,30 @@ namespace Radium {
 
         spdlog::trace("Successfully initialized Rune.");
 
+        
+        spdlog::trace("Setting up imgui...");
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        spdlog::trace("Created context");
+
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        spdlog::trace("Setting style");
+
+        ImGui::StyleColorsDark();
+
+        spdlog::trace("Creating renderer");
+
+        ImGui_ImplRune_Init();
+        ImGui_ImplSDL2_InitForOther(window);
+
+
+        spdlog::trace("Done!");
+        
+
         spdlog::trace("Running user OnLoad");
         this->OnLoad();
         spdlog::trace("Done");
@@ -194,7 +221,6 @@ namespace Radium {
 
         #ifdef __EMSCRIPTEN__
         emscripten_set_main_loop([]() {
-            spdlog::info("Test");
             Radium::currentApplication->RunFrame(0);
             
         }, 0, 1);
@@ -210,9 +236,12 @@ namespace Radium {
     void Application::RunFrame(double time) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
+            ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
                 this->running = false;
         }
+
+        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
 
         this->OnTick(0);
 
@@ -237,6 +266,18 @@ namespace Radium {
 
         this->OnRender();
 
+        ImGui_ImplRune_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+
+        this->OnImgui();
+
+        ImGui::Render();
+
+        ImGui_ImplRune_RenderDrawData(ImGui::GetDrawData());
+        
         Rune::FinishFrame();
     }
 

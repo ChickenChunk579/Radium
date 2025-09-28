@@ -18,6 +18,7 @@ namespace Radium {
         virtual void OnLoad() {}
         virtual void OnTick(float dt) {}
         virtual void OnRender() {}
+        virtual void OnImgui() {}
 
         void Run();
 

@@ -6,19 +6,36 @@ set(SDL2TTF_VENDORED ON)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+
 add_subdirectory(subprojects/entt)
 add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
 add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/spdlog)
-add_subdirectory(subprojects/Ultralight)
+
+add_library(imgui STATIC
+    subprojects/imgui/imgui_demo.cpp
+    subprojects/imgui/imgui_draw.cpp
+    subprojects/imgui/imgui_tables.cpp
+    subprojects/imgui/imgui_widgets.cpp
+    subprojects/imgui/imgui.cpp
+    subprojects/imgui/backends/imgui_impl_sdl2.cpp
+)
+
+target_link_libraries(imgui PUBLIC SDL2::SDL2)
+
+target_include_directories(imgui PUBLIC subprojects/imgui)
 
 add_library(Radium STATIC
     src/Radium/Application.cpp
     src/Radium/FontRenderer.cpp
     src/Radium/Math.cpp
     src/Radium/SpriteBatchRegistry.cpp
+    src/Radium/imgui_impl_rune.cpp
 )
 
 target_link_libraries(Radium PUBLIC
@@ -28,14 +45,16 @@ target_link_libraries(Radium PUBLIC
     spdlog::spdlog
     EnTT::EnTT
     Rune
+    imgui
 )
 target_include_directories(Radium PUBLIC
     src
+    subprojects/RmlUi/Include
 )
 
 if (EMSCRIPTEN)
     # Linker flags
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_WEBGPU=1 -sASYNCIFY -s WASM=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_WEBGPU=1 -sASYNCIFY -s WASM=1 -g4 -s ASSERTIONS=1")
 
     # Generate .html output
     set(CMAKE_EXECUTABLE_SUFFIX ".html")

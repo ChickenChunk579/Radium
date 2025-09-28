@@ -5,6 +5,7 @@
 #include <Radium/Components/Sprite.hpp>
 #include <Radium/FontRenderer.hpp>
 #include <Radium/Components/ClearColor.hpp>
+#include <Rune/GeometryRenderer.hpp>
 
 inline void RotationSystem(entt::registry& registry) {
     auto view = registry.view<Radium::Components::FullDrawSprite>();
@@ -17,6 +18,8 @@ inline void RotationSystem(entt::registry& registry) {
 class MyApp : public Radium::Application {
 public:
     Radium::FontBatch* batch;
+    Rune::GeometryRenderer* geometryRenderer;
+
 
     std::string GetTitle() override {
         return "My Empty Radium App";
@@ -28,6 +31,14 @@ public:
 
     void OnLoad() override {
         batch = new Radium::FontBatch("Roboto/static/Roboto-Black.ttf", 64);
+
+        /*geometryRenderer = new Rune::GeometryRenderer();
+        geometryRenderer->SetVertices({
+            // x, y, r, g, b, u, v
+            100, 100, 1, 0, 0, 0, 0,
+            200, 100, 0, 1, 0, 1, 0,
+            150, 200, 0, 0, 1, 1, 1
+        });*/
 
         Radium::SpriteBatchRegistry::Add("logo", "Logo.png", Rune::SpriteOrigin::Center);
         {
@@ -56,6 +67,7 @@ public:
 
         batch->End();
         
+        //geometryRenderer->Draw();
     }
 };
 

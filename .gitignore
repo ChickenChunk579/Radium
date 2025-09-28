@@ -11,3 +11,5 @@ subprojects/SDL_image
 subprojects/SDL_ttf
 subprojects/spdlog
 subprojects/RmlUi
+subprojects/imgui
+subprojects/tracy

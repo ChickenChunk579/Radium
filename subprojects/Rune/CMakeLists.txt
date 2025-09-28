@@ -27,6 +27,8 @@ add_library(Rune STATIC
     src/Rune/Rune.cpp
     src/Rune/SpriteBatch.cpp
     src/Rune/RuneBindings.cpp
+    src/Rune/GeometryRenderer.cpp
+    src/Rune/Texture.cpp
 )
 
 target_include_directories(Rune PUBLIC
