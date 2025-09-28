@@ -9,6 +9,7 @@
 #else
 #include <webgpu/wgpu.h> // Make sure this is on your include path
 #endif
+#include <Rune/TraceHooks.hpp>
 #include <sstream>
 
 
@@ -503,16 +504,23 @@ namespace Rune
 
     void SetupFrame()
     {
+        Rune::TraceZoneBegin("Get Target View");
         // Get the next target texture view
         targetView = GetNextSurfaceTextureView();
         if (!targetView)
             return;
+        Rune::TraceZoneEnd();
 
+
+        Rune::TraceZoneBegin("Create encoder");
         // Create a command encoder for the draw call
         WGPUCommandEncoderDescriptor encoderDesc = {};
         encoderDesc.nextInChain = nullptr;
         encoder = wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
+        Rune::TraceZoneEnd();
 
+
+        Rune::TraceZoneBegin("Create render pass");
         // Create the render pass that clears the screen with our color
         WGPURenderPassDescriptor renderPassDesc = {};
         renderPassDesc.nextInChain = nullptr;
@@ -535,6 +543,7 @@ namespace Rune
 
         // Create the render pass and end it immediately (we only clear the screen but do not draw anything)
         renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
+        Rune::TraceZoneEnd();
     }
 
     void ProcessEvents()

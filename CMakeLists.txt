@@ -16,6 +16,7 @@ add_subdirectory(subprojects/SDL)
 add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/spdlog)
+add_subdirectory(subprojects/tracy)
 
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
@@ -51,6 +52,9 @@ target_include_directories(Radium PUBLIC
     src
     subprojects/RmlUi/Include
 )
+
+target_link_libraries(Radium PRIVATE TracyClient)
+target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
 
 if (EMSCRIPTEN)
     # Linker flags

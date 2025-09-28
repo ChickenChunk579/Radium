@@ -9,6 +9,8 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #endif
+#include <tracy/Tracy.hpp>
+#include <tracy/TracyC.h>
 #include <Radium/Systems/FullDrawSpriteRenderer.hpp>
 #include <Radium/SpriteBatchRegistry.hpp>
 #include <Radium/Components/ClearColor.hpp>
@@ -228,57 +230,85 @@ namespace Radium {
         #else
         while (running) {
             RunFrame(0.0);
-            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
         #endif
     }
 
     void Application::RunFrame(double time) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                this->running = false;
-        }
+        ZoneScoped;
 
-        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
-
-        this->OnTick(0);
-
-        auto view = registry.view<
-            Radium::Components::ClearColor
-        >();
-        for (auto [entity, clear] : view.each()) {
-            Rune::Clear(clear.r, clear.g, clear.b, 1);
-        }
-        
-        Rune::SetupFrame();
-
-        Radium::Systems::FullDrawSpriteRender(registry);
-        
-
-        auto batches = Radium::SpriteBatchRegistry::GetAll();
-        for (auto batch : batches) {
-            if (batch->started) {
-                batch->End();
+        {
+            ZoneScopedN("Event Poll");
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                ImGui_ImplSDL2_ProcessEvent(&event);
+                if (event.type == SDL_QUIT)
+                    this->running = false;
             }
         }
 
-        this->OnRender();
+        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
+        {
+            ZoneScopedN("User Tick");
+            this->OnTick(0);
+        }
 
-        ImGui_ImplRune_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
+        {
+            ZoneScopedN("Clear Query");
+            auto view = registry.view<
+                Radium::Components::ClearColor
+            >();
+            for (auto [entity, clear] : view.each()) {
+                Rune::Clear(clear.r, clear.g, clear.b, 1);
+            }
 
-        ImGui::ShowDemoWindow();
-
-        this->OnImgui();
-
-        ImGui::Render();
-
-        ImGui_ImplRune_RenderDrawData(ImGui::GetDrawData());
+        }
+        {
+            ZoneScopedN("Frame Setup");
         
-        Rune::FinishFrame();
+            Rune::SetupFrame();
+        }
+        {
+            ZoneScopedN("Drawing FullDraw Sprites");
+            Radium::Systems::FullDrawSpriteRender(registry);
+            
+
+            auto batches = Radium::SpriteBatchRegistry::GetAll();
+            for (auto batch : batches) {
+                if (batch->started) {
+                    batch->End();
+                }
+            }
+        }
+        {
+            ZoneScopedN("User Render");
+            this->OnRender();
+        }
+
+        {
+            ZoneScopedN("ImGui setup");
+            ImGui_ImplRune_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+            ImGui::NewFrame();
+        }
+        {
+            ZoneScopedN("ImGui windows");
+            ImGui::ShowDemoWindow();
+
+            this->OnImgui();
+        }
+
+        {
+            ZoneScopedN("ImGui Render");
+            ImGui::Render();
+
+            ImGui_ImplRune_RenderDrawData(ImGui::GetDrawData());
+        }
+        {
+            ZoneScopedN("Finish frame");
+            Rune::FinishFrame();
+        }
     }
 
     #ifdef __EMSCRIPTEN__
