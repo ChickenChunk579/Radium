@@ -11,9 +11,11 @@ namespace Radium::SpriteBatchRegistry {
         return map[name];
     }
 
-    void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin) {
+    void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin, Rune::SamplingMode mode) {
         #ifndef __ANDROID__
-        const char* path = ("assets/" + texturePath).c_str();
+        std::string fullPath = "assets/" + texturePath;
+        const char* path = fullPath.c_str();
+
         spdlog::info("Resolved texture path: {}", path);
         SDL_Surface* surface = IMG_Load(path);
         #else
@@ -28,7 +30,9 @@ namespace Radium::SpriteBatchRegistry {
         int h = surface->h;
         void* pixels = surface->pixels;
 
-        Rune::SpriteBatch* batch = new Rune::SpriteBatch(w, h, pixels, origin);
+        Rune::Texture* texture = new Rune::Texture(w, h, pixels, mode);
+
+        Rune::SpriteBatch* batch = new Rune::SpriteBatch(texture, origin);
         map[name] = batch;
     }
 

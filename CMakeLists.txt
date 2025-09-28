@@ -58,7 +58,7 @@ target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
 
 if (EMSCRIPTEN)
     # Linker flags
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_WEBGPU=1 -sASYNCIFY -s WASM=1 -g4 -s ASSERTIONS=1")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -s USE_WEBGPU=1 -sASYNCIFY -s WASM=1 -g4 -s ASSERTIONS=1")
 
     # Generate .html output
     set(CMAKE_EXECUTABLE_SUFFIX ".html")

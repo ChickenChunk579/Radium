@@ -11,9 +11,14 @@
 #include <assert.h>
 
 namespace Rune {
+    enum class SamplingMode {
+        Nearest,
+        Linear
+    };
+
     class Texture {
     public:
-        Texture(int width, int height, void* data);
+        Texture(int width, int height, void* data, SamplingMode samplingmode);
 
         WGPUTextureView textureView;
         WGPUSampler sampler;

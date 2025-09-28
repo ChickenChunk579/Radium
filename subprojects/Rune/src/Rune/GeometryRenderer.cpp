@@ -55,7 +55,7 @@ namespace Rune
                 (char)255, (char)255, (char)255, (char)255,
                 (char)255, (char)255, (char)255, (char)255
             };
-            this->texture = new Texture(1, 1, data);
+            this->texture = new Texture(1, 1, data, Rune::SamplingMode::Linear);
         } else {
             this->texture = texture;
         }
@@ -65,7 +65,7 @@ namespace Rune
         screenDesc.usage = WGPUBufferUsage_Uniform | WGPUBufferUsage_CopyDst;
         screenDesc.size = sizeof(float) * 2;
         screenDesc.mappedAtCreation = false;
-        screenDesc.label = {"Resolution", 10};
+        screenDesc.label = Rune::CreateString("Geometry Renderer Resolution Buffer");
         screenSizeBuffer = wgpuDeviceCreateBuffer(device, &screenDesc);
 
         // Bind group layout
@@ -137,7 +137,7 @@ namespace Rune
 
         WGPUShaderModuleDescriptor shaderDesc{};
         shaderDesc.nextInChain = &shaderCodeDesc.chain;
-        shaderDesc.label = {"Geometry Renderer Shader", 24};
+        shaderDesc.label = Rune::CreateString("Geometry Renderer Shader");
 
         WGPUShaderModule shaderModule = wgpuDeviceCreateShaderModule(device, &shaderDesc);
 
@@ -244,7 +244,7 @@ namespace Rune
         WGPUBufferDescriptor vbDesc = {};
         vbDesc.size = vertices.size() * sizeof(float);
         vbDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
-        vbDesc.label = {"Geometry Renderer Vertices", 26};
+        vbDesc.label = Rune::CreateString("Geometry Renderer Vertex Buffer");
 
         vertexBuffer = wgpuDeviceCreateBuffer(device, &vbDesc);
 

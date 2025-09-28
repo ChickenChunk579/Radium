@@ -6,6 +6,7 @@
 #include <Radium/FontRenderer.hpp>
 #include <Radium/Components/ClearColor.hpp>
 #include <Rune/GeometryRenderer.hpp>
+#include "imgui.h"
 
 inline void RotationSystem(entt::registry& registry) {
     auto view = registry.view<Radium::Components::FullDrawSprite>();
@@ -26,21 +27,14 @@ public:
     }
 
     Radium::Vector2i GetSize() override {
-        return {1280, 720};
+        return {640, 480};
     }
 
     void OnLoad() override {
         batch = new Radium::FontBatch("Roboto/static/Roboto-Black.ttf", 64);
 
-        /*geometryRenderer = new Rune::GeometryRenderer();
-        geometryRenderer->SetVertices({
-            // x, y, r, g, b, u, v
-            100, 100, 1, 0, 0, 0, 0,
-            200, 100, 0, 1, 0, 1, 0,
-            150, 200, 0, 0, 1, 1, 1
-        });*/
 
-        Radium::SpriteBatchRegistry::Add("logo", "Logo.png", Rune::SpriteOrigin::Center);
+        Radium::SpriteBatchRegistry::Add("logo", "Logo.png", Rune::SpriteOrigin::Center, Rune::SamplingMode::Linear);
         {
             const auto logo = registry.create();
             registry.emplace<Radium::Components::Position>(logo, Radium::Vector2f(0, 0));
@@ -66,8 +60,10 @@ public:
         batch->DrawString(100, 100, "The quick brown fox jumps over the lazy dog.");
 
         batch->End();
-        
-        //geometryRenderer->Draw();
+    }
+
+    void OnImgui() override {
+        ImGui::ShowDemoWindow();
     }
 };
 

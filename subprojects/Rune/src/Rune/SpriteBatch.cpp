@@ -1,6 +1,7 @@
 #include <Rune/SpriteBatch.hpp>
 #include <cstring>
 #include <vector>
+#include <Rune/Texture.hpp>
 #include <sstream>
 #include <iostream>
 
@@ -120,7 +121,7 @@ bool fileExists(const std::string &path)
 
 namespace Rune
 {
-    SpriteBatch::SpriteBatch(int texWidth, int texHeight, void *imageData, SpriteOrigin origin)
+    SpriteBatch::SpriteBatch(Rune::Texture* texture, SpriteOrigin origin)
     {
         this->origin = origin;
         objectCount = 0;
@@ -132,56 +133,8 @@ namespace Rune
 
         resolutionBuffer = wgpuDeviceCreateBuffer(device, &resBufferDesc);
 
-        WGPUTextureDescriptor textureDesc = {};
-        textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
-        textureDesc.dimension = WGPUTextureDimension_2D;
-        textureDesc.size = {(uint32_t)texWidth, (uint32_t)texHeight, 1};
-        textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
-        textureDesc.mipLevelCount = 1;
-        textureDesc.sampleCount = 1;
-
-        WGPUTexture texture = wgpuDeviceCreateTexture(device, &textureDesc);
-
-        textureView = wgpuTextureCreateView(texture, nullptr);
-
-        WGPUSamplerDescriptor samplerDesc = {};
-        samplerDesc.magFilter = WGPUFilterMode_Nearest;
-        samplerDesc.minFilter = WGPUFilterMode_Nearest;
-        samplerDesc.maxAnisotropy = 1;
-        sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
-
-#ifndef __EMSCRIPTEN__
-        WGPUTexelCopyTextureInfo copyDst = {};
-#else
-        WGPUImageCopyTexture copyDst = {};
-
-#endif
-        copyDst.texture = texture;
-        copyDst.mipLevel = 0;
-        copyDst.origin = {0, 0, 0};
-        copyDst.aspect = WGPUTextureAspect_All;
-
-#ifndef __EMSCRIPTEN__
-        WGPUTexelCopyBufferLayout dataLayout = {};
-#else
-        WGPUTextureDataLayout dataLayout = {};
-#endif
-        dataLayout.offset = 0;
-        dataLayout.bytesPerRow = static_cast<uint32_t>(texWidth * 4);
-        dataLayout.rowsPerImage = static_cast<uint32_t>(texHeight);
-
-        WGPUExtent3D writeSize = {
-            static_cast<uint32_t>(texWidth),
-            static_cast<uint32_t>(texHeight),
-            1};
-
-        wgpuQueueWriteTexture(
-            queue,
-            &copyDst,
-            imageData,
-            texWidth * texHeight * 4,
-            &dataLayout,
-            &writeSize);
+        textureView = texture->textureView;
+        sampler = texture->sampler;
 
         Rune::Log("Loaded texture");
 

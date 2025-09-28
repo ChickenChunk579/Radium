@@ -1,7 +1,18 @@
 #include <Rune/Texture.hpp>
 
 namespace Rune {
-    Texture::Texture(int width, int height, void* data) {
+    WGPUFilterMode SamplingModeToWgpu(SamplingMode sampling) {
+        switch (sampling) {
+            case SamplingMode::Linear:
+                return WGPUFilterMode_Linear;
+            case SamplingMode::Nearest:
+                return WGPUFilterMode_Nearest;
+            default:
+                return WGPUFilterMode_Nearest;
+        }
+    }
+
+    Texture::Texture(int width, int height, void* data, SamplingMode mode) {
         WGPUTextureDescriptor textureDesc = {};
         textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
         textureDesc.dimension = WGPUTextureDimension_2D;
@@ -15,8 +26,8 @@ namespace Rune {
         textureView = wgpuTextureCreateView(texture, nullptr);
 
         WGPUSamplerDescriptor samplerDesc = {};
-        samplerDesc.magFilter = WGPUFilterMode_Nearest;
-        samplerDesc.minFilter = WGPUFilterMode_Nearest;
+        samplerDesc.magFilter = SamplingModeToWgpu(mode);
+        samplerDesc.minFilter = SamplingModeToWgpu(mode);
         samplerDesc.maxAnisotropy = 1;
         sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
 

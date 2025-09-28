@@ -294,7 +294,6 @@ namespace Radium {
         }
         {
             ZoneScopedN("ImGui windows");
-            ImGui::ShowDemoWindow();
 
             this->OnImgui();
         }

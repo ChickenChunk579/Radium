@@ -98,7 +98,9 @@ namespace Radium {
         void* copiedPixels = malloc(atlas->h * atlas->pitch);
         memcpy(copiedPixels, atlas->pixels, atlas->h * atlas->pitch);
 
-        batch = new Rune::SpriteBatch(atlasWidth, atlasHeight, copiedPixels, Rune::SpriteOrigin::TopLeft);
+        Rune::Texture* texture = new Rune::Texture(atlas->w, atlas->h, atlas->pixels, Rune::SamplingMode::Linear);
+
+        batch = new Rune::SpriteBatch(texture, Rune::SpriteOrigin::TopLeft);
         if (!batch) {
             spdlog::error("SpriteBatch is null in FontBatch::FontBatch()");
             return;

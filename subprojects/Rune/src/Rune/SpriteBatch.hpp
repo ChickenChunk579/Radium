@@ -1,5 +1,6 @@
 #pragma once
 #include "Rune.hpp"
+#include "Rune/Texture.hpp"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <webgpu/webgpu.h>
@@ -63,7 +64,7 @@ namespace Rune {
 
         SpriteOrigin origin;
     public:
-        SpriteBatch(int texWidth, int texHeight, void* data, SpriteOrigin);
+        SpriteBatch(Rune::Texture* texture, SpriteOrigin);
         void Begin();
 
         void Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation = 0);

@@ -7,6 +7,7 @@
 #else
 #include <webgpu/wgpu.h>   // Make sure this is on your include path
 #endif
+#include <Rune/Utils.hpp>
 #include <vector>
 #include <iostream>
 #include <assert.h>
