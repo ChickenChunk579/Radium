@@ -15,13 +15,23 @@
 
 namespace Rune {
     struct SpriteData {
-        float pos[2];
-        float size[2];
-        float color[3];
-        float rotation;
-        float uvOffset[2];
-        float uvScale[2];
+        float color[3];   // 12 bytes
+        uint32_t flags;   // 4 bytes, now at offset 12
+
+        float pos[2];     // offset 16
+        float z;          // offset 24
+        float pad1;       // offset 28
+
+        float size[2];    // offset 32
+        float rotation;   // offset 40
+        float pad2;       // offset 44
+
+        float uvOffset[2]; // offset 48
+        float uvScale[2];  // offset 56
     };
+    static_assert(sizeof(SpriteData) == 64, "Wrong SpriteData size");
+
+
 
     struct OtherDataUniform {
         float screenWidth;
@@ -31,12 +41,9 @@ namespace Rune {
     };
 
     enum class SpriteOrigin {
-        TopLeft,
-        Center
+        TopLeft = 0,
+        Center = 1
     };
-
-
-    static_assert(sizeof(SpriteData) == 48, "SpriteData must be 48 bytes");
 
 
     class SpriteBatch {
@@ -67,20 +74,20 @@ namespace Rune {
         SpriteBatch(Rune::Texture* texture, SpriteOrigin);
         void Begin();
 
-        void Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation = 0);
+        void Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation = 0, float z = 0, uint32_t flags = 0);
 
         void DrawTile(
             float x, float y, uint w, uint h,
             float r, float g, float b,
             uint tileX, uint tileY,
             uint tilesPerRow, uint tilesPerCol,
-            float rotation = 0
+            float rotation = 0, float z = 0, uint32_t flags = 0
         );
         void DrawImageRect(float x, float y, uint w, uint h,
                    float r, float g, float b,
                    uint srcX, uint srcY, uint srcW, uint srcH,
                    uint textureWidth, uint textureHeight,
-                   float rotation);
+                   float rotation, float z = 0, uint32_t flags = 0);
 
 
         void End();

@@ -13,3 +13,4 @@ subprojects/spdlog
 subprojects/RmlUi
 subprojects/imgui
 subprojects/tracy
+subprojects/box2d

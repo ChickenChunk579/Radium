@@ -10,7 +10,7 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
-add_subdirectory(subprojects/entt)
+add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
 add_subdirectory(subprojects/SDL_ttf)
@@ -37,6 +37,13 @@ add_library(Radium STATIC
     src/Radium/Math.cpp
     src/Radium/SpriteBatchRegistry.cpp
     src/Radium/imgui_impl_rune.cpp
+    src/Radium/Input.cpp
+    src/Radium/AssetLoader.cpp
+    src/Radium/Nodes/Tree.cpp
+    src/Radium/Nodes/Node.cpp
+    src/Radium/Nodes/ClassDB.cpp
+    src/Radium/Nodes/2D/Node2D.cpp
+    src/Radium/Nodes/2D/Sprite2D.cpp
 )
 
 target_link_libraries(Radium PUBLIC
@@ -44,9 +51,9 @@ target_link_libraries(Radium PUBLIC
     SDL2_image
     SDL2_ttf
     spdlog::spdlog
-    EnTT::EnTT
     Rune
     imgui
+    box2d
 )
 target_include_directories(Radium PUBLIC
     src

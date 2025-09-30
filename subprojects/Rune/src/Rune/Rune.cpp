@@ -243,6 +243,7 @@ namespace Rune
     WGPUTextureView targetView = nullptr;
     WGPUCommandEncoder encoder = nullptr;
     WGPUSurfaceCapabilities caps;
+    WGPUTextureView depthTextureView = nullptr;
     bool ready = false;
     float windowWidth, windowHeight = 0;
 
@@ -470,6 +471,19 @@ namespace Rune
 
         wgpuSurfaceGetCapabilities(surface, adapter, &caps);
 
+        if (caps.formats[0] == WGPUTextureFormat_BGRA8UnormSrgb) {
+            WGPUTextureFormat* mutableFormats = const_cast<WGPUTextureFormat*>(caps.formats);
+            mutableFormats[0] = WGPUTextureFormat_BGRA8Unorm;
+
+        }
+
+        if (caps.formats[0] == WGPUTextureFormat_RGBA8UnormSrgb) {
+            WGPUTextureFormat* mutableFormats = const_cast<WGPUTextureFormat*>(caps.formats);
+            mutableFormats[0] = WGPUTextureFormat_RGBA8Unorm;
+
+        }
+        
+
         // Configuration of the textures created for the underlying swap chain
         config.width = width;
         config.height = height;
@@ -486,6 +500,39 @@ namespace Rune
 
         wgpuSurfaceConfigure(surface, &config);
 
+
+        WGPUTextureFormat depthFormat = WGPUTextureFormat_Depth24Plus;
+        WGPUTextureDescriptor depthTextureDesc = {};
+        depthTextureDesc.dimension = WGPUTextureDimension_2D;
+        depthTextureDesc.format = depthFormat;
+        depthTextureDesc.mipLevelCount = 1;
+        depthTextureDesc.sampleCount = 1;
+        WGPUExtent3D size = {};
+        size.width = static_cast<uint32_t>(windowWidth);
+        size.height = static_cast<uint32_t>(windowHeight);
+        size.depthOrArrayLayers = 1;
+
+        std::cout << "Depth texture size: " << windowWidth << "x" << windowHeight << std::endl;
+
+        size.depthOrArrayLayers = 1;
+        depthTextureDesc.size = size;
+        depthTextureDesc.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_RenderAttachment;
+        depthTextureDesc.viewFormatCount = 0;
+        depthTextureDesc.viewFormats = NULL;
+        WGPUTexture depthTexture = wgpuDeviceCreateTexture(device, &depthTextureDesc);
+
+
+        std::cout << "Made texture" << std::endl;
+
+        WGPUTextureViewDescriptor depthTextureViewDesc = {};
+        depthTextureViewDesc.aspect = WGPUTextureAspect_DepthOnly;
+        depthTextureViewDesc.baseArrayLayer = 0;
+        depthTextureViewDesc.arrayLayerCount = 1;
+        depthTextureViewDesc.baseMipLevel = 0;
+        depthTextureViewDesc.mipLevelCount = 1;
+        depthTextureViewDesc.dimension = WGPUTextureViewDimension_2D;
+        depthTextureViewDesc.format = depthFormat;
+        depthTextureView = wgpuTextureCreateView(depthTexture, &depthTextureViewDesc);
 
         Rune::Log("Renderer initialized successfully");
 
@@ -540,6 +587,27 @@ namespace Rune
         renderPassDesc.colorAttachments = &renderPassColorAttachment;
         renderPassDesc.depthStencilAttachment = nullptr;
         renderPassDesc.timestampWrites = nullptr;
+
+        WGPURenderPassDepthStencilAttachment depthStencilAttachment;
+
+        // The view of the depth texture
+        depthStencilAttachment.view = depthTextureView;
+
+        // The initial value of the depth buffer, meaning "far"
+        depthStencilAttachment.depthClearValue = 1.0f;
+        // Operation settings comparable to the color attachment
+        depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
+        depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
+        // we could turn off writing to the depth buffer globally here
+        depthStencilAttachment.depthReadOnly = false;
+
+        // Stencil setup, mandatory but unused
+        depthStencilAttachment.stencilClearValue = 0;
+        depthStencilAttachment.stencilLoadOp = WGPULoadOp_Clear;
+        depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Store;
+        depthStencilAttachment.stencilReadOnly = true;
+
+        renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
         // Create the render pass and end it immediately (we only clear the screen but do not draw anything)
         renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);

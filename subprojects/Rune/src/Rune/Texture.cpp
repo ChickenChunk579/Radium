@@ -1,18 +1,22 @@
 #include <Rune/Texture.hpp>
 
-namespace Rune {
-    WGPUFilterMode SamplingModeToWgpu(SamplingMode sampling) {
-        switch (sampling) {
-            case SamplingMode::Linear:
-                return WGPUFilterMode_Linear;
-            case SamplingMode::Nearest:
-                return WGPUFilterMode_Nearest;
-            default:
-                return WGPUFilterMode_Nearest;
+namespace Rune
+{
+    WGPUFilterMode SamplingModeToWgpu(SamplingMode sampling)
+    {
+        switch (sampling)
+        {
+        case SamplingMode::Linear:
+            return WGPUFilterMode_Linear;
+        case SamplingMode::Nearest:
+            return WGPUFilterMode_Nearest;
+        default:
+            return WGPUFilterMode_Nearest;
         }
     }
 
-    Texture::Texture(int width, int height, void* data, SamplingMode mode) {
+    Texture::Texture(int width, int height, int pitch, void *data, SamplingMode mode, TextureFormat format)
+    {
         WGPUTextureDescriptor textureDesc = {};
         textureDesc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
         textureDesc.dimension = WGPUTextureDimension_2D;
@@ -35,7 +39,6 @@ namespace Rune {
         WGPUTexelCopyTextureInfo copyDst = {};
 #else
         WGPUImageCopyTexture copyDst = {};
-
 #endif
         copyDst.texture = texture;
         copyDst.mipLevel = 0;
@@ -48,7 +51,7 @@ namespace Rune {
         WGPUTextureDataLayout dataLayout = {};
 #endif
         dataLayout.offset = 0;
-        dataLayout.bytesPerRow = static_cast<uint32_t>(width * 4);
+        dataLayout.bytesPerRow = static_cast<uint32_t>(pitch); // use pitch here
         dataLayout.rowsPerImage = static_cast<uint32_t>(height);
 
         WGPUExtent3D writeSize = {
@@ -60,12 +63,13 @@ namespace Rune {
             queue,
             &copyDst,
             data,
-            width * width * 4,
+            pitch * height, // total size of the buffer in bytes
             &dataLayout,
             &writeSize);
     }
 
-    void Texture::Destroy() {
+    void Texture::Destroy()
+    {
         wgpuTextureViewRelease(textureView);
         wgpuSamplerRelease(sampler);
     }

@@ -12,13 +12,23 @@ const char *shaderSource = R"(
 
 const MAX_SPRITES = 512;
 struct SpriteData {
-    pos: vec2f,
-    size: vec2f,
-    color: vec3f,
-    rotation: f32,
-    uvOffset: vec2f,
-    uvScale: vec2f,
+    color: vec3<f32>,       // offset 0 (12 bytes)
+    flags: u32,             // offset 12 (matches uint8_t + padding on CPU)
+
+    pos: vec2<f32>,         // offset 16
+    z: f32,                 // offset 24
+    pad1: f32,              // offset 28
+
+    size: vec2<f32>,        // offset 32
+    rotation: f32,          // offset 40
+    pad2: f32,              // offset 44
+
+    uvOffset: vec2<f32>,    // offset 48
+    uvScale: vec2<f32>,     // offset 56
 };
+
+
+
 
 struct SpriteUniforms {
     sprites: array<SpriteData, MAX_SPRITES>
@@ -38,6 +48,7 @@ var<uniform> otherData: OtherDataUniform;
 
 struct VertexInput {
     @location(0) position: vec2f,
+    @location(1) uv: vec2f,
     @builtin(instance_index) instanceIdx: u32
 };
 
@@ -51,12 +62,6 @@ struct VertexOutput {
     var out: VertexOutput;
     let screenSize = otherData.screenSize;
     var localPos = input.position;
-
-    // Shift if top-left origin
-    if (otherData.origin == 0) {
-        localPos = input.position - vec2f(0.5, 0.5);
-    }
-
 
     let sprite = sprites.sprites[input.instanceIdx];
 
@@ -77,11 +82,27 @@ struct VertexOutput {
     var ndc = (worldPos / screenSize) * 2.0 - vec2f(1.0, 1.0);
     ndc.y = -ndc.y;
 
-    out.position = vec4f(ndc, 0.0, 1.0);
+    let zNear = -100.0;
+    let zFar = 100.0;
+
+    // Map sprite.z from [-100, 100] -> [0, 1] for depth buffer
+    let normalizedZ = (sprite.z - zNear) / (zFar - zNear);
+
+    out.position = vec4f(ndc, normalizedZ, 1.0);
     out.color = sprite.color;
 
-    // UVs (not rotated)
-    let uv = localPos + vec2f(0.5, 0.5); // [-0.5,0.5] -> [0,1]
+    var uv = input.uv;
+
+    // Check horizontal flip: bit 0
+    if ((sprite.flags & 1u) != 0u) {
+        uv.x = 1.0 - uv.x;
+    }
+
+    // Check vertical flip: bit 1
+    if ((sprite.flags & 2u) != 0u) {
+        uv.y = 1.0 - uv.y;
+    }
+
     out.uv = sprite.uvOffset + uv * sprite.uvScale;
 
     return out;
@@ -103,6 +124,10 @@ fn fs_main(
     @location(1) uv: vec2f
 ) -> @location(0) vec4f {
     let texColor = textureSample(spriteTexture, spriteSampler, uv);
+    
+    if (texColor.a == 0) {
+        discard;
+    }
     return vec4f(color, 1.0) * texColor;
     
 }
@@ -321,7 +346,25 @@ namespace Rune
         fragmentState.targetCount = 1;
         fragmentState.targets = &colorTarget;
 
-        pipelineDesc.depthStencil = nullptr;
+
+        WGPUDepthStencilState depthStencilState = {};
+        depthStencilState.format = WGPUTextureFormat_Depth24Plus; // Must match your depth texture
+        depthStencilState.depthWriteEnabled = WGPUOptionalBool_True;
+        depthStencilState.depthCompare = WGPUCompareFunction_Less; // Typical Z-test
+        depthStencilState.stencilReadMask = 0xFFFFFFFF;
+        depthStencilState.stencilWriteMask = 0xFFFFFFFF;
+        depthStencilState.depthBias = 0;
+        depthStencilState.depthBiasSlopeScale = 0.0f;
+        depthStencilState.depthBiasClamp = 0.0f;
+        depthStencilState.stencilFront = {};
+        depthStencilState.stencilBack = {};
+        depthStencilState.stencilFront.compare = WGPUCompareFunction_Always;
+        depthStencilState.stencilFront.failOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilFront.depthFailOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilFront.passOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilBack = depthStencilState.stencilFront;
+
+        pipelineDesc.depthStencil = &depthStencilState;
         // Samples per pixel
         pipelineDesc.multisample.count = 1;
         // Default value for the mask, meaning "all bits on"
@@ -413,9 +456,9 @@ namespace Rune
         started = true;
     }
 
-    void SpriteBatch::Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation)
+    void SpriteBatch::Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation, float z, uint32_t flags)
     {
-        DrawTile(x, y, w, h, r, g, b, 0, 0, 1, 1, rotation);
+        DrawTile(x, y, w, h, r, g, b, 0, 0, 1, 1, rotation, z, flags);
     }
 
     void SpriteBatch::DrawTile(
@@ -423,7 +466,7 @@ namespace Rune
         float r, float g, float b,
         uint tileX, uint tileY,
         uint tilesPerRow, uint tilesPerCol,
-        float rotation)
+        float rotation, float z, uint32_t flags)
     {
         /*if (objectCount == MAX_SPRITES)
         {
@@ -434,6 +477,7 @@ namespace Rune
         SpriteData sprite;
         sprite.pos[0] = x;
         sprite.pos[1] = y;
+        sprite.z = z;
         sprite.size[0] = (float)w;
         sprite.size[1] = (float)h;
         sprite.color[0] = r;
@@ -448,6 +492,8 @@ namespace Rune
 
         sprite.uvScale[0] = uvTileW;
         sprite.uvScale[1] = uvTileH;
+
+        sprite.flags = flags;
 
         sprite.rotation = rotation;
 
@@ -469,7 +515,7 @@ namespace Rune
         float r, float g, float b,
         uint srcX, uint srcY, uint srcW, uint srcH,
         uint textureWidth, uint textureHeight,
-        float rotation)
+        float rotation, float z, uint32_t flags)
     {
         if (objectCount >= MAX_SPRITES)
         {
@@ -480,12 +526,14 @@ namespace Rune
         SpriteData sprite;
         sprite.pos[0] = x;
         sprite.pos[1] = y;
+        sprite.z = z;
         sprite.size[0] = static_cast<float>(w);
         sprite.size[1] = static_cast<float>(h);
         sprite.color[0] = r;
         sprite.color[1] = g;
         sprite.color[2] = b;
         sprite.rotation = rotation;
+        sprite.flags = flags;
 
         // Convert pixel-space rect to UVs
         float u0 = static_cast<float>(srcX) / static_cast<float>(textureWidth);

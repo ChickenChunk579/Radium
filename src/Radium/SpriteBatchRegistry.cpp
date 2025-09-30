@@ -21,16 +21,28 @@ namespace Radium::SpriteBatchRegistry {
         #else
         SDL_Surface* surface = IMG_Load(texturePath.c_str());
         #endif
-        
+
+
         if (!surface) {
-            spdlog::info("ANDROID123 Error: {}", IMG_GetError());
-            
+            spdlog::error("Failed to convert surface to RGBA8888: {}", SDL_GetError());
+            return; // Or handle error
         }
+
+        spdlog::info("Loaded surface width: {}, height: {}, format: {}", surface->w, surface->h, SDL_GetPixelFormatName(surface->format->format));
+        spdlog::info("Bytes per pixel: {}", surface->format->BytesPerPixel);
+        spdlog::info("Surface pitch: {}", surface->pitch);
+
+
         int w = surface->w;
         int h = surface->h;
-        void* pixels = surface->pixels;
+        uint8_t* pixels = (uint8_t*)surface->pixels;
 
-        Rune::Texture* texture = new Rune::Texture(w, h, pixels, mode);
+ 
+        // Now pass pixels to your texture (RGBA8 data)
+        Rune::Texture* texture = new Rune::Texture(w, h, surface->pitch, surface->pixels, mode);
+
+        // Don't forget to free the surface after texture creation (if texture copies data internally)
+        SDL_FreeSurface(surface);
 
         Rune::SpriteBatch* batch = new Rune::SpriteBatch(texture, origin);
         map[name] = batch;

@@ -1,6 +1,7 @@
 #include <Radium/Application.hpp>
 #include <spdlog/spdlog.h>
 #include <Rune/Rune.hpp>
+#include <Radium/Input.hpp>
 #include <SDL2/SDL_syswm.h>
 #include "imgui.h"
 #include "imgui_impl_rune.h"
@@ -11,9 +12,7 @@
 #endif
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyC.h>
-#include <Radium/Systems/FullDrawSpriteRenderer.hpp>
 #include <Radium/SpriteBatchRegistry.hpp>
-#include <Radium/Components/ClearColor.hpp>
 #ifdef __ANDROID__
 #include <android/log.h>
 #include <spdlog/sinks/base_sink.h>
@@ -120,7 +119,7 @@ namespace Radium {
         spdlog::trace("Initialized SDL successfuly");
         spdlog::trace("Creating window");
 
-        Radium::Vector2i size = this->GetSize();
+        Radium::Vector2i size = this->GetPreferredSize();
 
         Uint32 flags = SDL_WINDOW_SHOWN;
         #ifdef __ANDROID__
@@ -191,6 +190,7 @@ namespace Radium {
         }
 
         spdlog::trace("Successfully initialized Rune.");
+        spdlog::info("ANDROIDTEST surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
         
         spdlog::trace("Setting up imgui...");
@@ -216,8 +216,18 @@ namespace Radium {
         spdlog::trace("Done!");
         
 
+        spdlog::trace("Creating physics stuff");
+
+        b2WorldDef worldDef = b2DefaultWorldDef();
+        worldDef.gravity = (b2Vec2){GetGravity().x, GetGravity().y};
+
+        worldId = b2CreateWorld(&worldDef);
+
+        spdlog::trace("Done");
+
         spdlog::trace("Running user OnLoad");
         this->OnLoad();
+        tree.OnLoad();
         spdlog::trace("Done");
         spdlog::trace("Starting main loop...");
 
@@ -235,6 +245,13 @@ namespace Radium {
         #endif
     }
 
+    Radium::Vector2i Application::GetSize() {
+        int w, h = 0;
+        SDL_GetWindowSizeInPixels(window, &w, &h);
+
+        return {w, h};
+    }
+
     void Application::RunFrame(double time) {
         ZoneScoped;
 
@@ -246,22 +263,36 @@ namespace Radium {
                 if (event.type == SDL_QUIT)
                     this->running = false;
             }
+
+            Radium::Input::Update();
         }
 
-        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
+        //spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
         {
             ZoneScopedN("User Tick");
             this->OnTick(0);
+            tree.OnTick(0);
+        }
+        {
+            ZoneScopedN("Physics Tick");
+            b2World_Step(worldId, 1.0f/ 60.0f, 4);
+            /*
+            Radium::Systems::StaticBodyUpdate(registry);
+            Radium::Systems::RigidBodyUpdate(registry);
+            Radium::Systems::RigidBodyUpdateRotation(registry);
+            */
         }
 
         {
             ZoneScopedN("Clear Query");
+            /*
             auto view = registry.view<
                 Radium::Components::ClearColor
             >();
             for (auto [entity, clear] : view.each()) {
                 Rune::Clear(clear.r, clear.g, clear.b, 1);
             }
+            */
 
         }
         {
@@ -270,9 +301,8 @@ namespace Radium {
             Rune::SetupFrame();
         }
         {
-            ZoneScopedN("Drawing FullDraw Sprites");
-            Radium::Systems::FullDrawSpriteRender(registry);
-            
+            ZoneScopedN("Drawing Sprites");
+            tree.OnRender();
 
             auto batches = Radium::SpriteBatchRegistry::GetAll();
             for (auto batch : batches) {
@@ -284,6 +314,7 @@ namespace Radium {
         {
             ZoneScopedN("User Render");
             this->OnRender();
+            
         }
 
         {
@@ -296,6 +327,7 @@ namespace Radium {
             ZoneScopedN("ImGui windows");
 
             this->OnImgui();
+            tree.OnImgui();
         }
 
         {
@@ -304,6 +336,7 @@ namespace Radium {
 
             ImGui_ImplRune_RenderDrawData(ImGui::GetDrawData());
         }
+        Input::LateUpdate();
         {
             ZoneScopedN("Finish frame");
             Rune::FinishFrame();

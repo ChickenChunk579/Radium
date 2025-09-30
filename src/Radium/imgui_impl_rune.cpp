@@ -62,7 +62,7 @@ void ImGui_ImplRune_Shutdown()
     io.BackendRendererName = nullptr;
     io.BackendRendererUserData = nullptr;
     io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasTextures);
-    platform_io.ClearPlatformHandlers();
+    //platform_io.ClearPlatformHandlers();
     IM_DELETE(bd);
 }
 
@@ -157,7 +157,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData* tex) {
         void* pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;
-        Rune::Texture* rtex = new Rune::Texture(w, h, pixels, Rune::SamplingMode::Linear);
+        Rune::Texture* rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
     
         ImTextureID id = tex->TexID;
     
@@ -172,7 +172,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData* tex) {
         void* pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;
-        Rune::Texture* rtex = new Rune::Texture(w, h, pixels, Rune::SamplingMode::Linear);
+        Rune::Texture* rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
     
         ImTextureID id = tex->TexID;
     

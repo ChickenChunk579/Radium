@@ -16,9 +16,15 @@ namespace Rune {
         Linear
     };
 
+    enum class TextureFormat {
+        RGBA8,
+        BGRA8,
+        RGB8
+    };
+
     class Texture {
     public:
-        Texture(int width, int height, void* data, SamplingMode samplingmode);
+        Texture(int width, int height, int pitch, void* data, SamplingMode samplingmode, TextureFormat format = TextureFormat::RGBA8);
 
         WGPUTextureView textureView;
         WGPUSampler sampler;

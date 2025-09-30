@@ -55,7 +55,7 @@ namespace Rune
                 (char)255, (char)255, (char)255, (char)255,
                 (char)255, (char)255, (char)255, (char)255
             };
-            this->texture = new Texture(1, 1, data, Rune::SamplingMode::Linear);
+            this->texture = new Texture(1, 1, 4, data, Rune::SamplingMode::Linear);
         } else {
             this->texture = texture;
         }
@@ -198,6 +198,32 @@ namespace Rune
         pipelineDesc.fragment = &fragment;
         pipelineDesc.multisample.count = 1;
         pipelineDesc.multisample.mask = ~0u;
+        pipelineDesc.multisample.alphaToCoverageEnabled = false;
+
+
+        WGPUDepthStencilState depthStencilState = {};
+        depthStencilState.format = WGPUTextureFormat_Depth24Plus; // Must match your depth texture
+        depthStencilState.depthWriteEnabled = WGPUOptionalBool_False;
+        depthStencilState.depthCompare = WGPUCompareFunction_Less; // Typical Z-test
+        depthStencilState.stencilReadMask = 0xFFFFFFFF;
+        depthStencilState.stencilWriteMask = 0xFFFFFFFF;
+        depthStencilState.depthBias = 0;
+        depthStencilState.depthBiasSlopeScale = 0.0f;
+        depthStencilState.depthBiasClamp = 0.0f;
+        depthStencilState.stencilFront = {};
+        depthStencilState.stencilBack = {};
+        depthStencilState.stencilFront.compare = WGPUCompareFunction_Always;
+        depthStencilState.stencilFront.failOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilFront.depthFailOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilFront.passOp = WGPUStencilOperation_Keep;
+        depthStencilState.stencilBack = depthStencilState.stencilFront;
+
+        pipelineDesc.depthStencil = &depthStencilState;
+        // Samples per pixel
+        pipelineDesc.multisample.count = 1;
+        // Default value for the mask, meaning "all bits on"
+        pipelineDesc.multisample.mask = ~0u;
+        // Default value as well (irrelevant for count = 1 anyways)
         pipelineDesc.multisample.alphaToCoverageEnabled = false;
 
         pipeline = wgpuDeviceCreateRenderPipeline(device, &pipelineDesc);

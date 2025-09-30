@@ -3,17 +3,22 @@
 #include <iostream>
 #include <Radium/Math.hpp>
 #include <SDL2/SDL.h>
-#include <entt/entt.hpp>
+#include <Radium/Nodes/Tree.hpp>
+#include <box2d/box2d.h>
+#include <Radium/Nodes/Tree.hpp>
 
 namespace Radium {
     class Application {
     public:
-        entt::registry registry;
+        b2WorldId worldId;
+
+        Radium::Nodes::SceneTree tree{"MainScene"};
 
         virtual std::string GetTitle() {
             return "";
         };
-        virtual Radium::Vector2i GetSize() = 0;
+        virtual Radium::Vector2i GetPreferredSize() = 0;
+        virtual Radium::Vector2f GetGravity() = 0;
 
         virtual void OnLoad() {}
         virtual void OnTick(float dt) {}
@@ -21,6 +26,8 @@ namespace Radium {
         virtual void OnImgui() {}
 
         void Run();
+
+        Radium::Vector2i GetSize();
 
         void RunFrame(double time);
 

@@ -16,4 +16,14 @@ namespace Radium {
 
         Vector2i(int x, int y);
     };
+
+    class RectangleF {
+    public:
+        float x;
+        float y;
+        float w;
+        float h;
+
+        RectangleF(float x, float y, float w, float h);
+    };
 };

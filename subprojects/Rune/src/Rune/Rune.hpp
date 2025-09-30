@@ -12,6 +12,12 @@ typedef void Display;
 #include <X11/Xlib.h>
 #endif
 
+#ifdef __EMSCRIPTEN__
+#define WGPUOptionalBool_True true
+#define WGPUOptionalBool_False false
+#endif
+
+
 namespace Rune {
 
     extern WGPUInstance instance;
@@ -23,6 +29,7 @@ namespace Rune {
     extern WGPUCommandEncoder encoder;
     extern WGPUQueue queue;
     extern WGPUSurfaceCapabilities caps;
+    extern WGPUTextureView depthTextureView;
     extern bool ready;
     extern float windowWidth;
     extern float windowHeight;

@@ -3,6 +3,7 @@
 #include <SDL2/SDL_surface.h>
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <Radium/PixelScaleUtil.hpp>
 
 bool ttfInitialized = false;
 
@@ -98,7 +99,7 @@ namespace Radium {
         void* copiedPixels = malloc(atlas->h * atlas->pitch);
         memcpy(copiedPixels, atlas->pixels, atlas->h * atlas->pitch);
 
-        Rune::Texture* texture = new Rune::Texture(atlas->w, atlas->h, atlas->pixels, Rune::SamplingMode::Linear);
+        Rune::Texture* texture = new Rune::Texture(atlas->w, atlas->h, atlas->pitch, atlas->pixels, Rune::SamplingMode::Linear);
 
         batch = new Rune::SpriteBatch(texture, Rune::SpriteOrigin::TopLeft);
         if (!batch) {
@@ -136,7 +137,8 @@ namespace Radium {
         CharacterPosition position = this->characters[c];
         float drawX = x + position.bearingX;
         float drawY = y - position.bearingY;
-        batch->DrawImageRect(drawX, drawY, position.w, position.h, 1, 1, 1, position.x, position.y, position.w, position.h, 896, 896, 0);
+        float scale = Radium::GetPixelScale();
+        batch->DrawImageRect(drawX, drawY, position.w * scale, position.h * scale, 1, 1, 1, position.x, position.y, position.w, position.h, 896, 896, 0);
     }
 
     void FontBatch::DrawString(float x, float y, std::string str) {
