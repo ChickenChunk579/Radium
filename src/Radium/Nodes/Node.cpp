@@ -18,7 +18,7 @@ namespace Radium::Nodes {
             script->OnLoad();
         }
         for (auto& child : children) {
-            child.OnLoad();
+            child->OnLoad();
         }
     }
 
@@ -27,7 +27,7 @@ namespace Radium::Nodes {
             script->OnTick(dt);
         }
         for (auto& child : children) {
-            child.OnTick(dt);
+            child->OnTick(dt);
         }
     }
 
@@ -36,7 +36,7 @@ namespace Radium::Nodes {
             script->OnRender();
         }
         for (auto& child : children) {
-            child.OnRender();
+            child->OnRender();
         }
     }
 
@@ -46,7 +46,7 @@ namespace Radium::Nodes {
             script->OnImgui();
         }
         for (auto& child : children) {
-            child.OnImgui();
+            child->OnImgui();
         }
     }
 }

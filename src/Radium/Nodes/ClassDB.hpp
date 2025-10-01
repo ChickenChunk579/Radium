@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include <typeinfo>
+#include <spdlog/spdlog.h>
 
 template <typename T, typename U>
 constexpr size_t offsetOf(U T::*member)
@@ -20,6 +21,10 @@ constexpr size_t offsetOf(U T::*member)
 
 namespace Radium::Nodes
 {
+    #include <cxxabi.h>
+
+    std::string Demangle(const char* name);
+
 
     class Object
     {
@@ -42,6 +47,7 @@ namespace Radium::Nodes
         {
             std::vector<PropertyInfo> properties;
             ClassInfo *parent = nullptr;
+            std::function<Object*()> factory;
         };
 
         // Declarations
@@ -50,7 +56,7 @@ namespace Radium::Nodes
         template <typename T>
         void Register()
         {
-            std::string typeName = typeid(T).name();
+            std::string typeName = Demangle(typeid(T).name());
             if (registeredClasses.find(typeName) != registeredClasses.end())
             {
                 return;
@@ -59,14 +65,17 @@ namespace Radium::Nodes
 
             ClassInfo info;
             info.parent = nullptr;
+            info.factory = []() -> Object* {
+                return new T();
+            };
             registeredClasses[typeName] = info;
         }
 
         template <typename T, typename P>
         void Register()
         {
-            std::string typeName = typeid(T).name();
-            std::string parentName = typeid(P).name();
+            std::string typeName = Demangle(typeid(T).name());
+            std::string parentName = Demangle(typeid(P).name());
 
             if (registeredClasses.find(typeName) != registeredClasses.end())
             {
@@ -81,16 +90,23 @@ namespace Radium::Nodes
 
             ClassInfo info;
             info.parent = &registeredClasses[parentName];
+            info.factory = []() -> Object* {
+                return new T();
+            };
             registeredClasses[typeName] = info;
         }
 
         template <typename T1, typename T2>
         void RegisterProperty(const std::string &propertyName, size_t offset, size_t size)
         {
-            std::string typeName = typeid(T1).name();
+            std::string typeName = Radium::Nodes::Demangle(typeid(T1).name());
+            std::string propertyType = Radium::Nodes::Demangle(typeid(T2).name());
+            spdlog::info("RegisterProperty: '{}' type '{}' for class '{}'",
+                propertyName, propertyType, typeName);
+
             PropertyInfo prop;
             prop.name = propertyName;
-            prop.type = typeid(T2).name();
+            prop.type = propertyType;
             prop.offset = offset;
             prop.size = size;
             registeredClasses[typeName].properties.push_back(prop);
@@ -99,7 +115,7 @@ namespace Radium::Nodes
         template <typename T>
         void SetProperty(std::string propertyName, Object *instance, T value)
         {
-            std::string typeName = typeid(*instance).name();
+            std::string typeName = Demangle(typeid(*instance).name());
             ClassInfo *info = &registeredClasses[typeName];
 
             while (info)
@@ -127,7 +143,7 @@ namespace Radium::Nodes
         template <typename T>
         T GetProperty(std::string propertyName, Object *instance)
         {
-            std::string typeName = typeid(*instance).name();
+            std::string typeName = Demangle(typeid(*instance).name());
             ClassInfo *info = &registeredClasses[typeName];
 
             while (info)
@@ -151,26 +167,59 @@ namespace Radium::Nodes
             throw std::runtime_error("Property not found");
         }
 
+        inline ClassInfo GetClassInfo(Object *object)
+        {
+            return registeredClasses[Demangle(typeid(*object).name())];
+        }
+
         inline std::vector<PropertyInfo> GetProperties(Object *instance)
         {
             std::vector<PropertyInfo> result;
 
-            std::string typeName = typeid(*instance).name();
-            ClassInfo *info = &registeredClasses[typeName];
+            std::string typeName = Demangle(typeid(*instance).name());
 
-            while (info)
-            {
-                result.insert(result.begin(), info->properties.begin(), info->properties.end());
+            auto it = registeredClasses.find(typeName);
+            if (it == registeredClasses.end()) {
+                throw std::runtime_error("Type not registered: " + typeName);
+            }
+
+            ClassInfo* info = &it->second;
+
+            // Walk the inheritance chain, deepest base first
+            std::vector<ClassInfo*> classChain;
+            while (info) {
+                classChain.insert(classChain.begin(), info);
                 info = info->parent;
+            }
+
+            // Collect properties from base to derived
+            for (ClassInfo* cls : classChain) {
+                result.insert(result.end(), cls->properties.begin(), cls->properties.end());
             }
 
             return result;
         }
 
+
         inline std::string GetType(Object *object)
         {
             return typeid(*object).name();
         }
+
+        inline Object* Create(const std::string& className)
+        {
+            auto it = registeredClasses.find(className);
+            if (it == registeredClasses.end()) {
+                throw std::runtime_error("Class not registered: " + className);
+            }
+
+            if (!it->second.factory) {
+                throw std::runtime_error("No factory function for class: " + className);
+            }
+
+            return it->second.factory();
+        }
+
 
     }
 }

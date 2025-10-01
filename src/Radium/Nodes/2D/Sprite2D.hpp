@@ -5,6 +5,11 @@
 #include <Radium/Math.hpp>
 
 namespace Radium::Nodes {
+    enum class CoordinateOrigin {
+        TopLeft,
+        Center
+    };
+
     class Sprite2D : public Node2D {
     public:
         Sprite2D();
@@ -14,9 +19,10 @@ namespace Radium::Nodes {
         float r = 0;
         float g = 0;
         float b = 0;
+        CoordinateOrigin origin;
         Radium::RectangleF sourceRect{0, 0, 0, 0};
-        uint textureWidth = 0;
-        uint textureHeight = 0;
+        uint32_t textureWidth = 0;
+        uint32_t textureHeight = 0;
         float rotation = 0;
         float z = 0;
         uint32_t flags = 0;

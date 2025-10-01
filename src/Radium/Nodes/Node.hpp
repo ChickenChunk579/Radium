@@ -11,7 +11,7 @@ namespace Radium::Nodes {
         static void Register();
 
         Node* parent;
-        std::vector<Node> children;
+        std::vector<Node*> children;
         Script* script = nullptr;
 
         virtual void OnLoad();

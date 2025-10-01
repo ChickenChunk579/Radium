@@ -1,5 +1,6 @@
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include <Radium/SpriteBatchRegistry.hpp>
+#include <Radium/PixelScaleUtil.hpp>
 #include <Rune/SpriteBatch.hpp>
 #include <spdlog/spdlog.h>
 
@@ -20,6 +21,7 @@ namespace Radium::Nodes {
         CLASSDB_DECLARE_PROPERTY(Sprite2D, float, z);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, uint32_t, flags);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, std::string, batchTag);
+        CLASSDB_DECLARE_PROPERTY(Sprite2D, CoordinateOrigin, origin);
     }
 
     void Sprite2D::OnRender() {
@@ -27,13 +29,25 @@ namespace Radium::Nodes {
 
         Rune::SpriteBatch* batch = nullptr;
         batch = Radium::SpriteBatchRegistry::Get(batchTag);
+        if (!batch) {
+            spdlog::error("Sprite2D: No sprite batch with tag '{}'", batchTag);
+            return;
+        }
         if (!batch->started) {
             batch->Begin();
         }
         if (sourceRect.w > 0 && sourceRect.h > 0) {
+            float drawX = (position.x * Radium::GetPixelScale());
+            float drawY = (position.y * Radium::GetPixelScale());
+
+            if (origin == CoordinateOrigin::Center) {
+                drawX += Rune::windowWidth / 2.0f;
+                drawY += Rune::windowHeight / 2.0f;
+            }
+
             batch->DrawImageRect(
-                position.x, position.y,
-                (uint)sourceRect.w, (uint)sourceRect.h,
+                drawX, drawY,
+                (uint)sourceRect.w * Radium::GetPixelScale(), (uint)sourceRect.h * Radium::GetPixelScale(),
                 r, g, b,
                 (uint)sourceRect.x, (uint)sourceRect.y,
                 (uint)sourceRect.w, (uint)sourceRect.h,
