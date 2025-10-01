@@ -2,15 +2,17 @@
 
 #include <cstdint>
 #include <string>
-#include <webgpu/webgpu.h> // Make sure this is on your include path
+#include <webgpu/webgpu.h> // W3C header
 #ifndef __EMSCRIPTEN__
-#include <webgpu/wgpu.h> // Make sure this is on your include path
+#include <webgpu/wgpu.h>   // Native header
 #endif
-#ifdef __ANDROID__
-typedef void Display;
+
+#if defined(__linux__)
+    #include <X11/Xlib.h>
 #else
-#include <X11/Xlib.h>
+    typedef void Display;
 #endif
+
 
 #ifdef __EMSCRIPTEN__
 #define WGPUOptionalBool_True true
@@ -35,7 +37,7 @@ namespace Rune {
     extern float windowHeight;
 
     // Initializes the renderer and underlying wgpu instance
-    bool Initialize(Display* x11Display, uint32_t x11Window, uint width, uint height);
+    bool Initialize(Display* x11Display, uint32_t x11Window, uint32_t width, uint32_t height);
 
     // Shuts down and cleans up
     void Shutdown();

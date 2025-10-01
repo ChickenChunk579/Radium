@@ -22,27 +22,30 @@ namespace Radium::SpriteBatchRegistry {
         SDL_Surface* surface = IMG_Load(texturePath.c_str());
         #endif
 
-
         if (!surface) {
-            spdlog::error("Failed to convert surface to RGBA8888: {}", SDL_GetError());
-            return; // Or handle error
+            spdlog::error("Failed to load image: {}", SDL_GetError());
+            return;
         }
+        
+        // Convert to 32-bit RGBA
+        SDL_Surface* converted = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA32, 0);
 
-        spdlog::info("Loaded surface width: {}, height: {}, format: {}", surface->w, surface->h, SDL_GetPixelFormatName(surface->format->format));
-        spdlog::info("Bytes per pixel: {}", surface->format->BytesPerPixel);
-        spdlog::info("Surface pitch: {}", surface->pitch);
+        int w = converted->w;
+        int h = converted->h;
+        uint8_t* pixels = new uint8_t[w * h * 4]; // tightly packed
+        
+        for (int y = 0; y < h; ++y) {
+            uint8_t* srcRow = (uint8_t*)((uint8_t*)converted->pixels + y * converted->pitch);
+            memcpy(pixels + y * w * 4, srcRow, w * 4);
+        }
+        
+        // Now pixels is a tightly packed RGBA buffer
+        Rune::Texture* texture = new Rune::Texture(w, h, w*4, pixels, mode);
 
-
-        int w = surface->w;
-        int h = surface->h;
-        uint8_t* pixels = (uint8_t*)surface->pixels;
-
- 
-        // Now pass pixels to your texture (RGBA8 data)
-        Rune::Texture* texture = new Rune::Texture(w, h, surface->pitch, surface->pixels, mode);
-
-        // Don't forget to free the surface after texture creation (if texture copies data internally)
+        // Free surfaces
+        SDL_FreeSurface(converted);
         SDL_FreeSurface(surface);
+
 
         Rune::SpriteBatch* batch = new Rune::SpriteBatch(texture, origin);
         map[name] = batch;

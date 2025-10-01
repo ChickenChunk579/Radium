@@ -13,6 +13,10 @@
 #include <sstream>
 
 
+#if defined(__APPLE__)
+#include "Rune/objc_bridge.h"
+#endif
+
 WGPUAdapter requestAdapterSync(WGPUInstance instance, const WGPURequestAdapterOptions *options)
 {
 #ifndef __EMSCRIPTEN__
@@ -337,6 +341,7 @@ namespace Rune
 
         #ifndef __EMSCRIPTEN__
         #ifndef __ANDROID__
+        #ifdef __linux__
 
         WGPUSurfaceSourceXlibWindow fromXlibWindow;
         fromXlibWindow.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
@@ -349,6 +354,11 @@ namespace Rune
         surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
 
         surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+
+        #else
+
+        surface = CreateSurfaceForWindow(x11Display, instance);
+        #endif
 
         #else
 
@@ -482,6 +492,12 @@ namespace Rune
             mutableFormats[0] = WGPUTextureFormat_RGBA8Unorm;
 
         }
+
+        
+        #if defined(__APPLE__)
+        WGPUTextureFormat* mutableFormats = const_cast<WGPUTextureFormat*>(caps.formats);
+        mutableFormats[0] = WGPUTextureFormat_BGRA8Unorm;
+        #endif
         
 
         // Configuration of the textures created for the underlying swap chain

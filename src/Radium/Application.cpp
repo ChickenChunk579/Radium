@@ -134,6 +134,7 @@ namespace Radium {
         spdlog::trace("Created window");
         spdlog::trace("Getting window info...");
         #if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
+        #if defined(__linux__)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_X11) {
@@ -149,7 +150,21 @@ namespace Radium {
         spdlog::info("WM subsystem: {}", SDL_SYSWMTypeToString(wmInfo.subsystem));
 
         spdlog::info("Display: {}, Window: {}", static_cast<void*>(x11Display), x11Window);
+        #else
 
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_COCOA) {
+            spdlog::error("Failed to get MacOS window info");
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            exit(1);
+        }
+
+        Display* x11Display = wmInfo.info.cocoa.window;
+        uint32_t x11Window = 0;
+
+        #endif
         
         #else
         #ifndef __ANDROID__

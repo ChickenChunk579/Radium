@@ -14,7 +14,9 @@ subprojects/RmlUi
 subprojects/imgui
 subprojects/tracy
 subprojects/box2d
-subprojects/Rune/subprojects/wgpu-native/linux-x86_64/*
-subprojects/Rune/subprojects/wgpu-native/android-x86_64/*
-subprojects/Rune/subprojects/wgpu-native/android-aarch64/*
-subprojects/Rune/subprojects/wgpu-native/android-armeabi-v7a/*
+subprojects/Rune/subprojects/wgpu-native/linux-x86_64/
+subprojects/Rune/subprojects/wgpu-native/android-x86_64/
+subprojects/Rune/subprojects/wgpu-native/android-aarch64/
+subprojects/Rune/subprojects/wgpu-native/android-armeabi-v7a/
+subprojects/Rune/subprojects/wgpu-native/ios-aarch64-simulator/
+subprojects/Rune/subprojects/wgpu-native/macos-aarch64/

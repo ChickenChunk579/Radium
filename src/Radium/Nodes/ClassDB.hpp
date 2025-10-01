@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <typeinfo>
 #include <spdlog/spdlog.h>
+#include <cxxabi.h>
 
 template <typename T, typename U>
 constexpr size_t offsetOf(U T::*member)
@@ -21,7 +22,7 @@ constexpr size_t offsetOf(U T::*member)
 
 namespace Radium::Nodes
 {
-    #include <cxxabi.h>
+    
 
     std::string Demangle(const char* name);
 
