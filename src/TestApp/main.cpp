@@ -99,9 +99,6 @@ public:
     }
 };
 
-#ifndef __ANDROID__
-RADIUM_ENTRYPOINT(MyApp)
-#else
 extern "C" int SDL_main(int argc, char *argv[])
 {
     MyApp app;
@@ -109,4 +106,3 @@ extern "C" int SDL_main(int argc, char *argv[])
     app.Run();
     return 0;
 }
-#endif

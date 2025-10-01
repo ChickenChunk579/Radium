@@ -152,6 +152,7 @@ namespace Radium {
         spdlog::info("Display: {}, Window: {}", static_cast<void*>(x11Display), x11Window);
         #else
 
+        #ifndef TARGET_OS_IOS
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_COCOA) {
@@ -163,6 +164,22 @@ namespace Radium {
 
         Display* x11Display = wmInfo.info.cocoa.window;
         uint32_t x11Window = 0;
+
+        #else
+
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_UIKIT) {
+            spdlog::error("Failed to get UIKit window info");
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            exit(1);
+        }
+
+        Display* x11Display = wmInfo.info.uikit.window;
+        uint32_t x11Window = 0;
+
+        #endif
 
         #endif
         

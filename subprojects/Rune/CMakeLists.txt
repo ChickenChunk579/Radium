@@ -29,7 +29,11 @@ set(RUNE_SOURCES
 
 # Add Objective-C++ bridge on macOS
 if(APPLE)
-    list(APPEND RUNE_SOURCES src/Rune/objc_bridge.mm)
+    if(IOS)
+        list(APPEND RUNE_SOURCES src/Rune/objc_bridge_ios.mm)
+    else()
+        list(APPEND RUNE_SOURCES src/Rune/objc_bridge_mac.mm)
+    endif()
 endif()
 
 add_library(Rune STATIC ${RUNE_SOURCES})

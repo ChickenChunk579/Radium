@@ -1,7 +1,8 @@
 #include <webgpu/webgpu.h>
-
-#import <Cocoa/Cocoa.h>
-#import <QuartzCore/CAMetalLayer.h>
+#  include <Cocoa/Cocoa.h>
+#  include <Foundation/Foundation.h>
+#  include <QuartzCore/CAMetalLayer.h>
+#  include <Metal/Metal.h>
 #import <webgpu/webgpu.h>
 
 #ifdef __cplusplus
@@ -12,7 +13,6 @@ WGPUSurface CreateSurfaceForWindow(void* windowRaw, WGPUInstance instance) {
     if (!windowRaw || !instance) {
         return NULL;
     }
-
     NSWindow* window = (NSWindow*)windowRaw;
 
     // Ensure the window's content view has a layer
@@ -35,6 +35,7 @@ WGPUSurface CreateSurfaceForWindow(void* windowRaw, WGPUInstance instance) {
 
     // Create and return the WebGPU surface
     return wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+
 }
 
 

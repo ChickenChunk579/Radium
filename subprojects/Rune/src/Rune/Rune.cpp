@@ -356,8 +356,8 @@ namespace Rune
         surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
 
         #else
-
         surface = CreateSurfaceForWindow(x11Display, instance);
+        
         #endif
 
         #else

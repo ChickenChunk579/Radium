@@ -13,6 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
+if (IOS)
+    # Disable ImageIO for SDL2_image as it's not available for iOS, just OS X, and will fail at link time
+    set(SDL2IMAGE_BACKEND_IMAGEIO 0)
+endif()
+
 add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
@@ -53,6 +58,7 @@ target_link_libraries(Radium PUBLIC
     SDL2::SDL2
     SDL2_image
     SDL2_ttf
+    SDL2main
     spdlog::spdlog
     Rune
     imgui
@@ -74,14 +80,59 @@ if (EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif ()
 
-if (NOT ANDROID)
-add_executable(TestApp
-    src/TestApp/main.cpp
-)
+if (NOT ANDROID AND NOT IOS)
+    add_executable(TestApp
+        src/TestApp/main.cpp
+    )
 else()
-add_library(TestApp SHARED
-    src/TestApp/main.cpp
-)
+    if (ANDROID)
+        add_library(TestApp SHARED
+            src/TestApp/main.cpp
+        )
+    else()
+
+        # Path to your assets folder
+        set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/src/TestApp/assets")
+
+        # Get all files recursively
+        file(GLOB_RECURSE ASSET_FILES
+            "${ASSETS_DIR}/*"
+        )
+
+        foreach(asset ${ASSET_FILES})
+            set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/TestApp")
+
+            file(RELATIVE_PATH REL_PATH "${BASE_DIR}" "${asset}")
+
+            message(STATUS "Asset path: ${asset}")
+            message(STATUS "Relative path: ${REL_PATH}")
+
+            # Set the MACOSX_PACKAGE_LOCATION to Resources/assets/[subdirs]
+            set_source_files_properties(${asset} PROPERTIES
+                MACOSX_PACKAGE_LOCATION "Resources/assets/${REL_PATH}"
+            )
+        endforeach()
+
+        # Add executable
+        add_executable(TestApp MACOSX_BUNDLE
+            src/TestApp/main.cpp
+            ${ASSET_FILES}
+        )
+
+        
+
+        set_target_properties(TestApp PROPERTIES
+            MACOSX_BUNDLE_GUI_IDENTIFIER "com.radium.TestApp"
+            MACOSX_BUNDLE_BUNDLE_NAME "TestApp"
+            MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0"
+            MACOSX_BUNDLE_INFO_STRING "My Radium App"
+            RESOURCE "${ASSET_FILES}" # optional folder for assets
+        )
+
+
+
+    endif()
 endif()
 
 target_link_libraries(TestApp PUBLIC Radium)
@@ -105,3 +156,9 @@ add_custom_command(
 
 add_custom_target(copy_assets ALL DEPENDS ${ASSETS_OUTPUT_DIR})
 add_dependencies(TestApp copy_assets)
+
+
+
+if(APPLE AND IOS)
+    target_compile_definitions(Radium PRIVATE TARGET_OS_IOS=1)
+endif()

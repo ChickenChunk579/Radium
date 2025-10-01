@@ -12,7 +12,7 @@ namespace Radium::SpriteBatchRegistry {
     }
 
     void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin, Rune::SamplingMode mode) {
-        #ifndef __ANDROID__
+        #if !defined(__ANDROID__)
         std::string fullPath = "assets/" + texturePath;
         const char* path = fullPath.c_str();
 
