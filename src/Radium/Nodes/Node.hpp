@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
-#include <Radium/Nodes/ClassDB.hpp>
-#include <Radium/Nodes/Script.hpp>
+#include <string>
 
 namespace Radium::Nodes {
-    class Node : public Object {
+    class Script;
+
+    class Node {
     public:
         Node();
 
@@ -13,6 +14,7 @@ namespace Radium::Nodes {
         Node* parent;
         std::vector<Node*> children;
         Script* script = nullptr;
+        std::string name = "Node";
 
         virtual void OnLoad();
         virtual void OnTick(float dt);

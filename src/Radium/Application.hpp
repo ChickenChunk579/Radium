@@ -12,6 +12,8 @@ namespace Radium {
     public:
         b2WorldId worldId;
 
+        double lastFrameTime = 0.0;
+
         Radium::Nodes::SceneTree tree{"MainScene"};
 
         virtual std::string GetTitle() {
@@ -44,9 +46,18 @@ namespace Radium {
     #endif
 };
 
+#if !defined(__ANDROID__) && !defined(TARGET_OS_IOS)
 #define RADIUM_ENTRYPOINT(appClass) int main() { \
     appClass app; \
     Radium::currentApplication = &app; \
     app.Run(); \
     return 0; \
 }
+#else
+#define RADIUM_ENTRYPOINT(appClass) extern "C" int SDL_main(int argc, char *argv[]) { \
+    appClass app; \
+    Radium::currentApplication = &app; \
+    app.Run(); \
+    return 0; \
+}
+#endif

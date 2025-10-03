@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include <Radium/Nodes/ClassDB.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Math.hpp>
+#include <cstdint>
 
 namespace Radium::Nodes {
     enum class CoordinateOrigin {

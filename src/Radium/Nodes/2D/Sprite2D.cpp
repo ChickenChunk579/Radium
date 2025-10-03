@@ -10,18 +10,6 @@ namespace Radium::Nodes {
     }
 
     void Sprite2D::Register() {
-        CLASSDB_REGISTER_SUBCLASS(Sprite2D, Node2D);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, float, r);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, float, g);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, float, b);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, Radium::RectangleF, sourceRect);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint, textureWidth);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint, textureHeight);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, float, rotation);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, float, z);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint32_t, flags);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, std::string, batchTag);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, CoordinateOrigin, origin);
     }
 
     void Sprite2D::OnRender() {
@@ -36,9 +24,9 @@ namespace Radium::Nodes {
         if (!batch->started) {
             batch->Begin();
         }
-        if (sourceRect.w > 0 && sourceRect.h > 0) {
-            float drawX = (position.x * Radium::GetPixelScale());
-            float drawY = (position.y * Radium::GetPixelScale());
+        if (sourceRect.w.get<uint>() > 0 && sourceRect.h.get<uint>() > 0) {
+            float drawX = (globalPosition.x.get<float>() * Radium::GetPixelScale());
+            float drawY = (-globalPosition.y.get<float>() * Radium::GetPixelScale());
 
             if (origin == CoordinateOrigin::Center) {
                 drawX += Rune::windowWidth / 2.0f;
@@ -47,10 +35,10 @@ namespace Radium::Nodes {
 
             batch->DrawImageRect(
                 drawX, drawY,
-                (uint)sourceRect.w * Radium::GetPixelScale(), (uint)sourceRect.h * Radium::GetPixelScale(),
+                sourceRect.w.get<uint>() * Radium::GetPixelScale(), sourceRect.h.get<uint>() * Radium::GetPixelScale(),
                 r, g, b,
-                (uint)sourceRect.x, (uint)sourceRect.y,
-                (uint)sourceRect.w, (uint)sourceRect.h,
+                sourceRect.x.get<uint>(), sourceRect.y.get<uint>(),
+                sourceRect.w.get<uint>(), sourceRect.h.get<uint>(),
                 textureWidth, textureHeight,
                 rotation, z, flags
             );

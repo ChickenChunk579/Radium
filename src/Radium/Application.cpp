@@ -126,7 +126,7 @@ namespace Radium {
         flags |= SDL_WINDOW_VULKAN;
         #endif
 
-        this->window = SDL_CreateWindow(this->GetTitle().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, size.x, size.y, flags);
+        this->window = SDL_CreateWindow(this->GetTitle().c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, size.x.get<int>(), size.y.get<int>(), flags);
         if (!window) {
             spdlog::error("Failed to create window: {}", SDL_GetError());
             exit(1);
@@ -214,7 +214,7 @@ namespace Radium {
         spdlog::trace("Got window info.");
         spdlog::trace("Initializing Rune...");
 
-        if (!Rune::Initialize(x11Display, x11Window, size.x, size.y)) {
+        if (!Rune::Initialize(x11Display, x11Window, size.x.get<int>(), size.y.get<int>())) {
             spdlog::error("Rune initialization failed.");
             SDL_DestroyWindow(window);
             SDL_Quit();
@@ -251,7 +251,7 @@ namespace Radium {
         spdlog::trace("Creating physics stuff");
 
         b2WorldDef worldDef = b2DefaultWorldDef();
-        worldDef.gravity = (b2Vec2){GetGravity().x, GetGravity().y};
+        worldDef.gravity = (b2Vec2){GetGravity().x.get<float>(), GetGravity().y.get<float>()};
 
         worldId = b2CreateWorld(&worldDef);
 
@@ -263,17 +263,21 @@ namespace Radium {
         spdlog::trace("Done");
         spdlog::trace("Starting main loop...");
 
+        lastFrameTime = SDL_GetTicks64() / 1000.0;
+
+
         #ifdef __EMSCRIPTEN__
-        emscripten_set_main_loop([]() {
-            Radium::currentApplication->RunFrame(0);
-            
-        }, 0, 1);
+        emscripten_request_animation_frame_loop(MainLoop, this);
 
         #else
         while (running) {
-            RunFrame(0.0);
-            //std::this_thread::sleep_for(std::chrono::milliseconds(16));
+            double currentTime = SDL_GetTicks64() / 1000.0; // seconds
+            double deltaTime = currentTime - lastFrameTime;
+            lastFrameTime = currentTime;
+
+            RunFrame(deltaTime);
         }
+
         #endif
     }
 
@@ -302,8 +306,8 @@ namespace Radium {
         //spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
         {
             ZoneScopedN("User Tick");
-            this->OnTick(0);
-            tree.OnTick(0);
+            this->OnTick(time);
+            tree.OnTick(time);
         }
         {
             ZoneScopedN("Physics Tick");
@@ -376,9 +380,15 @@ namespace Radium {
     }
 
     #ifdef __EMSCRIPTEN__
-    bool RunFrameWrapper(double time, void* userdata) {
-        Radium::currentApplication->RunFrame(time);
-        return true;
+    EM_BOOL MainLoop(double time, void* userData) {
+        Application* app = static_cast<Application*>(userData);
+        
+        double deltaTime = time * 0.001 - app->lastFrameTime;
+        app->lastFrameTime = time * 0.001;
+
+        app->RunFrame(deltaTime);
+        return EM_TRUE;
     }
     #endif
+
 };

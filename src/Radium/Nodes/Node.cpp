@@ -1,5 +1,6 @@
 #include <Radium/Nodes/Node.hpp>
 #include <spdlog/spdlog.h>
+#include <Radium/Nodes/Script.hpp>
 
 namespace Radium::Nodes {
     Node::Node() : parent(nullptr) {
@@ -7,10 +8,7 @@ namespace Radium::Nodes {
     }
 
     void Node::Register() {
-        CLASSDB_REGISTER(Node);
-        CLASSDB_DECLARE_PROPERTY(Node, Node*, parent);
-        CLASSDB_DECLARE_PROPERTY(Node, Script*, script);
-        CLASSDB_DECLARE_PROPERTY(Node, std::vector<Node>, children);
+
     }
 
     void Node::OnLoad() {

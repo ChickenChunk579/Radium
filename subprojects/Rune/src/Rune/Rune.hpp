@@ -7,7 +7,7 @@
 #include <webgpu/wgpu.h>   // Native header
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
     #include <X11/Xlib.h>
 #else
     typedef void Display;
