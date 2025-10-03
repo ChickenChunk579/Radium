@@ -26,22 +26,6 @@ add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/spdlog)
 add_subdirectory(subprojects/tracy)
 
-
-add_library(metapp STATIC 
-    subprojects/metapp/src/metaclass.cpp
-    subprojects/metapp/src/metaitem.cpp
-    subprojects/metapp/src/metarepo.cpp
-    subprojects/metapp/src/metatype.cpp
-    subprojects/metapp/src/utility.cpp
-    subprojects/metapp/src/variant.cpp
-    ${METAPP_HEADER_FILES}
-)
-
-target_include_directories(metapp PUBLIC subprojects/metapp/include)
-
-target_precompile_headers(metapp PUBLIC <cstdint>)
-
-
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
     subprojects/imgui/imgui_draw.cpp
@@ -55,12 +39,6 @@ target_link_libraries(imgui PUBLIC SDL2::SDL2)
 
 target_include_directories(imgui PUBLIC subprojects/imgui)
 
-file(GLOB LUA_SRC "${CMAKE_CURRENT_SOURCE_DIR}/subprojects/Lua/lua-5.4.7/src/*.c")
-add_library(Lua STATIC ${LUA_SRC})
-target_include_directories(Lua PUBLIC subprojects/Lua/lua-5.4.7/include)
-
-file(GLOB_RECURSE METAPP_HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/subprojects/metapp/include/metapp/*.h")
-
 add_library(Radium STATIC
     src/Radium/Application.cpp
     src/Radium/FontRenderer.cpp
@@ -71,12 +49,10 @@ add_library(Radium STATIC
     src/Radium/AssetLoader.cpp
     src/Radium/Nodes/Tree.cpp
     src/Radium/Nodes/Node.cpp
-    src/Radium/Nodes/LuaScript.cpp
+    src/Radium/Nodes/ClassDB.cpp
     src/Radium/Nodes/2D/Node2D.cpp
     src/Radium/Nodes/2D/Sprite2D.cpp
-    src/Radium/Nodes/2D/RigidBody2D.cpp
 )
-
 
 target_link_libraries(Radium PUBLIC
     SDL2::SDL2
@@ -87,8 +63,6 @@ target_link_libraries(Radium PUBLIC
     Rune
     imgui
     box2d
-    Lua
-    metapp
 )
 target_include_directories(Radium PUBLIC
     src
@@ -173,22 +147,15 @@ endif ()
 set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/TestApp/assets")
 set(ASSETS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/assets")
 
-# Recursively get all files in the assets directory
-file(GLOB_RECURSE ASSET_FILES "${ASSETS_SOURCE_DIR}/*")
-
-set(ASSETS_COPY_STAMP "${CMAKE_BINARY_DIR}/assets_copy.stamp")
-
 add_custom_command(
-    OUTPUT ${ASSETS_COPY_STAMP}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ASSETS_SOURCE_DIR}" "${ASSETS_OUTPUT_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E touch "${ASSETS_COPY_STAMP}"
-    DEPENDS ${ASSET_FILES}
+    OUTPUT ${ASSETS_OUTPUT_DIR}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SOURCE_DIR} ${ASSETS_OUTPUT_DIR}
     COMMENT "Copying assets to build output directory"
+    DEPENDS ${ASSETS_SOURCE_DIR}
 )
 
-add_custom_target(copy_assets ALL DEPENDS ${ASSETS_COPY_STAMP})
+add_custom_target(copy_assets ALL DEPENDS ${ASSETS_OUTPUT_DIR})
 add_dependencies(TestApp copy_assets)
-
 
 
 

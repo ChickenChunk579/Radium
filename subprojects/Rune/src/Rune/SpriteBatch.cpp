@@ -82,8 +82,8 @@ struct VertexOutput {
     var ndc = (worldPos / screenSize) * 2.0 - vec2f(1.0, 1.0);
     ndc.y = -ndc.y;
 
-    let zNear = 100.0;
-    let zFar = -100.0;
+    let zNear = -100.0;
+    let zFar = 100.0;
 
     // Map sprite.z from [-100, 100] -> [0, 1] for depth buffer
     let normalizedZ = (sprite.z - zNear) / (zFar - zNear);

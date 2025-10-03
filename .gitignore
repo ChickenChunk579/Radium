@@ -12,10 +12,8 @@ subprojects/SDL_image
 subprojects/SDL_ttf
 subprojects/spdlog
 subprojects/RmlUi
-subprojects/metapp
 subprojects/imgui
 subprojects/tracy
-subprojects/Lua
 subprojects/box2d
 subprojects/Rune/subprojects/wgpu-native/linux-x86_64/
 subprojects/Rune/subprojects/wgpu-native/android-x86_64/
