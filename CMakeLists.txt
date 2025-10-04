@@ -168,3 +168,8 @@ add_custom_target(copy_assets ALL
 if(APPLE AND IOS)
     target_compile_definitions(Radium PRIVATE TARGET_OS_IOS=1)
 endif()
+
+
+
+add_executable(Editor src/Editor/main.cpp)
+target_link_libraries(Editor PUBLIC Radium)
