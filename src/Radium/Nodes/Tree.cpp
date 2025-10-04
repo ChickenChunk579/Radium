@@ -50,7 +50,6 @@ namespace Radium::Nodes
 
         for (const auto &prop : ClassDB::GetProperties(node))
         {
-            spdlog::info("Serializing property {} of type {}", prop.name, prop.type);
 
             if (prop.name == "parent")
                 continue; // avoid circular references
@@ -136,8 +135,6 @@ namespace Radium::Nodes
 
             if (!nodeJson.contains(prop.name))
                 continue;
-
-            spdlog::info("Deserializing property {} of type {}", prop.name, prop.type);
 
             try
             {

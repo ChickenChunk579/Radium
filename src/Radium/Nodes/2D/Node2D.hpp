@@ -11,11 +11,25 @@ namespace Radium::Nodes {
 
         static void Register();
 
-        Radium::Vector2f position;
+        Radium::Vector2f position = {0, 0};
+        Radium::Vector2f globalPosition = {0, 0};
+
+        Radium::Vector2f size = {0, 0};
 
         void OnLoad() override;
         void OnTick(float dt) override;
         void OnRender() override;
         void OnImgui() override;
+
+        Radium::Vector2f GetPosition();
+        void SetPosition(Radium::Vector2f val);
+
+        Radium::Vector2f GetGlobalPosition();
+        void SetGlobalPosition(Radium::Vector2f val);
+
+        Radium::Vector2f GetSize();
+        void SetSize(Radium::Vector2f val);
+
+        void UpdateGlobalPosition(const Radium::Vector2f& parentGlobalPos = {0,0});
     };
 }

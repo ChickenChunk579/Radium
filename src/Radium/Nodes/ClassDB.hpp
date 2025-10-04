@@ -102,8 +102,6 @@ namespace Radium::Nodes
         {
             std::string typeName = Radium::Nodes::Demangle(typeid(T1).name());
             std::string propertyType = Radium::Nodes::Demangle(typeid(T2).name());
-            spdlog::info("RegisterProperty: '{}' type '{}' for class '{}'",
-                propertyName, propertyType, typeName);
 
             PropertyInfo prop;
             prop.name = propertyName;

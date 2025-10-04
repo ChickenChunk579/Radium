@@ -13,6 +13,7 @@ subprojects/SDL_ttf
 subprojects/spdlog
 subprojects/RmlUi
 subprojects/imgui
+subprojects/ChaiScript
 subprojects/tracy
 subprojects/box2d
 subprojects/Rune/subprojects/wgpu-native/linux-x86_64/

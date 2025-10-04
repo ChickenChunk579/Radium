@@ -25,6 +25,7 @@ add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/spdlog)
 add_subdirectory(subprojects/tracy)
+add_subdirectory(subprojects/ChaiScript)
 
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
@@ -49,6 +50,7 @@ add_library(Radium STATIC
     src/Radium/AssetLoader.cpp
     src/Radium/Nodes/Tree.cpp
     src/Radium/Nodes/Node.cpp
+    src/Radium/Nodes/ChaiScript.cpp
     src/Radium/Nodes/ClassDB.cpp
     src/Radium/Nodes/2D/Node2D.cpp
     src/Radium/Nodes/2D/Sprite2D.cpp
@@ -63,11 +65,18 @@ target_link_libraries(Radium PUBLIC
     Rune
     imgui
     box2d
+    chaiscript
 )
 target_include_directories(Radium PUBLIC
     src
     subprojects/RmlUi/Include
 )
+
+target_precompile_headers(Radium
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Radium/pch.hpp
+)
+
 
 target_link_libraries(Radium PRIVATE TracyClient)
 target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
@@ -147,15 +156,12 @@ endif ()
 set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/TestApp/assets")
 set(ASSETS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/assets")
 
-add_custom_command(
-    OUTPUT ${ASSETS_OUTPUT_DIR}
+add_custom_target(copy_assets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SOURCE_DIR} ${ASSETS_OUTPUT_DIR}
     COMMENT "Copying assets to build output directory"
-    DEPENDS ${ASSETS_SOURCE_DIR}
+    VERBATIM
 )
 
-add_custom_target(copy_assets ALL DEPENDS ${ASSETS_OUTPUT_DIR})
-add_dependencies(TestApp copy_assets)
 
 
 

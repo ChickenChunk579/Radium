@@ -68,6 +68,16 @@ namespace Rune
             &writeSize);
     }
 
+    Texture::Texture(WGPUTextureView view, SamplingMode mode) {
+        WGPUSamplerDescriptor samplerDesc = {};
+        samplerDesc.magFilter = SamplingModeToWgpu(mode);
+        samplerDesc.minFilter = SamplingModeToWgpu(mode);
+        samplerDesc.maxAnisotropy = 1;
+        sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
+        textureView = view;
+
+    }
+
     void Texture::Destroy()
     {
         wgpuTextureViewRelease(textureView);

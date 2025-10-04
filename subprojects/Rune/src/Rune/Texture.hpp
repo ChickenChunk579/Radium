@@ -26,6 +26,8 @@ namespace Rune {
     public:
         Texture(int width, int height, int pitch, void* data, SamplingMode samplingmode, TextureFormat format = TextureFormat::RGBA8);
 
+        Texture(WGPUTextureView textureView, SamplingMode samplingMode);
+
         WGPUTextureView textureView;
         WGPUSampler sampler;
 

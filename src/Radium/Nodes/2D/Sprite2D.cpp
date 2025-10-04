@@ -37,8 +37,8 @@ namespace Radium::Nodes {
             batch->Begin();
         }
         if (sourceRect.w > 0 && sourceRect.h > 0) {
-            float drawX = (position.x * Radium::GetPixelScale());
-            float drawY = (position.y * Radium::GetPixelScale());
+            float drawX = (globalPosition.x * Radium::GetPixelScale());
+            float drawY = (-globalPosition.y * Radium::GetPixelScale());
 
             if (origin == CoordinateOrigin::Center) {
                 drawX += Rune::windowWidth / 2.0f;
@@ -50,7 +50,7 @@ namespace Radium::Nodes {
                 (uint)sourceRect.w * Radium::GetPixelScale(), (uint)sourceRect.h * Radium::GetPixelScale(),
                 r, g, b,
                 (uint)sourceRect.x, (uint)sourceRect.y,
-                (uint)sourceRect.w, (uint)sourceRect.h,
+                (uint)size.x, (uint)size.y,
                 textureWidth, textureHeight,
                 rotation, z, flags
             );
