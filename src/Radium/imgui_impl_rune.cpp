@@ -145,10 +145,6 @@ void ImGui_ImplRune_RenderDrawData(ImDrawData *draw_data)
                 continue;
             }
             ImTextureRef id = pcmd->TexRef;
-            if (!id._TexData)
-            {
-                continue;
-            }
             bd->renderer->SetTexture(textures[pcmd->GetTexID()]);
             bd->renderer->SetVertices(vertices);
             bd->renderer->Draw();
@@ -195,5 +191,24 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         tex->SetStatus(ImTextureStatus_Destroyed);
     }
 }
+
+ImTextureID ImGui_ImplRune_TextureToID(Rune::Texture* texture)
+{
+    // Search for existing texture ID
+    for (const auto& pair : textures)
+    {
+        if (pair.second == texture)
+            return pair.first;
+    }
+
+    // Create a new ID by casting the pointer to ImTextureID
+    ImTextureID id = reinterpret_cast<ImTextureID>(texture);
+
+    // Store in the map
+    textures[id] = texture;
+
+    return id;
+}
+
 
 #endif

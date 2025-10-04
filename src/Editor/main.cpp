@@ -1,6 +1,9 @@
 #include <Radium/Application.hpp>
 #include "imgui.h"
 #include <spdlog/spdlog.h>
+#include <Radium/imgui_impl_rune.h>
+#include <Rune/Viewport.hpp>
+#include <Rune/Texture.hpp>
 
 // credit to https://github.com/simongeilfus/Cinder-ImGui
 void imguiTheme()
@@ -73,6 +76,9 @@ void imguiTheme()
 class Editor : public Radium::Application
 {
 public:
+    Rune::Viewport* scene;
+    ImTextureID sceneTexture;
+
     std::string GetTitle() override
     {
         return "Radium Editor";
@@ -91,6 +97,10 @@ public:
     void OnLoad() override
     {
         imguiTheme();
+        scene = new Rune::Viewport(640, 480);
+        Rune::Texture* tex = new Rune::Texture(scene->textureView, Rune::SamplingMode::Nearest);
+    
+        sceneTexture = ImGui_ImplRune_TextureToID(tex);
     }
 
     void OnTick(float dt) override
@@ -99,6 +109,8 @@ public:
 
     void OnPreRender() override
     {
+        scene->SetupFrame();
+        scene->FinishFrame();
     }
 
     void OnRender() override
@@ -174,12 +186,53 @@ public:
             ImGui::End();
         }
         {
+            spdlog::info("ID: {}", sceneTexture);
             ImGui::Begin("Viewport");
 
+            // Get available content region inside the window
+            ImVec2 avail = ImGui::GetContentRegionAvail();
 
+            // Fallback in case viewport size is invalid
+            int imgW = (scene && scene->width > 0) ? scene->width : 640;
+            int imgH = (scene && scene->height > 0) ? scene->height : 480;
+
+            float imageAspect = (float)imgW / (float)imgH;
+
+            // Compute render size that fits the available region while keeping the aspect ratio
+            ImVec2 renderSize;
+            if (avail.y <= 0.0f || avail.x <= 0.0f) {
+                renderSize = ImVec2((float)imgW, (float)imgH);
+            } else {
+                float availAspect = avail.x / avail.y;
+                if (availAspect > imageAspect) {
+                    // available region is wider than image -> fit by height
+                    renderSize.y = avail.y;
+                    renderSize.x = renderSize.y * imageAspect;
+                } else {
+                    // fit by width
+                    renderSize.x = avail.x;
+                    renderSize.y = renderSize.x / imageAspect;
+                }
+            }
+
+            // Center the image inside the available region
+            ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+            float offsetX = (avail.x - renderSize.x) * 0.5f;
+            float offsetY = (avail.y - renderSize.y) * 0.5f;
+            if (offsetX < 0.0f) offsetX = 0.0f;
+            if (offsetY < 0.0f) offsetY = 0.0f;
+            ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + offsetX, cursorScreenPos.y + offsetY));
+
+            ImGui::Image(sceneTexture, renderSize);
+
+            // Move cursor to the end of the content region so following widgets are laid out correctly
+            ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + avail.x, cursorScreenPos.y + avail.y));
+
+            ImGui::Dummy({0, 0});
 
             ImGui::End();
         }
+
     }
 };
 #ifndef __ANDROID__
