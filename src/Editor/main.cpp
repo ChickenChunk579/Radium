@@ -1,9 +1,62 @@
 #include <Radium/Application.hpp>
 #include "imgui.h"
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/base_sink.h>
+#include <mutex>
+#include <vector>
+#include <string>
+#include <memory>
 #include <Radium/imgui_impl_rune.h>
 #include <Rune/Viewport.hpp>
 #include <Rune/Texture.hpp>
+
+// Simple thread-safe console buffer used by the ImGui sink and UI
+struct ImGuiConsole
+{
+    std::mutex mutex;
+    std::vector<std::string> lines;
+    bool autoScroll = true;
+
+    void AddLine(const std::string &s)
+    {
+        std::lock_guard<std::mutex> lk(mutex);
+        lines.emplace_back(s);
+    }
+
+    void Clear()
+    {
+        std::lock_guard<std::mutex> lk(mutex);
+        lines.clear();
+    }
+
+    std::vector<std::string> Snapshot()
+    {
+        std::lock_guard<std::mutex> lk(mutex);
+        return lines;
+    }
+};
+
+static ImGuiConsole g_imguiConsole;
+
+// custom sink forwarding formatted messages to g_imguiConsole
+class ImGuiSink : public spdlog::sinks::base_sink<std::mutex>
+{
+public:
+    ImGuiConsole *console;
+    explicit ImGuiSink(ImGuiConsole *c) : console(c) {}
+
+protected:
+    void sink_it_(const spdlog::details::log_msg &msg) override
+    {
+        spdlog::memory_buf_t formatted;
+        base_sink<std::mutex>::formatter_->format(msg, formatted);
+        std::string s(formatted.data(), formatted.size());
+        if (console)
+            console->AddLine(s);
+    }
+
+    void flush_() override {}
+};
 
 // credit to https://github.com/simongeilfus/Cinder-ImGui
 void imguiTheme()
@@ -70,14 +123,27 @@ void imguiTheme()
     style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
     style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.65f, 0.20f, 0.25f, 1.00f);
     style.Colors[ImGuiCol_DockingPreview] = ImVec4(0.92f, 0.18f, 0.29f, 0.50f);
-    style.Colors[ImGuiCol_Border] = ImVec4(0.92f, 0.18f, 0.29f, 1.0f);  // Bright red outline, fully opaque
+    style.Colors[ImGuiCol_Border] = ImVec4(0.92f, 0.18f, 0.29f, 1.0f); // Bright red outline, fully opaque
+
+    ImGuiIO &io = ImGui::GetIO();
+
+    ImFont *customFont = io.Fonts->AddFontFromFileTTF("assets/Roboto/static/Roboto-Light.ttf", 16.0f);
+
+    if (customFont == nullptr)
+    {
+        spdlog::error("Failed to load font!");
+    }
+
+    io.FontDefault = customFont;
 }
 
 class Editor : public Radium::Application
 {
 public:
-    Rune::Viewport* scene;
+    Rune::Viewport *scene;
     ImTextureID sceneTexture;
+    // Keep the sink alive for the lifetime of the application
+    std::shared_ptr<spdlog::sinks::sink> imguiSink;
 
     std::string GetTitle() override
     {
@@ -98,9 +164,20 @@ public:
     {
         imguiTheme();
         scene = new Rune::Viewport(640, 480);
-        Rune::Texture* tex = new Rune::Texture(scene->textureView, Rune::SamplingMode::Nearest);
-    
+        Rune::Texture *tex = new Rune::Texture(scene->textureView, Rune::SamplingMode::Nearest);
+
         sceneTexture = ImGui_ImplRune_TextureToID(tex);
+    }
+
+    void OnEarlyLoad() override
+    {
+        // attach the previously-declared ImGuiSink so spdlog messages are shown in the UI console
+        auto sink = std::make_shared<ImGuiSink>(&g_imguiConsole);
+        imguiSink = sink;
+        if (spdlog::default_logger())
+        {
+            spdlog::default_logger()->sinks().push_back(sink);
+        }
     }
 
     void OnTick(float dt) override
@@ -160,33 +237,50 @@ public:
         {
             ImGui::Begin("Inspector");
 
-            
-
             ImGui::End();
         }
         {
             ImGui::Begin("Assets");
-
-            
 
             ImGui::End();
         }
         {
             ImGui::Begin("Hierarchy");
 
-            
-
             ImGui::End();
         }
         {
             ImGui::Begin("Console");
 
+            // toolbar
+            if (ImGui::Button("Clear"))
+            {
+                g_imguiConsole.Clear();
+            }
+            ImGui::SameLine();
+            bool autoScroll = g_imguiConsole.autoScroll;
+            if (ImGui::Checkbox("Auto-scroll", &autoScroll))
+            {
+                g_imguiConsole.autoScroll = autoScroll;
+            }
 
+            ImGui::Separator();
+
+            ImGui::BeginChild("ConsoleScrollRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+            auto snapshot = g_imguiConsole.Snapshot();
+            for (const auto &line : snapshot)
+            {
+                ImGui::TextUnformatted(line.c_str());
+            }
+            if (g_imguiConsole.autoScroll)
+            {
+                ImGui::SetScrollHereY(1.0f);
+            }
+            ImGui::EndChild();
 
             ImGui::End();
         }
         {
-            spdlog::info("ID: {}", sceneTexture);
             ImGui::Begin("Viewport");
 
             // Get available content region inside the window
@@ -200,15 +294,21 @@ public:
 
             // Compute render size that fits the available region while keeping the aspect ratio
             ImVec2 renderSize;
-            if (avail.y <= 0.0f || avail.x <= 0.0f) {
+            if (avail.y <= 0.0f || avail.x <= 0.0f)
+            {
                 renderSize = ImVec2((float)imgW, (float)imgH);
-            } else {
+            }
+            else
+            {
                 float availAspect = avail.x / avail.y;
-                if (availAspect > imageAspect) {
+                if (availAspect > imageAspect)
+                {
                     // available region is wider than image -> fit by height
                     renderSize.y = avail.y;
                     renderSize.x = renderSize.y * imageAspect;
-                } else {
+                }
+                else
+                {
                     // fit by width
                     renderSize.x = avail.x;
                     renderSize.y = renderSize.x / imageAspect;
@@ -219,8 +319,10 @@ public:
             ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
             float offsetX = (avail.x - renderSize.x) * 0.5f;
             float offsetY = (avail.y - renderSize.y) * 0.5f;
-            if (offsetX < 0.0f) offsetX = 0.0f;
-            if (offsetY < 0.0f) offsetY = 0.0f;
+            if (offsetX < 0.0f)
+                offsetX = 0.0f;
+            if (offsetY < 0.0f)
+                offsetY = 0.0f;
             ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + offsetX, cursorScreenPos.y + offsetY));
 
             ImGui::Image(sceneTexture, renderSize);
@@ -232,7 +334,6 @@ public:
 
             ImGui::End();
         }
-
     }
 };
 #ifndef __ANDROID__

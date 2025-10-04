@@ -25,6 +25,7 @@ namespace Radium {
         virtual void OnRender() {}
         virtual void OnImgui() {}
         virtual void OnPreRender() {}
+        virtual void OnEarlyLoad() {}
 
         void Run();
 

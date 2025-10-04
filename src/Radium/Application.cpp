@@ -108,6 +108,8 @@ namespace Radium {
     }
 
     void Application::Run() {
+        OnEarlyLoad();
+        
         spdlog::trace("Initializing SDL");
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
             spdlog::error("Failed to initialize SDL: {}", SDL_GetError());
@@ -222,7 +224,7 @@ namespace Radium {
         }
 
         spdlog::trace("Successfully initialized Rune.");
-        spdlog::info("ANDROIDTEST surface format: {}", static_cast<int>(Rune::caps.formats[0]));
+        spdlog::info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
         
         spdlog::trace("Setting up imgui...");

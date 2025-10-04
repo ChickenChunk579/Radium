@@ -107,7 +107,7 @@ namespace Radium {
             return;
         }
 
-        spdlog::info("ANDROIDTEST Created SpriteBatch: {}", static_cast<void*>(batch));
+        spdlog::info("Created SpriteBatch: {}", static_cast<void*>(batch));
 
 
         spdlog::info("Made it");

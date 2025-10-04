@@ -501,7 +501,7 @@ namespace Rune
 
         if (useCount >= MAX_SPRITES)
         {
-            Rune::Log("ANDROIDTEST123 objectCount exceeds MAX_SPRITES!");
+            Rune::Log("objectCount exceeds MAX_SPRITES!");
             return;
         }
 
