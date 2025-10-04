@@ -554,6 +554,8 @@ namespace Rune
     {
         void *data = uniformWorking;
 
+        std::cout << "Sprite count: " << objectCount << std::endl;
+
         if (throttledCount != 0)
             std::cout << "WARNING: " << throttledCount << " SPRITES THROTTLED" << std::endl;
 

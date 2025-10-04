@@ -51,6 +51,12 @@ namespace Radium::SpriteBatchRegistry {
         map[name] = batch;
     }
 
+
+    void Add(std::string name, Rune::Texture* texture, Rune::SpriteOrigin origin, Rune::SamplingMode mode) {
+        Rune::SpriteBatch* batch = new Rune::SpriteBatch(texture, origin);
+        map[name] = batch;
+    }
+
     std::vector<Rune::SpriteBatch*> GetAll() {
         std::vector<Rune::SpriteBatch*> batches;
 

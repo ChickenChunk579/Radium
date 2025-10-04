@@ -2,6 +2,10 @@
 
 namespace Rune {
     Viewport::Viewport(int width, int height) {
+
+        this->width = width;
+        this->height = height;
+
         WGPUTextureDescriptor textureDesc = {};
         textureDesc.size.width = width;
         textureDesc.size.height = height;
@@ -10,8 +14,8 @@ namespace Rune {
         textureDesc.sampleCount = 1;
         textureDesc.dimension = WGPUTextureDimension_2D;
         textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
-        textureDesc.usage = WGPUTextureUsage_CopySrc | WGPUTextureUsage_RenderAttachment;
-        textureDesc.label = {"", 0};
+        textureDesc.usage = WGPUTextureUsage_CopySrc | WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding;
+        textureDesc.label = {"Rune Viewport", 13};
         textureDesc.viewFormatCount = 0;
         textureDesc.viewFormats = nullptr;
 
@@ -30,11 +34,6 @@ namespace Rune {
     }
 
     void Viewport::SetupFrame() {
-        WGPUCommandEncoderDescriptor commandEncoderDesc = {};
-        commandEncoderDesc.label = {"", 0};
-        commandEncoderDesc.nextInChain = nullptr;
-        encoder = wgpuDeviceCreateCommandEncoder(device, &commandEncoderDesc);
-
         WGPURenderPassDescriptor passDesc = {};
         passDesc.label = {"", 0};
         passDesc.colorAttachmentCount = 1;
@@ -46,7 +45,7 @@ namespace Rune {
         colorAttachment.clearValue.r = 1;
         colorAttachment.clearValue.g = 0;
         colorAttachment.clearValue.b = 0;
-        colorAttachment.clearValue.a = 0;
+        colorAttachment.clearValue.a = 1;
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.depthSlice = NULL;
         passDesc.colorAttachments = &colorAttachment;
@@ -57,13 +56,12 @@ namespace Rune {
         renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &passDesc);
     }
 
-    void FinishFrame() {
+    void Viewport::FinishFrame() {
         WGPUCommandBufferDescriptor cmdBufDesc = {};
         cmdBufDesc.label = {"", 0};
         cmdBufDesc.nextInChain = nullptr;
 
-        WGPUCommandBuffer cmdBuf = wgpuCommandEncoderFinish(encoder, &cmdBufDesc);
-        wgpuQueueSubmit(queue, 1, &cmdBuf);
+        wgpuRenderPassEncoderEnd(renderPass);
     }
 
 

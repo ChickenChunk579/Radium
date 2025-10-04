@@ -8,11 +8,13 @@ namespace Rune {
     public:
         Viewport(int width, int height);
         void SetupFrame();
+        void FinishFrame();
+
+        WGPUTextureView textureView;
+
+        int width, height;
 
     private:
-        WGPUTextureView textureView;
-        WGPUCommandEncoder encoder;
-
         WGPURenderPassEncoder renderPass;
 
     };

@@ -6,6 +6,7 @@
 #ifndef __EMSCRIPTEN__
 #include <webgpu/wgpu.h>   // Native header
 #endif
+#include <vector>
 
 #if defined(__linux__)
     #include <X11/Xlib.h>
@@ -35,12 +36,16 @@ namespace Rune {
     extern bool ready;
     extern float windowWidth;
     extern float windowHeight;
+    extern std::vector<WGPUCommandBuffer> commandBuffers;
 
     // Initializes the renderer and underlying wgpu instance
     bool Initialize(Display* x11Display, uint32_t x11Window, uint32_t width, uint32_t height);
 
     // Shuts down and cleans up
     void Shutdown();
+
+    // Create encoder
+    void PreSetupFrame();
 
     // Sets up frame to draw
     void SetupFrame();

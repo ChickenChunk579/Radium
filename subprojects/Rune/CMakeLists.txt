@@ -25,6 +25,7 @@ set(RUNE_SOURCES
     src/Rune/RuneBindings.cpp
     src/Rune/GeometryRenderer.cpp
     src/Rune/Texture.cpp
+    src/Rune/Viewport.cpp
 )
 
 # Add Objective-C++ bridge on macOS

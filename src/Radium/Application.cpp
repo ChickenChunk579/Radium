@@ -328,6 +328,11 @@ namespace Radium {
 
         }
         {
+            Rune::PreSetupFrame();
+            ZoneScopedN("User Pre-Render");
+            this->OnPreRender();
+        }
+        {
             ZoneScopedN("Frame Setup");
         
             Rune::SetupFrame();

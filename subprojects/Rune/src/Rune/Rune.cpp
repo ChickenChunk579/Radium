@@ -250,6 +250,7 @@ namespace Rune
     WGPUTextureView depthTextureView = nullptr;
     bool ready = false;
     float windowWidth, windowHeight = 0;
+    std::vector<WGPUCommandBuffer> commandBuffers;
 
     float clearColorR = 0;
     float clearColorG = 0;
@@ -565,8 +566,8 @@ namespace Rune
         clearColorA = a;
     }
 
-    void SetupFrame()
-    {
+
+    void PreSetupFrame() {
         Rune::TraceZoneBegin("Get Target View");
         // Get the next target texture view
         targetView = GetNextSurfaceTextureView();
@@ -581,6 +582,11 @@ namespace Rune
         encoderDesc.nextInChain = nullptr;
         encoder = wgpuDeviceCreateCommandEncoder(device, &encoderDesc);
         Rune::TraceZoneEnd();
+    }
+
+    void SetupFrame()
+    {
+        
 
 
         Rune::TraceZoneBegin("Create render pass");
@@ -662,8 +668,12 @@ namespace Rune
         WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &cmdBufferDescriptor);
         wgpuCommandEncoderRelease(encoder);
 
-        wgpuQueueSubmit(queue, 1, &command);
+        commandBuffers.push_back(command);
+
+        wgpuQueueSubmit(queue, commandBuffers.size(), commandBuffers.data());
         wgpuCommandBufferRelease(command);
+
+        commandBuffers.clear();
 
         // At the end of the frame
         wgpuTextureViewRelease(targetView);
