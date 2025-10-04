@@ -1,5 +1,6 @@
 #include <Rune/GeometryRenderer.hpp>
 #include <cstring>
+#include <spdlog/spdlog.h>
 
 const char *geometryShaderSource = R"(
 struct VertexInput {
@@ -231,6 +232,12 @@ namespace Rune
 
     void GeometryRenderer::SetTexture(Rune::Texture *newTexture)
     {
+        if (!newTexture || !newTexture->textureView || !newTexture->sampler)
+        {
+            spdlog::warn("GeometryRenderer::SetTexture received invalid texture — skipping.");
+            return;
+        }
+
         texture = newTexture;
 
         // Destroy old bind group if necessary

@@ -8,7 +8,7 @@
 #include <unordered_map>
 #undef Status
 
-std::unordered_map<ImTextureID, Rune::Texture*> textures;
+std::unordered_map<ImTextureID, Rune::Texture *> textures;
 
 struct ImGui_ImplRune_Data
 {
@@ -62,7 +62,7 @@ void ImGui_ImplRune_Shutdown()
     io.BackendRendererName = nullptr;
     io.BackendRendererUserData = nullptr;
     io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasTextures);
-    //platform_io.ClearPlatformHandlers();
+    // platform_io.ClearPlatformHandlers();
     IM_DELETE(bd);
 }
 
@@ -86,15 +86,13 @@ void ImGui_ImplRune_RenderDrawData(ImDrawData *draw_data)
         return;
 
     if (draw_data->Textures != nullptr)
-        for (ImTextureData* tex : *draw_data->Textures)
+        for (ImTextureData *tex : *draw_data->Textures)
             if (tex->Status != ImTextureStatus_OK)
                 ImGui_ImplRune_UpdateTexture(tex);
 
     ImGui_ImplRune_SetupRenderState(draw_data, fb_width, fb_height);
 
-    
     int drawCalls = 0;
-
 
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
@@ -103,65 +101,76 @@ void ImGui_ImplRune_RenderDrawData(ImDrawData *draw_data)
         const ImDrawVert *vtx_buffer = draw_list->VtxBuffer.Data;
         const ImDrawIdx *idx_buffer = draw_list->IdxBuffer.Data;
         int idx_count = draw_list->IdxBuffer.Size;
-        const ImDrawCmd* pcmd = &draw_list->CmdBuffer[n];
-
-        for (int i = 0; i < idx_count; i += 3)
+        for (int cmd_i = 0; cmd_i < draw_list->CmdBuffer.Size; cmd_i++)
         {
-            // Get triangle indices
-            ImDrawIdx idx0 = idx_buffer[i];
-            ImDrawIdx idx1 = idx_buffer[i + 1];
-            ImDrawIdx idx2 = idx_buffer[i + 2];
+            const ImDrawCmd *pcmd = &draw_list->CmdBuffer[cmd_i];
 
-            const ImDrawVert &v0 = vtx_buffer[idx0];
-            const ImDrawVert &v1 = vtx_buffer[idx1];
-            const ImDrawVert &v2 = vtx_buffer[idx2];
-
-            auto push_vert = [&](const ImDrawVert &v)
+            for (int i = 0; i < idx_count; i += 3)
             {
-                // Position
-                vertices.push_back(v.pos.x);
-                vertices.push_back(v.pos.y);
+                // Get triangle indices
+                ImDrawIdx idx0 = idx_buffer[i];
+                ImDrawIdx idx1 = idx_buffer[i + 1];
+                ImDrawIdx idx2 = idx_buffer[i + 2];
 
-                // Color
-                float r = ((v.col >> IM_COL32_R_SHIFT) & 0xFF) / 255.0f;
-                float g = ((v.col >> IM_COL32_G_SHIFT) & 0xFF) / 255.0f;
-                float b = ((v.col >> IM_COL32_B_SHIFT) & 0xFF) / 255.0f;
-                float a = ((v.col >> IM_COL32_A_SHIFT) & 0xFF) / 255.0f;
-                vertices.push_back(r);
-                vertices.push_back(g);
-                vertices.push_back(b);
+                const ImDrawVert &v0 = vtx_buffer[idx0];
+                const ImDrawVert &v1 = vtx_buffer[idx1];
+                const ImDrawVert &v2 = vtx_buffer[idx2];
 
-                // UV
-                vertices.push_back(v.uv.x);
-                vertices.push_back(v.uv.y);
-            };
+                auto push_vert = [&](const ImDrawVert &v)
+                {
+                    // Position
+                    vertices.push_back(v.pos.x);
+                    vertices.push_back(v.pos.y);
 
-            push_vert(v0);
-            push_vert(v1);
-            push_vert(v2);
+                    // Color
+                    float r = ((v.col >> IM_COL32_R_SHIFT) & 0xFF) / 255.0f;
+                    float g = ((v.col >> IM_COL32_G_SHIFT) & 0xFF) / 255.0f;
+                    float b = ((v.col >> IM_COL32_B_SHIFT) & 0xFF) / 255.0f;
+                    float a = ((v.col >> IM_COL32_A_SHIFT) & 0xFF) / 255.0f;
+                    vertices.push_back(r);
+                    vertices.push_back(g);
+                    vertices.push_back(b);
+
+                    // UV
+                    vertices.push_back(v.uv.x);
+                    vertices.push_back(v.uv.y);
+                };
+
+                push_vert(v0);
+                push_vert(v1);
+                push_vert(v2);
+            }
+            if (!pcmd)
+            {
+                continue;
+            }
+            ImTextureRef id = pcmd->TexRef;
+            if (!id._TexData)
+            {
+                continue;
+            }
+            bd->renderer->SetTexture(textures[pcmd->GetTexID()]);
+            bd->renderer->SetVertices(vertices);
+            bd->renderer->Draw();
+            drawCalls += 1;
         }
-        bd->renderer->SetTexture(textures[pcmd->GetTexID()]);
-        bd->renderer->SetVertices(vertices);
-        bd->renderer->Draw();
-        drawCalls += 1;
     }
-
 }
 
-
-void ImGui_ImplRune_UpdateTexture(ImTextureData* tex) {
+void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
+{
     if (tex->Status == ImTextureStatus_WantCreate)
     {
         IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
         IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
-        void* pixels = tex->GetPixels();
+        void *pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;
-        Rune::Texture* rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
-    
-        ImTextureID id = tex->TexID;
-    
-        textures[id] = rtex;
+        Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
+
+        uintptr_t fakeTexID = reinterpret_cast<uintptr_t>(rtex);
+        tex->SetTexID((ImTextureID)fakeTexID);
+        textures[fakeTexID] = rtex;
     }
     else if (tex->Status == ImTextureStatus_WantUpdates)
     {
@@ -169,16 +178,17 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData* tex) {
 
         IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
         IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
-        void* pixels = tex->GetPixels();
+        void *pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;
-        Rune::Texture* rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
-    
+        Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
+
         ImTextureID id = tex->TexID;
-    
+
         textures[id] = rtex;
     }
-    else if (tex->Status == ImTextureStatus_WantDestroy) {
+    else if (tex->Status == ImTextureStatus_WantDestroy)
+    {
         textures[tex->TexID]->Destroy();
 
         tex->SetTexID(ImTextureID_Invalid);
