@@ -10,7 +10,10 @@ namespace Rune {
         void SetupFrame();
         void FinishFrame();
 
+        void Activate();
+
         WGPUTextureView textureView;
+        WGPUTextureView depthTextureView;
 
         int width, height;
 

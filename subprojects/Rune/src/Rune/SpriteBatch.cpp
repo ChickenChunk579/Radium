@@ -5,9 +5,6 @@
 #include <sstream>
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 const char *shaderSource = R"(
 
 const MAX_SPRITES = 512;
@@ -554,8 +551,6 @@ namespace Rune
     {
         void *data = uniformWorking;
 
-        std::cout << "Sprite count: " << objectCount << std::endl;
-
         if (throttledCount != 0)
             std::cout << "WARNING: " << throttledCount << " SPRITES THROTTLED" << std::endl;
 
@@ -577,13 +572,13 @@ namespace Rune
 
         bufferCreated = true;
 
-        wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
+        wgpuRenderPassEncoderSetBindGroup(activeRenderPass, 0, bindGroup, 0, nullptr);
 
         bindGroupCreated = true;
 
-        wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
-        wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vertexBuffer, 0, WGPU_WHOLE_SIZE);
-        wgpuRenderPassEncoderDraw(renderPass, 6, objectCount, 0, 0);
+        wgpuRenderPassEncoderSetPipeline(activeRenderPass, pipeline);
+        wgpuRenderPassEncoderSetVertexBuffer(activeRenderPass, 0, vertexBuffer, 0, WGPU_WHOLE_SIZE);
+        wgpuRenderPassEncoderDraw(activeRenderPass, 6, objectCount, 0, 0);
 
         started = false;
     }

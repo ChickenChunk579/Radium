@@ -41,6 +41,7 @@ target_link_libraries(imgui PUBLIC SDL2::SDL2)
 target_include_directories(imgui PUBLIC subprojects/imgui)
 
 add_library(Radium STATIC
+    subprojects/ImGuiColorTextEdit/TextEditor.cpp
     src/Radium/Application.cpp
     src/Radium/FontRenderer.cpp
     src/Radium/Math.cpp
@@ -48,6 +49,7 @@ add_library(Radium STATIC
     src/Radium/imgui_impl_rune.cpp
     src/Radium/Input.cpp
     src/Radium/AssetLoader.cpp
+    src/Radium/SubViewport.cpp
     src/Radium/Nodes/Tree.cpp
     src/Radium/Nodes/Node.cpp
     src/Radium/Nodes/ChaiScript.cpp
@@ -69,7 +71,7 @@ target_link_libraries(Radium PUBLIC
 )
 target_include_directories(Radium PUBLIC
     src
-    subprojects/RmlUi/Include
+    subprojects/ImGuiColorTextEdit/
 )
 
 target_precompile_headers(Radium

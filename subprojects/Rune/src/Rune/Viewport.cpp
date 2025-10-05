@@ -13,7 +13,7 @@ namespace Rune {
         textureDesc.mipLevelCount = 1;
         textureDesc.sampleCount = 1;
         textureDesc.dimension = WGPUTextureDimension_2D;
-        textureDesc.format = WGPUTextureFormat_RGBA8Unorm;
+        textureDesc.format = caps.formats[0];
         textureDesc.usage = WGPUTextureUsage_CopySrc | WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding;
         textureDesc.label = {"Rune Viewport", 13};
         textureDesc.viewFormatCount = 0;
@@ -23,7 +23,7 @@ namespace Rune {
 
         WGPUTextureViewDescriptor viewDesc = {};
         viewDesc.nextInChain = nullptr;
-        viewDesc.format = WGPUTextureFormat_RGBA8Unorm;
+        viewDesc.format = caps.formats[0];
         viewDesc.dimension = WGPUTextureViewDimension_2D;
         viewDesc.baseMipLevel = 0;
         viewDesc.mipLevelCount = 1;
@@ -31,6 +31,30 @@ namespace Rune {
         viewDesc.arrayLayerCount = 1;
         viewDesc.aspect = WGPUTextureAspect_All;
         textureView = wgpuTextureCreateView(texture, &viewDesc);
+    
+        WGPUTextureDescriptor depthDesc = {};
+        depthDesc.dimension = WGPUTextureDimension_2D;
+        depthDesc.format = WGPUTextureFormat_Depth24Plus;
+        depthDesc.mipLevelCount = 1;
+        depthDesc.sampleCount = 1;
+        depthDesc.size.width = width;
+        depthDesc.size.height = height;
+        depthDesc.size.depthOrArrayLayers = 1;
+        depthDesc.usage = WGPUTextureUsage_RenderAttachment;
+
+        WGPUTexture depthTexture = wgpuDeviceCreateTexture(device, &depthDesc);
+
+        WGPUTextureViewDescriptor depthViewDesc = {};
+        depthViewDesc.aspect = WGPUTextureAspect_DepthOnly;
+        depthViewDesc.baseArrayLayer = 0;
+        depthViewDesc.arrayLayerCount = 1;
+        depthViewDesc.baseMipLevel = 0;
+        depthViewDesc.mipLevelCount = 1;
+        depthViewDesc.dimension = WGPUTextureViewDimension_2D;
+        depthViewDesc.format = WGPUTextureFormat_Depth24Plus;
+
+        depthTextureView = wgpuTextureCreateView(depthTexture, &depthViewDesc);
+
     }
 
     void Viewport::SetupFrame() {
@@ -49,9 +73,22 @@ namespace Rune {
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.depthSlice = NULL;
         passDesc.colorAttachments = &colorAttachment;
-        passDesc.depthStencilAttachment = NULL;
+        WGPURenderPassDepthStencilAttachment depthStencilAttachment = {};
+        depthStencilAttachment.view = depthTextureView;
+        depthStencilAttachment.depthClearValue = 1.0f;
+        depthStencilAttachment.depthLoadOp = WGPULoadOp_Clear;
+        depthStencilAttachment.depthStoreOp = WGPUStoreOp_Store;
+        depthStencilAttachment.depthReadOnly = false;
+        depthStencilAttachment.stencilClearValue = 0;
+        depthStencilAttachment.stencilLoadOp = WGPULoadOp_Clear;
+        depthStencilAttachment.stencilStoreOp = WGPUStoreOp_Store;
+        depthStencilAttachment.stencilReadOnly = true;
+
+        passDesc.depthStencilAttachment = &depthStencilAttachment;
+
         passDesc.occlusionQuerySet = NULL;
         passDesc.timestampWrites = NULL;
+        
 
         renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &passDesc);
     }
@@ -65,4 +102,7 @@ namespace Rune {
     }
 
 
+    void Viewport::Activate() {
+        activeRenderPass = renderPass;
+    }
 }

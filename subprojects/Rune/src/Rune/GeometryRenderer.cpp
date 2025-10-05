@@ -291,10 +291,10 @@ namespace Rune
             float screenData[2] = {(float)windowWidth, (float)windowHeight};
             wgpuQueueWriteBuffer(queue, screenSizeBuffer, 0, screenData, sizeof(screenData));
 
-            wgpuRenderPassEncoderSetBindGroup(renderPass, 0, bindGroup, 0, nullptr);
-            wgpuRenderPassEncoderSetPipeline(renderPass, pipeline);
-            wgpuRenderPassEncoderSetVertexBuffer(renderPass, 0, vertexBuffer, 0, WGPU_WHOLE_SIZE);
-            wgpuRenderPassEncoderDraw(renderPass, vertexCount, 1, 0, 0);
+            wgpuRenderPassEncoderSetBindGroup(activeRenderPass, 0, bindGroup, 0, nullptr);
+            wgpuRenderPassEncoderSetPipeline(activeRenderPass, pipeline);
+            wgpuRenderPassEncoderSetVertexBuffer(activeRenderPass, 0, vertexBuffer, 0, WGPU_WHOLE_SIZE);
+            wgpuRenderPassEncoderDraw(activeRenderPass, vertexCount, 1, 0, 0);
         }
         
     }

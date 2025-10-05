@@ -94,8 +94,6 @@ namespace Radium {
             SDL_FreeSurface(glyphSurface);
         }
 
-
-        spdlog::info("copying ");
         void* copiedPixels = malloc(atlas->h * atlas->pitch);
         memcpy(copiedPixels, atlas->pixels, atlas->h * atlas->pitch);
 
@@ -108,9 +106,6 @@ namespace Radium {
         }
 
         spdlog::info("Created SpriteBatch: {}", static_cast<void*>(batch));
-
-
-        spdlog::info("Made it");
 
         SDL_FreeSurface(atlas);
     }

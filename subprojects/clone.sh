@@ -9,3 +9,4 @@ git clone https://github.com/ocornut/imgui --branch docking --depth 1 --recursiv
 git clone https://github.com/wolfpld/tracy --depth 1 --recursive
 git clone https://github.com/erincatto/box2d --depth 1 --recursive
 git clone https://github.com/ChaiScript/ChaiScript --depth 1 --recursive
+git clone https://github.com/BalazsJako/ImGuiColorTextEdit --depth 1 --recursive

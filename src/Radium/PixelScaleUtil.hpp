@@ -3,7 +3,7 @@
 
 namespace Radium {
     constexpr float baseWidth = 640.0f;
-    constexpr float baseHeight = 480.0f;
+    constexpr float baseHeight = 360.0f;
 
     inline float GetPixelScale() {
         

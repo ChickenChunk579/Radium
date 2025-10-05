@@ -27,7 +27,8 @@ namespace Rune {
     extern WGPUSurface surface;
     extern WGPUAdapter adapter;
     extern WGPUDevice device;
-    extern WGPURenderPassEncoder renderPass;
+    extern WGPURenderPassEncoder activeRenderPass;
+    extern WGPURenderPassEncoder windowRenderPass;
     extern WGPUTextureView targetView;
     extern WGPUCommandEncoder encoder;
     extern WGPUQueue queue;

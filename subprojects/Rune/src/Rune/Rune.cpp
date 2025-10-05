@@ -243,7 +243,8 @@ namespace Rune
     WGPUSurface surface = nullptr;
     WGPUAdapter adapter = nullptr;
     WGPUDevice device = nullptr;
-    WGPURenderPassEncoder renderPass = nullptr;
+    WGPURenderPassEncoder activeRenderPass = nullptr;
+    WGPURenderPassEncoder windowRenderPass = nullptr;
     WGPUTextureView targetView = nullptr;
     WGPUCommandEncoder encoder = nullptr;
     WGPUSurfaceCapabilities caps;
@@ -632,8 +633,10 @@ namespace Rune
         renderPassDesc.depthStencilAttachment = &depthStencilAttachment;
 
         // Create the render pass and end it immediately (we only clear the screen but do not draw anything)
-        renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
+        windowRenderPass = wgpuCommandEncoderBeginRenderPass(encoder, &renderPassDesc);
         Rune::TraceZoneEnd();
+
+        activeRenderPass = windowRenderPass;
     }
 
     void ProcessEvents()
@@ -659,8 +662,8 @@ namespace Rune
 
     void FinishFrame()
     {
-        wgpuRenderPassEncoderEnd(renderPass);
-        wgpuRenderPassEncoderRelease(renderPass);
+        wgpuRenderPassEncoderEnd(activeRenderPass);
+        wgpuRenderPassEncoderRelease(activeRenderPass);
 
         // Finally encode and submit the render pass
         WGPUCommandBufferDescriptor cmdBufferDescriptor = {};

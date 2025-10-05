@@ -1,4 +1,7 @@
 #include <Radium/Application.hpp>
+#include <Radium/SpriteBatchRegistry.hpp>
+#include <Radium/SubViewport.hpp>
+#include <Radium/Nodes/2D/Sprite2D.hpp>
 #include "imgui.h"
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/base_sink.h>
@@ -9,6 +12,7 @@
 #include <Radium/imgui_impl_rune.h>
 #include <Rune/Viewport.hpp>
 #include <Rune/Texture.hpp>
+#include <TextEditor.h>
 
 // Simple thread-safe console buffer used by the ImGui sink and UI
 struct ImGuiConsole
@@ -124,23 +128,326 @@ void imguiTheme()
     style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.65f, 0.20f, 0.25f, 1.00f);
     style.Colors[ImGuiCol_DockingPreview] = ImVec4(0.92f, 0.18f, 0.29f, 0.50f);
     style.Colors[ImGuiCol_Border] = ImVec4(0.92f, 0.18f, 0.29f, 1.0f); // Bright red outline, fully opaque
+}
 
-    ImGuiIO &io = ImGui::GetIO();
+TextEditor::Palette RadiumPalette()
+{
+    using PI = TextEditor::PaletteIndex;
+    TextEditor::Palette palette;
 
-    ImFont *customFont = io.Fonts->AddFontFromFileTTF("assets/Roboto/static/Roboto-Light.ttf", 16.0f);
+    palette[(int)PI::Default]              = IM_COL32(220, 220, 220, 255);  // neutral light gray
+    palette[(int)PI::Keyword]              = IM_COL32(235, 46, 71, 255);    // red (from theme: 0.92f, 0.18f, 0.29f)
+    palette[(int)PI::Number]               = IM_COL32(147, 220, 236, 255);  // cyan/teal
+    palette[(int)PI::String]               = IM_COL32(200, 235, 153, 255);  // light yellow-green
+    palette[(int)PI::CharLiteral]          = IM_COL32(255, 198, 109, 255);  // orange-ish
+    palette[(int)PI::Punctuation]          = IM_COL32(220, 220, 220, 255);  // neutral
+    palette[(int)PI::Preprocessor]         = IM_COL32(235, 46, 71, 255);    // red
+    palette[(int)PI::Identifier]           = IM_COL32(178, 220, 245, 255);  // soft cyan
+    palette[(int)PI::KnownIdentifier]      = IM_COL32(106, 200, 255, 255);  // blue-cyan
+    palette[(int)PI::PreprocIdentifier]    = IM_COL32(255, 109, 122, 255);  // soft red-pink
+    palette[(int)PI::Comment]              = IM_COL32(144, 153, 163, 255);  // gray-blue
+    palette[(int)PI::MultiLineComment]     = IM_COL32(144, 153, 163, 255);  // gray-blue
+    palette[(int)PI::Background]           = IM_COL32(34, 36, 44, 255);     // dark background (0.13f, 0.14f, 0.17f)
+    palette[(int)PI::Cursor]               = IM_COL32(255, 255, 255, 255);  // white
+    palette[(int)PI::Selection]            = IM_COL32(235, 46, 71, 110);    // red + alpha (ImGuiCol_TextSelectedBg)
+    palette[(int)PI::ErrorMarker]          = IM_COL32(255, 0, 0, 255);      // bright red
+    palette[(int)PI::Breakpoint]           = IM_COL32(255, 50, 50, 255);    // bright red
+    palette[(int)PI::LineNumber]           = IM_COL32(128, 128, 128, 255);  // medium gray
+    palette[(int)PI::CurrentLineFill]      = IM_COL32(64, 64, 64, 0);      // subtle background
+    palette[(int)PI::CurrentLineFillInactive] = IM_COL32(48, 48, 48, 0);  // slightly dimmer
+    palette[(int)PI::CurrentLineEdge]      = IM_COL32(60, 60, 60, 0);     // line edge indicator
 
-    if (customFont == nullptr)
-    {
-        spdlog::error("Failed to load font!");
-    }
+    return palette;
+}
 
-    io.FontDefault = customFont;
+
+
+static bool TokenizeCStyleString(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end)
+{
+	const char * p = in_begin;
+
+	if (*p == '"')
+	{
+		p++;
+
+		while (p < in_end)
+		{
+			// handle end of string
+			if (*p == '"')
+			{
+				out_begin = in_begin;
+				out_end = p + 1;
+				return true;
+			}
+
+			// handle escape character for "
+			if (*p == '\\' && p + 1 < in_end && p[1] == '"')
+				p++;
+
+			p++;
+		}
+	}
+
+	return false;
+}
+
+static bool TokenizeCStyleCharacterLiteral(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end)
+{
+	const char * p = in_begin;
+
+	if (*p == '\'')
+	{
+		p++;
+
+		// handle escape characters
+		if (p < in_end && *p == '\\')
+			p++;
+
+		if (p < in_end)
+			p++;
+
+		// handle end of character literal
+		if (p < in_end && *p == '\'')
+		{
+			out_begin = in_begin;
+			out_end = p + 1;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static bool TokenizeCStyleIdentifier(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end)
+{
+	const char * p = in_begin;
+
+	if ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || *p == '_')
+	{
+		p++;
+
+		while ((p < in_end) && ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') || (*p >= '0' && *p <= '9') || *p == '_'))
+			p++;
+
+		out_begin = in_begin;
+		out_end = p;
+		return true;
+	}
+
+	return false;
+}
+
+static bool TokenizeCStyleNumber(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end)
+{
+	const char * p = in_begin;
+
+	const bool startsWithNumber = *p >= '0' && *p <= '9';
+
+	if (*p != '+' && *p != '-' && !startsWithNumber)
+		return false;
+
+	p++;
+
+	bool hasNumber = startsWithNumber;
+
+	while (p < in_end && (*p >= '0' && *p <= '9'))
+	{
+		hasNumber = true;
+
+		p++;
+	}
+
+	if (hasNumber == false)
+		return false;
+
+	bool isFloat = false;
+	bool isHex = false;
+	bool isBinary = false;
+
+	if (p < in_end)
+	{
+		if (*p == '.')
+		{
+			isFloat = true;
+
+			p++;
+
+			while (p < in_end && (*p >= '0' && *p <= '9'))
+				p++;
+		}
+		else if (*p == 'x' || *p == 'X')
+		{
+			// hex formatted integer of the type 0xef80
+
+			isHex = true;
+
+			p++;
+
+			while (p < in_end && ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F')))
+				p++;
+		}
+		else if (*p == 'b' || *p == 'B')
+		{
+			// binary formatted integer of the type 0b01011101
+
+			isBinary = true;
+
+			p++;
+
+			while (p < in_end && (*p >= '0' && *p <= '1'))
+				p++;
+		}
+	}
+
+	if (isHex == false && isBinary == false)
+	{
+		// floating point exponent
+		if (p < in_end && (*p == 'e' || *p == 'E'))
+		{
+			isFloat = true;
+
+			p++;
+
+			if (p < in_end && (*p == '+' || *p == '-'))
+				p++;
+
+			bool hasDigits = false;
+
+			while (p < in_end && (*p >= '0' && *p <= '9'))
+			{
+				hasDigits = true;
+
+				p++;
+			}
+
+			if (hasDigits == false)
+				return false;
+		}
+
+		// single precision floating point type
+		if (p < in_end && *p == 'f')
+			p++;
+	}
+
+	if (isFloat == false)
+	{
+		// integer size type
+		while (p < in_end && (*p == 'u' || *p == 'U' || *p == 'l' || *p == 'L'))
+			p++;
+	}
+
+	out_begin = in_begin;
+	out_end = p;
+	return true;
+}
+
+static bool TokenizeCStylePunctuation(const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end)
+{
+	(void)in_end;
+
+	switch (*in_begin)
+	{
+	case '[':
+	case ']':
+	case '{':
+	case '}':
+	case '!':
+	case '%':
+	case '^':
+	case '&':
+	case '*':
+	case '(':
+	case ')':
+	case '-':
+	case '+':
+	case '=':
+	case '~':
+	case '|':
+	case '<':
+	case '>':
+	case '?':
+	case ':':
+	case '/':
+	case ';':
+	case ',':
+	case '.':
+		out_begin = in_begin;
+		out_end = in_begin + 1;
+		return true;
+	}
+
+	return false;
+}
+
+const TextEditor::LanguageDefinition& ChaiScript() {
+    static bool inited = false;
+	static TextEditor::LanguageDefinition langDef;
+	if (!inited)
+	{
+		static const char* const keywords[] = {
+			"attr", "auto", "break", "def", "else",
+            "for", "fun", "if", "try", "while", "var",
+            "global"
+		};
+		for (auto& k : keywords)
+			langDef.mKeywords.insert(k);
+
+		static const char* const identifiers[] = {
+			"this"
+		};
+		for (auto& k : identifiers)
+		{
+			TextEditor::Identifier id;
+			id.mDeclaration = "Built-in function";
+			langDef.mIdentifiers.insert(std::make_pair(std::string(k), id));
+		}
+
+		langDef.mTokenize = [](const char * in_begin, const char * in_end, const char *& out_begin, const char *& out_end, TextEditor::PaletteIndex & paletteIndex) -> bool
+		{
+			paletteIndex = TextEditor::PaletteIndex::Max;
+
+			while (in_begin < in_end && isascii(*in_begin) && isblank(*in_begin))
+				in_begin++;
+
+			if (in_begin == in_end)
+			{
+				out_begin = in_end;
+				out_end = in_end;
+				paletteIndex = TextEditor::PaletteIndex::Default;
+			}
+			else if (TokenizeCStyleString(in_begin, in_end, out_begin, out_end))
+				paletteIndex = TextEditor::PaletteIndex::String;
+			else if (TokenizeCStyleCharacterLiteral(in_begin, in_end, out_begin, out_end))
+				paletteIndex = TextEditor::PaletteIndex::CharLiteral;
+			else if (TokenizeCStyleIdentifier(in_begin, in_end, out_begin, out_end))
+				paletteIndex = TextEditor::PaletteIndex::Identifier;
+			else if (TokenizeCStyleNumber(in_begin, in_end, out_begin, out_end))
+				paletteIndex = TextEditor::PaletteIndex::Number;
+			else if (TokenizeCStylePunctuation(in_begin, in_end, out_begin, out_end))
+				paletteIndex = TextEditor::PaletteIndex::Punctuation;
+
+			return paletteIndex != TextEditor::PaletteIndex::Max;
+		};
+
+		langDef.mCommentStart = "/*";
+		langDef.mCommentEnd = "*/";
+		langDef.mSingleLineComment = "//";
+
+		langDef.mCaseSensitive = true;
+		langDef.mAutoIndentation = true;
+
+		langDef.mName = "ChaiScript";
+
+		inited = true;
+	}
+	return langDef;
 }
 
 class Editor : public Radium::Application
 {
 public:
-    Rune::Viewport *scene;
+    TextEditor* editor;
+    Radium::SubViewport *scene;
     ImTextureID sceneTexture;
     // Keep the sink alive for the lifetime of the application
     std::shared_ptr<spdlog::sinks::sink> imguiSink;
@@ -162,11 +469,40 @@ public:
 
     void OnLoad() override
     {
+        Radium::SpriteBatchRegistry::Add("flappy", "texture.png", Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
+
         imguiTheme();
-        scene = new Rune::Viewport(640, 480);
-        Rune::Texture *tex = new Rune::Texture(scene->textureView, Rune::SamplingMode::Nearest);
+        scene = new Radium::SubViewport(1280, 720);
+        Rune::Texture *tex = new Rune::Texture(scene->viewport->textureView, Rune::SamplingMode::Nearest);
+        
+        
+        Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
+        background->batchTag = "flappy";
+        background->sourceRect = {0, 0, 288, 512};
+        background->textureWidth = 1024;
+        background->textureHeight = 1024;
+        background->position = {0, 0};
+        background->r = 1.0f;
+        background->g = 1.0f;
+        background->b = 1.0f;
+        background->z = -10.0f;
+        background->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
+        background->position.x = 0;
+        background->size = {228, 512};
+
+        scene->tree.nodes.push_back(background);
+        
+        scene->OnLoad();
 
         sceneTexture = ImGui_ImplRune_TextureToID(tex);
+    
+        editor = new TextEditor();
+
+        auto lang = ChaiScript();
+
+        editor->SetLanguageDefinition(lang);
+        editor->SetPalette(RadiumPalette());
+        editor->SetShowWhitespaces(false);
     }
 
     void OnEarlyLoad() override
@@ -182,12 +518,12 @@ public:
 
     void OnTick(float dt) override
     {
+        scene->OnTick(dt);
     }
 
     void OnPreRender() override
     {
-        scene->SetupFrame();
-        scene->FinishFrame();
+        scene->OnRender();
     }
 
     void OnRender() override
@@ -196,6 +532,7 @@ public:
 
     void OnImgui() override
     {
+        scene->OnImgui();
         {
             ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -287,8 +624,8 @@ public:
             ImVec2 avail = ImGui::GetContentRegionAvail();
 
             // Fallback in case viewport size is invalid
-            int imgW = (scene && scene->width > 0) ? scene->width : 640;
-            int imgH = (scene && scene->height > 0) ? scene->height : 480;
+            int imgW = (scene && scene->viewport->width > 0) ? scene->viewport->width : 1280;
+            int imgH = (scene && scene->viewport->height > 0) ? scene->viewport->height : 720;
 
             float imageAspect = (float)imgW / (float)imgH;
 
@@ -332,6 +669,14 @@ public:
 
             ImGui::Dummy({0, 0});
 
+            ImGui::End();
+        }
+
+        {
+            ImGui::Begin("Code Editor");
+            
+            editor->Render("Code Editor");
+            
             ImGui::End();
         }
     }
