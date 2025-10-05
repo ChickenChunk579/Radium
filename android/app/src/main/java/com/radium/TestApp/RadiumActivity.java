@@ -16,7 +16,7 @@ public class RadiumActivity extends SDLActivity
     @Override
     protected String[] getLibraries() {
         return new String[]{
-                "TestApp"
+                "RadiumRuntime"
         };
     }
 }
