@@ -1,5 +1,6 @@
 #include <Radium/Application.hpp>
 #include <Radium/SpriteBatchRegistry.hpp>
+#include <Radium/Nodes/ClassDB.hpp>
 #include <Radium/SubViewport.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include "imgui.h"
@@ -13,6 +14,9 @@
 #include <Rune/Viewport.hpp>
 #include <Rune/Texture.hpp>
 #include <TextEditor.h>
+#include <unordered_map>
+#include <cstdint>
+#include <algorithm>
 
 // Simple thread-safe console buffer used by the ImGui sink and UI
 struct ImGuiConsole
@@ -451,6 +455,7 @@ public:
     ImTextureID sceneTexture;
     // Keep the sink alive for the lifetime of the application
     std::shared_ptr<spdlog::sinks::sink> imguiSink;
+    Radium::Nodes::Node* selectedNode = nullptr;
 
     std::string GetTitle() override
     {
@@ -488,7 +493,25 @@ public:
         background->z = -10.0f;
         background->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
         background->position.x = 0;
-        background->size = {228, 512};
+        background->size = {288, 512};
+        background->name = "Background";
+
+        scene->tree.nodes.push_back(background);
+
+        Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
+        background->batchTag = "flappy";
+        background->sourceRect = {0, 0, 288, 512};
+        background->textureWidth = 1024;
+        background->textureHeight = 1024;
+        background->position = {0, 0};
+        background->r = 1.0f;
+        background->g = 1.0f;
+        background->b = 1.0f;
+        background->z = -10.0f;
+        background->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
+        background->position.x = 0;
+        background->size = {288, 512};
+        background->name = "Background";
 
         scene->tree.nodes.push_back(background);
         
@@ -503,6 +526,10 @@ public:
         editor->SetLanguageDefinition(lang);
         editor->SetPalette(RadiumPalette());
         editor->SetShowWhitespaces(false);
+
+        Radium::Nodes::Node::Register();
+        Radium::Nodes::Node2D::Register();
+        Radium::Nodes::Sprite2D::Register();
     }
 
     void OnEarlyLoad() override
@@ -529,6 +556,57 @@ public:
     void OnRender() override
     {
     }
+
+    void DrawNode(Radium::Nodes::Node* node) {
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+
+        if (node->children.empty()) {
+            flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+        }
+
+        bool open = ImGui::TreeNodeEx((void*)(intptr_t)&node, flags, "%s", node->name.c_str());
+
+        if (ImGui::IsItemClicked()) {
+            selectedNode = node;
+        }
+
+        if (open && !node->children.empty()) {
+            for (auto& child : node->children)
+                DrawNode(child);
+            ImGui::TreePop();
+        }
+    }
+
+    void ImGuiTextEdit(const std::string &label, std::string &val) {
+        // Use a persistent per-node+property buffer so multiple InputText fields
+        // don't share the same backing memory (which causes collisions and
+        // ImGui ID warnings). Keyed by selectedNode pointer + property label.
+        static std::unordered_map<std::string, std::vector<char>> s_textBuffers;
+
+        // Build a unique key per selected node and property label
+        std::string nodeKey = "null";
+        if (selectedNode)
+            nodeKey = std::to_string((uintptr_t)selectedNode);
+        std::string key = nodeKey + ":" + label;
+
+        auto &buf = s_textBuffers[key];
+        if (buf.empty()) {
+            // initialize buffer with existing value; keep a reasonable reserve
+            size_t desired = std::max<size_t>(256, val.size() + 1);
+            buf.assign(desired, '\0');
+            strncpy(buf.data(), val.c_str(), desired - 1);
+        }
+
+        // Ensure unique ImGui id (PushID) so labels may be reused across nodes
+        ImGui::PushID(key.c_str());
+        bool changed = ImGui::InputText(label.c_str(), buf.data(), buf.size());
+        ImGui::PopID();
+
+        if (changed) {
+            val = std::string(buf.data());
+        }
+    }
+
 
     void OnImgui() override
     {
@@ -574,8 +652,69 @@ public:
         {
             ImGui::Begin("Inspector");
 
+            if (selectedNode) {
+                ImGuiTextEdit("Name", selectedNode->name);
+                
+                ImGui::Separator();
+
+                for (auto property : Radium::Nodes::ClassDB::GetProperties(selectedNode)) {
+                    ImGui::PushID(selectedNode);
+                    ImGui::PushID(property.name.c_str());
+                    if (property.name == "name") {
+                        continue;
+                    }
+                    if (property.type == "Radium::Vector2f") {
+                        Radium::Vector2f* value = Radium::Nodes::ClassDB::GetPropertyPointer<Radium::Vector2f>(property.name, selectedNode);
+                    
+                        float val[2] = {value->x, value->y};
+
+                        ImGui::InputFloat2(property.name.c_str(), val);
+
+                        value->x = val[0];
+                        value->y = val[1];
+                    }
+                    if (property.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >") {
+                        // Edit the actual property string in-place. Use GetPropertyPointer so changes
+                        // persist back to the node.
+                        std::string* strPtr = Radium::Nodes::ClassDB::GetPropertyPointer<std::string>(property.name, selectedNode);
+                        if (strPtr) {
+                            ImGuiTextEdit(property.name, *strPtr);
+                        }
+                    }
+                    if (property.type == "float") {
+                        float* f = Radium::Nodes::ClassDB::GetPropertyPointer<float>(property.name, selectedNode);
+                        ImGui::InputFloat(property.name.c_str(), f);
+                    }
+                    if (property.type == "unsigned int") {
+                        unsigned int* f = Radium::Nodes::ClassDB::GetPropertyPointer<unsigned int>(property.name, selectedNode);
+                        ImGui::InputScalar(property.name.c_str(), ImGuiDataType_U32, f);
+                    }
+                    if (property.type == "Radium::RectangleF") {
+                        Radium::RectangleF* value = Radium::Nodes::ClassDB::GetPropertyPointer<Radium::RectangleF>(property.name, selectedNode);
+                    
+                        float pos[2] = {value->x, value->y};
+                        float size[2] = {value->w, value->h};
+
+                        if (ImGui::CollapsingHeader(property.name.c_str())) {
+                            ImGui::Indent();
+                            ImGui::InputFloat2("Position", pos);
+                            ImGui::InputFloat2("Size", size);
+                            ImGui::Unindent();
+
+                            value->x = pos[0];
+                            value->y = pos[1];
+                            value->w = size[0];
+                            value->h = size[1];
+                        }
+                    }
+                    ImGui::PopID();
+                    ImGui::PopID();
+                }
+            }
+
             ImGui::End();
         }
+
         {
             ImGui::Begin("Assets");
 
@@ -583,6 +722,10 @@ public:
         }
         {
             ImGui::Begin("Hierarchy");
+
+            for (auto node : scene->tree.nodes) {
+                DrawNode(node);
+            }
 
             ImGui::End();
         }

@@ -245,6 +245,7 @@ namespace Rune
     WGPUDevice device = nullptr;
     WGPURenderPassEncoder activeRenderPass = nullptr;
     WGPURenderPassEncoder windowRenderPass = nullptr;
+    Viewport* currentViewport = nullptr;
     WGPUTextureView targetView = nullptr;
     WGPUCommandEncoder encoder = nullptr;
     WGPUSurfaceCapabilities caps;

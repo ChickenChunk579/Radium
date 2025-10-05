@@ -91,6 +91,7 @@ namespace Rune {
         
 
         renderPass = wgpuCommandEncoderBeginRenderPass(encoder, &passDesc);
+        Activate();
     }
 
     void Viewport::FinishFrame() {
@@ -99,10 +100,13 @@ namespace Rune {
         cmdBufDesc.nextInChain = nullptr;
 
         wgpuRenderPassEncoderEnd(renderPass);
+        currentViewport = nullptr;
+        activeRenderPass = windowRenderPass;
     }
 
 
     void Viewport::Activate() {
         activeRenderPass = renderPass;
+        currentViewport = this;
     }
 }

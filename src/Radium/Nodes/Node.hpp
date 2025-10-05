@@ -13,6 +13,7 @@ namespace Radium::Nodes {
         Node* parent;
         std::vector<Node*> children;
         Script* script = nullptr;
+        std::string name;
 
         virtual void OnLoad();
         virtual void OnTick(float dt);

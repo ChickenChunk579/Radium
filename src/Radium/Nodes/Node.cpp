@@ -3,7 +3,7 @@
 
 namespace Radium::Nodes {
     Node::Node() : parent(nullptr) {
-        
+        name = std::string(Demangle(typeid(this).name()));
     }
 
     void Node::Register() {

@@ -6,6 +6,7 @@
 #ifndef __EMSCRIPTEN__
 #include <webgpu/wgpu.h>   // Native header
 #endif
+
 #include <vector>
 
 #if defined(__linux__)
@@ -23,12 +24,15 @@
 
 namespace Rune {
 
+    class Viewport;
+
     extern WGPUInstance instance;
     extern WGPUSurface surface;
     extern WGPUAdapter adapter;
     extern WGPUDevice device;
     extern WGPURenderPassEncoder activeRenderPass;
     extern WGPURenderPassEncoder windowRenderPass;
+    extern Viewport* currentViewport;
     extern WGPUTextureView targetView;
     extern WGPUCommandEncoder encoder;
     extern WGPUQueue queue;

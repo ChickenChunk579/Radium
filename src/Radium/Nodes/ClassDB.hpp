@@ -166,6 +166,33 @@ namespace Radium::Nodes
             throw std::runtime_error("Property not found");
         }
 
+        template <typename T>
+        T* GetPropertyPointer(std::string propertyName, Object *instance)
+        {
+            std::string typeName = Demangle(typeid(*instance).name());
+            ClassInfo *info = &registeredClasses[typeName];
+
+            while (info)
+            {
+                for (const PropertyInfo &prop : info->properties)
+                {
+                    if (prop.name == propertyName)
+                    {
+                        if (prop.size != sizeof(T))
+                        {
+                            throw std::runtime_error("Property size mismatch");
+                        }
+
+                        uint8_t *basePtr = reinterpret_cast<uint8_t *>(instance);
+                        return reinterpret_cast<T *>(basePtr + prop.offset);
+                    }
+                }
+                info = info->parent;
+            }
+
+            throw std::runtime_error("Property not found");
+        }
+
         inline ClassInfo GetClassInfo(Object *object)
         {
             return registeredClasses[Demangle(typeid(*object).name())];
@@ -202,7 +229,7 @@ namespace Radium::Nodes
 
         inline std::string GetType(Object *object)
         {
-            return typeid(*object).name();
+            return Demangle(typeid(*object).name());
         }
 
         inline Object* Create(const std::string& className)
