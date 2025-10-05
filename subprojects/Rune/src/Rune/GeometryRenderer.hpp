@@ -26,9 +26,12 @@ namespace Rune
         void SetTexture(Rune::Texture* newTexture);
     private:
         Rune::Texture* texture;
+    bool ownedFallbackTexture = false;
 
         WGPUBuffer vertexBuffer = nullptr;
         WGPUBuffer screenSizeBuffer = nullptr;
+    size_t vertexBufferCapacity = 0;
+    std::vector<WGPUBuffer> oldVertexBuffers; // buffers waiting for safe destruction
 
         WGPUBindGroup bindGroup = nullptr;
         WGPUBindGroupLayout bindGroupLayout = nullptr;

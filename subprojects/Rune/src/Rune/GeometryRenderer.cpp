@@ -57,6 +57,8 @@ namespace Rune
                 (char)255, (char)255, (char)255, (char)255
             };
             this->texture = new Texture(1, 1, 4, data, Rune::SamplingMode::Linear);
+            // we own this fallback texture
+            ownedFallbackTexture = true;
         } else {
             this->texture = texture;
         }
@@ -273,15 +275,33 @@ namespace Rune
     {
         vertexCount = vertices.size() / 7;
 
-        // Instead of destroying old buffer, just create a new one
-        WGPUBufferDescriptor vbDesc = {};
-        vbDesc.size = vertices.size() * sizeof(float);
-        vbDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
-        vbDesc.label = Rune::CreateString("Geometry Renderer Vertex Buffer");
+        size_t requiredSize = vertices.size() * sizeof(float);
+        if (!vertexBuffer || requiredSize > vertexBufferCapacity) {
+            // If buffer exists but is too small, destroy and recreate with larger capacity
+            if (vertexBuffer) {
+                // Defer destruction: keep reference to old buffer and destroy in destructor
+                oldVertexBuffers.push_back(vertexBuffer);
+                vertexBuffer = nullptr;
+                spdlog::info("Queued old vertex buffer for deletion");
+            }
 
-        vertexBuffer = wgpuDeviceCreateBuffer(device, &vbDesc);
+            // Grow capacity (double strategy)
+            vertexBufferCapacity = std::max(requiredSize, vertexBufferCapacity * 2);
+            if (vertexBufferCapacity == 0) vertexBufferCapacity = requiredSize;
 
-        wgpuQueueWriteBuffer(queue, vertexBuffer, 0, vertices.data(), vbDesc.size);
+            WGPUBufferDescriptor vbDesc = {};
+            vbDesc.size = vertexBufferCapacity;
+            vbDesc.usage = WGPUBufferUsage_Vertex | WGPUBufferUsage_CopyDst;
+            vbDesc.label = Rune::CreateString("Geometry Renderer Vertex Buffer");
+
+            vertexBuffer = wgpuDeviceCreateBuffer(device, &vbDesc);
+            if (vertexBuffer) {
+                spdlog::info("Recreated vertex buffer");
+            }
+        }
+
+        // Update contents (only requiredSize bytes)
+        wgpuQueueWriteBuffer(queue, vertexBuffer, 0, vertices.data(), requiredSize);
     }
 
 
@@ -301,9 +321,25 @@ namespace Rune
 
     GeometryRenderer::~GeometryRenderer()
     {
+        // Destroy current and previously queued vertex buffers
         if (vertexBuffer)
             wgpuBufferDestroy(vertexBuffer);
+        for (auto &b : oldVertexBuffers) {
+            if (b)
+                wgpuBufferDestroy(b);
+        }
+        oldVertexBuffers.clear();
+
         if (screenSizeBuffer)
             wgpuBufferDestroy(screenSizeBuffer);
+        if (bindGroup)
+            wgpuBindGroupRelease(bindGroup);
+
+        // If we created a fallback texture, destroy and delete it
+        if (ownedFallbackTexture && texture) {
+            texture->Destroy();
+            delete texture;
+            texture = nullptr;
+        }
     }
 }
