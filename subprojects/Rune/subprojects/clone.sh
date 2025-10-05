@@ -1,0 +1,1 @@
+git clone https://github.com/gabime/spdlog --depth 1 --recursive

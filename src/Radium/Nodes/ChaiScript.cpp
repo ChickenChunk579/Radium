@@ -5,6 +5,7 @@
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include <spdlog/spdlog.h>
+#include <Radium/AssetLoader.hpp>
 
 namespace Radium::Nodes
 {
@@ -38,8 +39,14 @@ namespace Radium::Nodes
     {
     }
 
-    ChaiScript::ChaiScript(std::string path)
+    ChaiScript::ChaiScript(std::string path, bool real)
     {
+        this->path = path;
+        if (!real) {
+            stubbed = true;
+            return;
+        }
+
         chai.add(chaiscript::fun(&infoWrap), "info");
         chai.add(chaiscript::fun(&errorWrap), "error");
         chai.add(chaiscript::fun(&warnWrap), "warn");
@@ -349,11 +356,15 @@ namespace Radium::Nodes
         chai.add_global_const(chaiscript::const_var(Key::ENDCALL), "ENDCALL");
         chai.add_global_const(chaiscript::const_var(Key::NUM_SCANCODES), "NUM_SCANCODES");
 
-        chai.eval_file(path);
+
+        chai.eval(ReadFileToString(path));
     }
 
     void ChaiScript::OnLoad()
     {
+        if (stubbed) {
+            return;
+        }
         std::function<void()> onLoad = chai.eval<std::function<void()>>("onLoad");
 
         onLoad();
@@ -361,6 +372,9 @@ namespace Radium::Nodes
 
     void ChaiScript::OnTick(float dt)
     {
+        if (stubbed) {
+            return;
+        }
         std::function<void(float)> onTick = chai.eval<std::function<void(float)>>("onTick");
 
         onTick(dt);
@@ -368,6 +382,9 @@ namespace Radium::Nodes
 
     void ChaiScript::OnRender()
     {
+        if (stubbed) {
+            return;
+        }
         std::function<void()> onRender = chai.eval<std::function<void()>>("onRender");
 
         onRender();
@@ -375,6 +392,9 @@ namespace Radium::Nodes
 
     void ChaiScript::OnImgui()
     {
+        if (stubbed) {
+            return;
+        }
         std::function<void()> onImgui = chai.eval<std::function<void()>>("onImgui");
 
         onImgui();

@@ -15,8 +15,8 @@ namespace Radium::Nodes {
         CLASSDB_DECLARE_PROPERTY(Sprite2D, float, g);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, float, b);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, Radium::RectangleF, sourceRect);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint, textureWidth);
-        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint, textureHeight);
+        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint32_t, textureWidth);
+        CLASSDB_DECLARE_PROPERTY(Sprite2D, uint32_t, textureHeight);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, float, rotation);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, float, z);
         CLASSDB_DECLARE_PROPERTY(Sprite2D, uint32_t, flags);
@@ -47,10 +47,10 @@ namespace Radium::Nodes {
 
             batch->DrawImageRect(
                 drawX, drawY,
-                (uint)sourceRect.w * Radium::GetPixelScale(), (uint)sourceRect.h * Radium::GetPixelScale(),
+                (uint32_t)sourceRect.w * Radium::GetPixelScale(), (uint32_t)sourceRect.h * Radium::GetPixelScale(),
                 r, g, b,
-                (uint)sourceRect.x, (uint)sourceRect.y,
-                (uint)size.x, (uint)size.y,
+                (uint32_t)sourceRect.x, (uint32_t)sourceRect.y,
+                (uint32_t)size.x, (uint32_t)size.y,
                 textureWidth, textureHeight,
                 rotation, z, flags
             );

@@ -2,6 +2,7 @@
 
 namespace Radium::Nodes::ClassDB {
     std::unordered_map<std::string, ClassInfo> registeredClasses;
+    std::vector<std::string> enums;
 }
 namespace Radium::Nodes {
     std::string Demangle(const char* name) {

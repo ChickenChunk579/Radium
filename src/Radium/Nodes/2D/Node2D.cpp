@@ -9,6 +9,7 @@ namespace Radium::Nodes {
     void Node2D::Register() {
         CLASSDB_REGISTER_SUBCLASS(Node2D, Node);
         CLASSDB_DECLARE_PROPERTY(Node2D, Radium::Vector2f, position);
+        CLASSDB_DECLARE_PROPERTY(Node2D, Radium::Vector2f, size);
     }
 
     void Node2D::OnLoad() {
@@ -16,16 +17,7 @@ namespace Radium::Nodes {
     }
 
     void Node2D::OnTick(float dt) {
-        if (parent) {
-            Node2D* parent2D = dynamic_cast<Node2D*>(parent);
-            if (parent2D) {
-                UpdateGlobalPosition(parent2D->globalPosition);
-            } else {
-                UpdateGlobalPosition({0,0});
-            }
-        } else {
-            UpdateGlobalPosition({0,0});
-        }
+        UpdateGlobalPosition();
         Node::OnTick(dt);
     }
 
@@ -61,7 +53,21 @@ namespace Radium::Nodes {
         size = val;
     }
 
-    void Node2D::UpdateGlobalPosition(const Radium::Vector2f& parentGlobalPos) {
+    void Node2D::UpdateGlobalPositionInternal(const Radium::Vector2f& parentGlobalPos) {
         globalPosition = parentGlobalPos + position;
+    }
+
+
+    void Node2D::UpdateGlobalPosition() {
+        if (parent) {
+            Node2D* parent2D = dynamic_cast<Node2D*>(parent);
+            if (parent2D) {
+                UpdateGlobalPositionInternal(parent2D->globalPosition);
+            } else {
+                UpdateGlobalPositionInternal({0,0});
+            }
+        } else {
+            UpdateGlobalPositionInternal({0,0});
+        }
     }
 }

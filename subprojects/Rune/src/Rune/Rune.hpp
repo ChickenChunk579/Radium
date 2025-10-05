@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
     #include <X11/Xlib.h>
 #else
     typedef void Display;
@@ -44,7 +44,7 @@ namespace Rune {
     extern std::vector<WGPUCommandBuffer> commandBuffers;
 
     // Initializes the renderer and underlying wgpu instance
-    bool Initialize(Display* x11Display, uint32_t x11Window, uint32_t width, uint32_t height);
+    bool Initialize(Display* x11Display, uint32_t x11Window, uint32_t width, uint32_t height, bool wayland = false);
 
     // Shuts down and cleans up
     void Shutdown();

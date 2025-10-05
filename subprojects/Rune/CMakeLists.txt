@@ -18,6 +18,8 @@ else()
     message(STATUS "Configuring for native (Linux/other)")
 endif()
 
+add_subdirectory(subprojects/spdlog)
+
 # ─── Rune Library ─────────────────────────────────────────────────────────────
 set(RUNE_SOURCES
     src/Rune/Rune.cpp
@@ -42,6 +44,7 @@ add_library(Rune STATIC ${RUNE_SOURCES})
 target_include_directories(Rune PUBLIC
     src
 )
+target_link_libraries(Rune PUBLIC spdlog)
 
 if(IS_WASM)
     # Linker flags

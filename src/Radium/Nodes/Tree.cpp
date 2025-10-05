@@ -1,4 +1,6 @@
 #include <Radium/Nodes/Tree.hpp>
+#include <Radium/Nodes/ChaiScript.hpp>
+#include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Math.hpp>
 #include <fstream>
 #include <ostream>
@@ -48,11 +50,32 @@ namespace Radium::Nodes
         std::string typeName = Demangle(typeid(*node).name());
         nodeJson["type"] = typeName;
 
+        spdlog::info("Has property: {}", ClassDB::HasProperty("script", node));
+
+        // Serialize script if it's a ChaiScript
+        if (ClassDB::HasProperty("script", node))
+        {
+            auto script = ClassDB::GetProperty<Radium::Nodes::Script*>("script", node);
+            if (auto chaiScript = dynamic_cast<Radium::Nodes::ChaiScript*>(script))
+            {
+                json scriptInfo = {
+                    {"type", "ChaiScript"},
+                    {"path", chaiScript->path},
+                };
+
+                nodeJson["script"] = scriptInfo;
+
+            }
+        }
+
         for (const auto &prop : ClassDB::GetProperties(node))
         {
-
             if (prop.name == "parent")
                 continue; // avoid circular references
+
+            if (ClassDB::IsEnum(prop.type)) {
+                nodeJson[prop.name] = ClassDB::GetProperty<int>(prop.name, node);
+            }
 
             if (prop.type == "int")
             {
@@ -112,7 +135,7 @@ namespace Radium::Nodes
         }
     }
 
-    Node *DeserializeNode(const json &nodeJson, Node *parent = nullptr)
+    Node *DeserializeNode(const json &nodeJson, Node *parent = nullptr, bool stubScripts = false)
     {
         std::string typeName = nodeJson.value("type", "");
         if (typeName.empty())
@@ -128,6 +151,35 @@ namespace Radium::Nodes
             return nullptr;
         }
 
+        if (nodeJson.contains("script"))
+        {
+            const auto& scriptJson = nodeJson["script"];
+            std::string scriptType = scriptJson.value("type", "");
+            if (scriptType == "ChaiScript")
+            {
+                // Create a ChaiScript instance
+                // Set the path property from JSON
+                if (scriptJson.contains("path"))
+                {
+                    std::string path = scriptJson["path"].get<std::string>();
+                    auto chaiScript = new Radium::Nodes::ChaiScript(path, !stubScripts);
+
+                    chaiScript->me = node;
+
+                    // Assign script property on the node
+                    ClassDB::SetProperty<Radium::Nodes::Script*>("script", node, chaiScript);
+                }
+                else
+                {
+                    spdlog::error("Failed to create ChaiScript instance during deserialization");
+                }
+            }
+            else
+            {
+                spdlog::warn("Unsupported script type during deserialization: {}", scriptType);
+            }
+        }
+
         for (const auto &prop : ClassDB::GetProperties(node))
         {
             if (prop.name == "parent")
@@ -135,9 +187,13 @@ namespace Radium::Nodes
 
             if (!nodeJson.contains(prop.name))
                 continue;
-
+            
             try
             {
+                if (ClassDB::IsEnum(prop.type)) {
+                    ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
+                }
+
                 if (prop.type == "int")
                 {
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
@@ -198,7 +254,7 @@ namespace Radium::Nodes
         return node;
     }
 
-    void SceneTree::Deserialize(std::string path)
+    void SceneTree::Deserialize(std::string path, bool stubScripts)
     {
         std::ifstream file(path);
         if (!file.is_open())
@@ -216,11 +272,33 @@ namespace Radium::Nodes
 
         for (const auto &nodeJson : j["nodes"])
         {
-            Node *node = DeserializeNode(nodeJson);
+            Node *node = DeserializeNode(nodeJson, nullptr, stubScripts);
             if (node)
             {
                 nodes.push_back(node);
             }
+        }
+    }
+
+    // Recursive helper to update global position for node and all descendants
+    void UpdateGlobalPositionsRecursive(Node* node) {
+        if (!node) return;
+
+        // Try to cast to Node2D to call UpdateGlobalPosition
+        if (auto node2D = dynamic_cast<Node2D*>(node)) {
+            node2D->UpdateGlobalPosition();
+        }
+
+        // Recurse for all children
+        for (auto* child : node->children) {
+            UpdateGlobalPositionsRecursive(child);
+        }
+    }
+
+    // Call this on your SceneTree to update all nodes' global positions
+    void SceneTree::UpdateAllGlobalPositions() {
+        for (auto* rootNode : nodes) {
+            UpdateGlobalPositionsRecursive(rootNode);
         }
     }
 

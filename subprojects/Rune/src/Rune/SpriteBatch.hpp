@@ -74,19 +74,19 @@ namespace Rune {
         SpriteBatch(Rune::Texture* texture, SpriteOrigin);
         void Begin();
 
-        void Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation = 0, float z = 0, uint32_t flags = 0);
+        void Draw(float x, float y, uint32_t w, uint32_t h, float r, float g, float b, float rotation = 0, float z = 0, uint32_t flags = 0);
 
         void DrawTile(
-            float x, float y, uint w, uint h,
+            float x, float y, uint32_t w, uint32_t h,
             float r, float g, float b,
-            uint tileX, uint tileY,
-            uint tilesPerRow, uint tilesPerCol,
+            uint32_t tileX, uint32_t tileY,
+            uint32_t tilesPerRow, uint32_t tilesPerCol,
             float rotation = 0, float z = 0, uint32_t flags = 0
         );
-        void DrawImageRect(float x, float y, uint w, uint h,
+        void DrawImageRect(float x, float y, uint32_t w, uint32_t h,
                    float r, float g, float b,
-                   uint srcX, uint srcY, uint srcW, uint srcH,
-                   uint textureWidth, uint textureHeight,
+                   uint32_t srcX, uint32_t srcY, uint32_t srcW, uint32_t srcH,
+                   uint32_t textureWidth, uint32_t textureHeight,
                    float rotation, float z = 0, uint32_t flags = 0);
 
 

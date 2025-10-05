@@ -11,6 +11,7 @@
 #endif
 #include <Rune/TraceHooks.hpp>
 #include <sstream>
+#include <spdlog/spdlog.h>
 
 
 #if defined(__APPLE__)
@@ -293,7 +294,7 @@ namespace Rune
         #endif
     }
 
-    bool Initialize(Display *x11Display, uint32_t x11Window, uint width, uint height)
+    bool Initialize(Display *x11Display, uint32_t x11Window, uint32_t width, uint32_t height, bool wayland)
     {
         windowWidth = width;
         windowHeight = height;
@@ -309,7 +310,7 @@ namespace Rune
         WGPUInstanceExtras extras = {};
         extras.chain.sType = (WGPUSType)WGPUSType_InstanceExtras;
         extras.chain.next = nullptr;
-        extras.backends = WGPUBackendType_OpenGL; // Or Auto
+        extras.backends = WGPUBackendType_Undefined; // Or Auto
         extras.dx12ShaderCompiler = WGPUDx12Compiler_Fxc;
 
         desc.nextInChain = &extras.chain;
@@ -346,17 +347,34 @@ namespace Rune
         #ifndef __ANDROID__
         #ifdef __linux__
 
-        WGPUSurfaceSourceXlibWindow fromXlibWindow;
-        fromXlibWindow.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
-        fromXlibWindow.chain.next = NULL;
-        fromXlibWindow.display = x11Display;
-        fromXlibWindow.window = x11Window;
+        if (!wayland) {
+            WGPUSurfaceSourceXlibWindow fromXlibWindow;
+            fromXlibWindow.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
+            fromXlibWindow.chain.next = NULL;
+            fromXlibWindow.display = x11Display;
+            fromXlibWindow.window = x11Window;
 
-        WGPUSurfaceDescriptor surfaceDescriptor;
-        surfaceDescriptor.nextInChain = &fromXlibWindow.chain;
-        surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
+            WGPUSurfaceDescriptor surfaceDescriptor;
+            surfaceDescriptor.nextInChain = &fromXlibWindow.chain;
+            surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
 
-        surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+            surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+        } else {
+            WGPUSurfaceSourceWaylandSurface fromWaylandSurface;
+            void** val = (void**)x11Display;
+            fromWaylandSurface.chain.sType = WGPUSType_SurfaceSourceWaylandSurface;
+            fromWaylandSurface.chain.next = NULL;
+            fromWaylandSurface.display = val[0];
+            fromWaylandSurface.surface = val[1];
+
+            WGPUSurfaceDescriptor surfaceDescriptor;
+            surfaceDescriptor.nextInChain = &fromWaylandSurface.chain;
+            surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
+
+            surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+        }
+
+        
 
         #else
         surface = CreateSurfaceForWindow(x11Display, instance);
@@ -397,7 +415,7 @@ namespace Rune
 
         WGPURequestAdapterOptions adapterOpts = {};
         adapterOpts.compatibleSurface = surface;
-        adapterOpts.backendType = WGPUBackendType_OpenGL;
+        adapterOpts.backendType = WGPUBackendType_Undefined;
         adapterOpts.nextInChain = nullptr;
 
         adapter = requestAdapterSync(instance, &adapterOpts);
@@ -535,7 +553,7 @@ namespace Rune
 
         size.depthOrArrayLayers = 1;
         depthTextureDesc.size = size;
-        depthTextureDesc.usage = WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_RenderAttachment;
+        depthTextureDesc.usage = WGPUTextureUsage_RenderAttachment;
         depthTextureDesc.viewFormatCount = 0;
         depthTextureDesc.viewFormats = NULL;
         WGPUTexture depthTexture = wgpuDeviceCreateTexture(device, &depthTextureDesc);
@@ -573,8 +591,10 @@ namespace Rune
         Rune::TraceZoneBegin("Get Target View");
         // Get the next target texture view
         targetView = GetNextSurfaceTextureView();
-        if (!targetView)
+        if (!targetView) {
+            Log("ERROR: Failed to get targetView!\n");
             return;
+        }
         Rune::TraceZoneEnd();
 
 
@@ -663,9 +683,8 @@ namespace Rune
 
     void FinishFrame()
     {
-        wgpuRenderPassEncoderEnd(activeRenderPass);
-        wgpuRenderPassEncoderRelease(activeRenderPass);
-
+        wgpuRenderPassEncoderEnd(windowRenderPass);
+        wgpuRenderPassEncoderRelease(windowRenderPass);
         // Finally encode and submit the render pass
         WGPUCommandBufferDescriptor cmdBufferDescriptor = {};
         cmdBufferDescriptor.nextInChain = nullptr;
@@ -724,7 +743,7 @@ namespace Rune
     void Log(const std::string &message)
     {
         #ifndef __ANDROID__
-        std::cout << "[Rune] " << message << std::endl;
+        spdlog::trace(message);
         #else
         __android_log_print(ANDROID_LOG_INFO, "MyNativeApp", "%s", message.c_str());
         #endif

@@ -6,6 +6,7 @@ def onLoad() {
 }
 
 def onTick(dt) {
+    print("Tick");
     var me = self.GetMe();
     var pos = me.GetPosition();
     var y = pos.GetY();

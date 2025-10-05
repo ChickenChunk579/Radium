@@ -1,5 +1,5 @@
 def onLoad() {
-
+    print("I am a pipe");
 }
 
 def onTick(dt) {

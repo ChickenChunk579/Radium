@@ -7,6 +7,7 @@ android/app/.cxx/
 android/.gradle
 android/gradle
 subprojects/entt
+subprojects/Rune/subprojects/spdlog
 subprojects/SDL
 subprojects/SDL_image
 subprojects/SDL_ttf
@@ -14,6 +15,7 @@ subprojects/spdlog
 subprojects/RmlUi
 subprojects/imgui
 subprojects/ImGuiColorTextEdit
+subprojects/ImGuiFileDialog
 subprojects/ChaiScript
 subprojects/tracy
 subprojects/box2d

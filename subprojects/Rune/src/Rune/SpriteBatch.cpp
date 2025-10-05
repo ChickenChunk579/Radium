@@ -1,5 +1,6 @@
 #include <Rune/SpriteBatch.hpp>
 #include <cstring>
+#include <cstdint>
 #include <vector>
 #include <Rune/Texture.hpp>
 #include <sstream>
@@ -453,16 +454,16 @@ namespace Rune
         started = true;
     }
 
-    void SpriteBatch::Draw(float x, float y, uint w, uint h, float r, float g, float b, float rotation, float z, uint32_t flags)
+    void SpriteBatch::Draw(float x, float y, uint32_t w, uint32_t h, float r, float g, float b, float rotation, float z, uint32_t flags)
     {
         DrawTile(x, y, w, h, r, g, b, 0, 0, 1, 1, rotation, z, flags);
     }
 
     void SpriteBatch::DrawTile(
-        float x, float y, uint w, uint h,
+        float x, float y, uint32_t w, uint32_t h,
         float r, float g, float b,
-        uint tileX, uint tileY,
-        uint tilesPerRow, uint tilesPerCol,
+        uint32_t tileX, uint32_t tileY,
+        uint32_t tilesPerRow, uint32_t tilesPerCol,
         float rotation, float z, uint32_t flags)
     {
         /*if (objectCount == MAX_SPRITES)
@@ -508,10 +509,10 @@ namespace Rune
     }
 
     void SpriteBatch::DrawImageRect(
-        float x, float y, uint w, uint h,
+        float x, float y, uint32_t w, uint32_t h,
         float r, float g, float b,
-        uint srcX, uint srcY, uint srcW, uint srcH,
-        uint textureWidth, uint textureHeight,
+        uint32_t srcX, uint32_t srcY, uint32_t srcW, uint32_t srcH,
+        uint32_t textureWidth, uint32_t textureHeight,
         float rotation, float z, uint32_t flags)
     {
         if (objectCount >= MAX_SPRITES)

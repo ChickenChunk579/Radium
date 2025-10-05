@@ -9,6 +9,7 @@
 #include <typeinfo>
 #include <spdlog/spdlog.h>
 #include <cxxabi.h>
+#include <algorithm>
 
 template <typename T, typename U>
 constexpr size_t offsetOf(U T::*member)
@@ -54,6 +55,7 @@ namespace Radium::Nodes
 
         // Declarations
         extern std::unordered_map<std::string, ClassInfo> registeredClasses;
+        extern std::vector<std::string> enums;
 
         template <typename T>
         void Register()
@@ -72,6 +74,15 @@ namespace Radium::Nodes
             };
             info.name = typeName;
             registeredClasses[typeName] = info;
+        }
+
+        template <typename T>
+        void RegisterEnum() {
+            enums.push_back(Demangle(typeid(T).name()));
+        }
+
+        inline bool IsEnum(std::string typeName) {
+            return std::find(enums.begin(), enums.end(), typeName) != enums.end(); 
         }
 
         template <typename T, typename P>
@@ -272,6 +283,31 @@ namespace Radium::Nodes
 
             return result;
         }
+
+
+
+        inline bool HasProperty(std::string propertyName, Object* obj) {
+            std::string typeName = ClassDB::GetType(obj);
+            
+            auto it = registeredClasses.find(typeName);
+            if (it == registeredClasses.end()) {
+                throw std::runtime_error("Type not registered: " + typeName);
+            }
+
+            ClassInfo* info = &it->second;
+
+            while (info) {
+                for (const auto& prop : info->properties) {
+                    if (prop.name == propertyName) {
+                        return true;
+                    }
+                }
+                info = info->parent;
+            }
+
+            return false;
+        }
+
 
 
 

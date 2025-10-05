@@ -1,4 +1,5 @@
 #include <Rune/Viewport.hpp>
+#include <Rune/Utils.hpp>
 
 namespace Rune {
     Viewport::Viewport(int width, int height) {
@@ -15,7 +16,7 @@ namespace Rune {
         textureDesc.dimension = WGPUTextureDimension_2D;
         textureDesc.format = caps.formats[0];
         textureDesc.usage = WGPUTextureUsage_CopySrc | WGPUTextureUsage_RenderAttachment | WGPUTextureUsage_TextureBinding;
-        textureDesc.label = {"Rune Viewport", 13};
+        textureDesc.label = CreateString("Rune Viewport");
         textureDesc.viewFormatCount = 0;
         textureDesc.viewFormats = nullptr;
 
@@ -59,7 +60,7 @@ namespace Rune {
 
     void Viewport::SetupFrame() {
         WGPURenderPassDescriptor passDesc = {};
-        passDesc.label = {"", 0};
+        passDesc.label = CreateString("");
         passDesc.colorAttachmentCount = 1;
         WGPURenderPassColorAttachment colorAttachment = {};
         colorAttachment.view = textureView;
@@ -96,7 +97,7 @@ namespace Rune {
 
     void Viewport::FinishFrame() {
         WGPUCommandBufferDescriptor cmdBufDesc = {};
-        cmdBufDesc.label = {"", 0};
+        cmdBufDesc.label = CreateString("");
         cmdBufDesc.nextInChain = nullptr;
 
         wgpuRenderPassEncoderEnd(renderPass);

@@ -11,6 +11,7 @@ namespace Radium::Nodes {
         CLASSDB_DECLARE_PROPERTY(Node, Node*, parent);
         CLASSDB_DECLARE_PROPERTY(Node, Script*, script);
         CLASSDB_DECLARE_PROPERTY(Node, std::vector<Node>, children);
+        CLASSDB_DECLARE_PROPERTY(Node, std::string, name);
     }
 
     void Node::OnLoad() {

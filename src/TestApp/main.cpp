@@ -40,7 +40,7 @@ public:
 
     void OnLoad() override
     {
-        /*
+        
         Radium::SpriteBatchRegistry::Add("flappy", "texture.png", Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
         Radium::SpriteBatchRegistry::Add("flappyCenter", "texture.png", Rune::SpriteOrigin::Center, Rune::SamplingMode::Nearest);
 
@@ -49,118 +49,17 @@ public:
         Radium::Nodes::Node2D::Register();
         Radium::Nodes::Sprite2D::Register();
 
-               
-        Radium::Nodes::Node2D* pipes = new Radium::Nodes::Node2D();
+        tree.Deserialize("test.json");
 
-        for (int i = 0; i < 4; i++) {
-            Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
-            background->batchTag = "flappy";
-            background->sourceRect = {0, 0, 288, 512};
-            background->textureWidth = 1024;
-            background->textureHeight = 1024;
-            background->position = {0, 0};
-            background->r = 1.0f;
-            background->g = 1.0f;
-            background->b = 1.0f;
-            background->z = -10.0f;
-            background->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
-            background->position.x = i * 288;
-            background->size = {228, 512};
-            background->parent = pipes;
-            pipes->children.push_back(background);
-        }
+        //tree.Serialize("scene.json");
 
-        tree.nodes.push_back(pipes);
-
-
-
-
-
-        float gap = 128.0f;
-        float pipeHeight = 320.0f;
-
-        float x = 0.0f;       // group is centered for now
-
-        Radium::Nodes::Node2D *pipeGroup = new Radium::Nodes::Node2D();
-
-        // Bottom pipe
-        Radium::Nodes::Sprite2D *bottomPipe = new Radium::Nodes::Sprite2D();
-        bottomPipe->batchTag = "flappyCenter";
-        bottomPipe->sourceRect = {0, 624, 52, 320};
-        bottomPipe->textureWidth = 1024;
-        bottomPipe->textureHeight = 1024;
-        bottomPipe->position = {0.0f, -225.0f};
-        bottomPipe->r = 1.0f;
-        bottomPipe->g = 1.0f;
-        bottomPipe->b = 1.0f;
-        bottomPipe->z = 0.0f;
-        bottomPipe->origin = Radium::Nodes::CoordinateOrigin::Center;
-        bottomPipe->flags = 0b00000000; // no flip
-        bottomPipe->parent = pipeGroup;
-        bottomPipe->size = {52, 320};
-        pipeGroup->children.push_back(bottomPipe);
-
-        // Top pipe
-        Radium::Nodes::Sprite2D *topPipe = new Radium::Nodes::Sprite2D();
-        topPipe->batchTag = "flappyCenter";
-        topPipe->sourceRect = {0, 624, 52, 320};
-        topPipe->textureWidth = 1024;
-        topPipe->textureHeight = 1024;
-        topPipe->position = {0.0f, 225.0f};
-        topPipe->r = 1.0f;
-        topPipe->g = 1.0f;
-        topPipe->b = 1.0f;
-        topPipe->z = 0.0f;
-        topPipe->origin = Radium::Nodes::CoordinateOrigin::Center;
-        topPipe->flags = 0b00000010; // vertical flip
-        topPipe->parent = pipeGroup;
-        topPipe->size = {52, 320};
-        pipeGroup->children.push_back(topPipe);
-        
-        pipeGroup->position = {500, 0};
-
-        Radium::Nodes::ChaiScript* script = new Radium::Nodes::ChaiScript("assets/scripts/pipe.chai");
-        script->me = pipeGroup;
-        pipeGroup->script = script;
-
-        tree.nodes.push_back(pipeGroup);
-
-        Radium::Nodes::Sprite2D* sprite = new Radium::Nodes::Sprite2D();
-        sprite->batchTag = "flappyCenter";
-        sprite->sourceRect = {178, 768, 32, 24};
-        sprite->textureWidth = 1024;
-        sprite->textureHeight = 1024;
-        sprite->position = {-200, 0};
-        sprite->r = 1.0f;
-        sprite->g = 1.0f;
-        sprite->b = 1.0f;
-        sprite->z = -0.0f;
-        sprite->size = {32, 24};
-        sprite->origin = Radium::Nodes::CoordinateOrigin::Center;
-
-        script = new Radium::Nodes::ChaiScript("assets/scripts/bird.chai");
-        
-        script->SetGlobal<Radium::Nodes::Sprite2D*>(bottomPipe, "bottomPipe");
-        script->SetGlobal<Radium::Nodes::Sprite2D*>(topPipe, "topPipe");
-        
-        script->me = sprite;
-        sprite->script = script;
         
 
-        tree.nodes.push_back(sprite);
 
 
-        //tree.Deserialize("scene.json");
-
-        tree.Serialize("scene.json");
-
-        */
-
-
-
-        viewport = new Rune::Viewport(128, 128);
+        //viewport = new Rune::Viewport(128, 128);
         
-        Radium::SpriteBatchRegistry::Add("viewportDisplay", new Rune::Texture(viewport->textureView, Rune::SamplingMode::Linear), Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
+        //Radium::SpriteBatchRegistry::Add("viewportDisplay", new Rune::Texture(viewport->textureView, Rune::SamplingMode::Linear), Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
 
     }
 
@@ -170,17 +69,17 @@ public:
     }
 
     void OnPreRender() override {
-        viewport->SetupFrame();
-        viewport->FinishFrame();
+        //viewport->SetupFrame();
+        //viewport->FinishFrame();
     }
 
     void OnRender() override
     {
-        Rune::SpriteBatch* batch = Radium::SpriteBatchRegistry::Get("viewportDisplay");
+        //Rune::SpriteBatch* batch = Radium::SpriteBatchRegistry::Get("viewportDisplay");
 
-        batch->Begin();
-        batch->DrawImageRect(0, 0, 100, 100, 1, 1, 1, 0, 0, 128, 128, 128, 128, 0);
-        batch->End();
+        //batch->Begin();
+        //batch->DrawImageRect(0, 0, 100, 100, 1, 1, 1, 0, 0, 128, 128, 128, 128, 0);
+        //batch->End();
     }
 
     void OnImgui() override

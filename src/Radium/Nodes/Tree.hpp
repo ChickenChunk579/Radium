@@ -25,7 +25,9 @@ namespace Radium::Nodes {
 
         void OnImgui();
 
+        void UpdateAllGlobalPositions();
+
         void Serialize(std::string path);
-        void Deserialize(std::string path);
+        void Deserialize(std::string path, bool stubScripts = false);
     };
 }

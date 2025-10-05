@@ -30,6 +30,9 @@ namespace Radium::Nodes {
         Radium::Vector2f GetSize();
         void SetSize(Radium::Vector2f val);
 
-        void UpdateGlobalPosition(const Radium::Vector2f& parentGlobalPos = {0,0});
+        void UpdateGlobalPosition();
+    private:
+        void UpdateGlobalPositionInternal(const Radium::Vector2f& parentGlobalPos = {0,0});
+
     };
 }

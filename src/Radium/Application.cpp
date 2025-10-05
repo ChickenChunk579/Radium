@@ -123,6 +123,9 @@ namespace Radium {
 
         Radium::Vector2i size = this->GetPreferredSize();
 
+        bool wayland = false;
+        void** handles = nullptr;
+
         Uint32 flags = SDL_WINDOW_SHOWN;
         #ifdef __ANDROID__
         flags |= SDL_WINDOW_VULKAN;
@@ -139,17 +142,29 @@ namespace Radium {
         #if defined(__linux__)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
-        if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_X11) {
-            spdlog::error("Failed to get X11 window info");
+        if (!SDL_GetWindowWMInfo(window, &wmInfo)) {
+            spdlog::error("Failed to get window info");
             SDL_DestroyWindow(window);
             SDL_Quit();
             exit(1);
         }
         
-        Display* x11Display = wmInfo.info.x11.display;
-        uint32_t x11Window = static_cast<uint32_t>(wmInfo.info.x11.window);
+        Display* x11Display = nullptr;
+        uint32_t x11Window = 0;
         
         spdlog::info("WM subsystem: {}", SDL_SYSWMTypeToString(wmInfo.subsystem));
+        if (wmInfo.subsystem == SDL_SYSWM_X11) {
+            x11Display = wmInfo.info.x11.display;
+            x11Window = static_cast<uint32_t>(wmInfo.info.x11.window);
+        }
+        if (wmInfo.subsystem == SDL_SYSWM_WAYLAND) {
+            handles = new void*[2];
+
+            handles[0] = (void*)wmInfo.info.wl.display;
+            handles[1] = (void*)wmInfo.info.wl.surface;
+            x11Display = (Display*)handles;
+            wayland = true;
+        }
 
         spdlog::info("Display: {}, Window: {}", static_cast<void*>(x11Display), x11Window);
         #else
@@ -216,17 +231,21 @@ namespace Radium {
         spdlog::trace("Got window info.");
         spdlog::trace("Initializing Rune...");
 
-        if (!Rune::Initialize(x11Display, x11Window, size.x, size.y)) {
+        if (!Rune::Initialize(x11Display, x11Window, size.x, size.y, wayland)) {
             spdlog::error("Rune initialization failed.");
             SDL_DestroyWindow(window);
             SDL_Quit();
             exit(1);
         }
 
+        if (handles != nullptr) {
+            delete handles;
+        } 
+
         spdlog::trace("Successfully initialized Rune.");
         spdlog::info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
-        
+        #if defined(__linux__) && !defined(__ANDROID__)
         spdlog::trace("Setting up imgui...");
 
         IMGUI_CHECKVERSION();
@@ -248,6 +267,8 @@ namespace Radium {
 
 
         spdlog::trace("Done!");
+
+        #endif
         
 
         spdlog::trace("Creating physics stuff");
@@ -299,7 +320,9 @@ namespace Radium {
             ZoneScopedN("Event Poll");
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
+                #if defined(__linux__) && !defined(__ANDROID__)
                 ImGui_ImplSDL2_ProcessEvent(&event);
+                #endif
                 if (event.type == SDL_QUIT)
                     this->running = false;
             }
@@ -324,7 +347,7 @@ namespace Radium {
         }
 
         {
-            ZoneScopedN("Clear Query");
+            Rune::Clear(1.0f, 0.0f, 0.0f, 1.0f);
             /*
             auto view = registry.view<
                 Radium::Components::ClearColor
@@ -361,15 +384,17 @@ namespace Radium {
         }
         {
             ZoneScopedN("User Render");
-            this->OnRender();
+            //this->OnRender();
             
         }
+        #if defined(__linux__) && !defined(__ANDROID__)
 
         {
             ZoneScopedN("ImGui setup");
             ImGui_ImplRune_NewFrame();
             ImGui_ImplSDL2_NewFrame();
             ImGui::NewFrame();
+            
         }
         {
             ZoneScopedN("ImGui windows");
@@ -384,6 +409,7 @@ namespace Radium {
 
             ImGui_ImplRune_RenderDrawData(ImGui::GetDrawData());
         }
+        #endif
         Input::LateUpdate();
         {
             ZoneScopedN("Finish frame");

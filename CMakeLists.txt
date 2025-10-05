@@ -3,6 +3,8 @@ project(Radium LANGUAGES C CXX)
 
 set(BUILD_SHARED_LIBS OFF)
 set(SDL2TTF_VENDORED ON)
+set(BUILD_TESTING OFF)
+set(BUILD_SAMPLES OFF)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
@@ -23,7 +25,6 @@ add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
 add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
-add_subdirectory(subprojects/spdlog)
 add_subdirectory(subprojects/tracy)
 add_subdirectory(subprojects/ChaiScript)
 
@@ -42,6 +43,7 @@ target_include_directories(imgui PUBLIC subprojects/imgui)
 
 add_library(Radium STATIC
     subprojects/ImGuiColorTextEdit/TextEditor.cpp
+    subprojects/ImGuiFileDialog/ImGuiFileDialog.cpp
     src/Radium/Application.cpp
     src/Radium/FontRenderer.cpp
     src/Radium/Math.cpp
@@ -72,6 +74,7 @@ target_link_libraries(Radium PUBLIC
 target_include_directories(Radium PUBLIC
     src
     subprojects/ImGuiColorTextEdit/
+    subprojects/ImGuiFileDialog/
 )
 
 target_precompile_headers(Radium
@@ -172,6 +175,7 @@ if(APPLE AND IOS)
 endif()
 
 
-
+if (NOT ANDROID AND NOT IOS)
 add_executable(Editor src/Editor/main.cpp)
 target_link_libraries(Editor PUBLIC Radium)
+endif()

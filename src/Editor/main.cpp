@@ -2,6 +2,7 @@
 #include <Radium/SpriteBatchRegistry.hpp>
 #include <Radium/Nodes/ClassDB.hpp>
 #include <Radium/SubViewport.hpp>
+#include <Radium/Nodes/ChaiScript.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include "imgui.h"
 #include <spdlog/spdlog.h>
@@ -13,10 +14,24 @@
 #include <Radium/imgui_impl_rune.h>
 #include <Rune/Viewport.hpp>
 #include <Rune/Texture.hpp>
+#include <Rune/SpriteBatch.hpp>
 #include <TextEditor.h>
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
+#include <ImGuiFileDialog.h>
+#include <filesystem>
+#include <iostream>
+
+namespace fs = std::filesystem;
+
+std::string MakeRelativeToCWD(const std::string& filePathName) {
+    fs::path absPath = fs::absolute(filePathName);  // Ensure it's absolute
+    fs::path cwd = fs::current_path();              // Get current working directory
+
+    fs::path relative = fs::relative(absPath, cwd);
+    return relative.string();
+}
 
 // Simple thread-safe console buffer used by the ImGui sink and UI
 struct ImGuiConsole
@@ -475,13 +490,14 @@ public:
     void OnLoad() override
     {
         Radium::SpriteBatchRegistry::Add("flappy", "texture.png", Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
+        Radium::SpriteBatchRegistry::Add("flappyCenter", "texture.png", Rune::SpriteOrigin::Center, Rune::SamplingMode::Nearest);
 
-        imguiTheme();
+        //imguiTheme();
         scene = new Radium::SubViewport(1280, 720);
         Rune::Texture *tex = new Rune::Texture(scene->viewport->textureView, Rune::SamplingMode::Nearest);
         
         
-        Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
+        /*Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
         background->batchTag = "flappy";
         background->sourceRect = {0, 0, 288, 512};
         background->textureWidth = 1024;
@@ -513,7 +529,15 @@ public:
         background2->size = {288, 512};
         background2->name = "Background";
 
-        scene->tree.nodes.push_back(background2);
+        scene->tree.nodes.push_back(background2);*/
+
+        Radium::Nodes::Node::Register();
+        Radium::Nodes::Node2D::Register();
+        Radium::Nodes::Sprite2D::Register();
+
+        Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::CoordinateOrigin>();
+
+        scene->tree.Deserialize("test.json", true);
         
         scene->OnLoad();
 
@@ -527,9 +551,7 @@ public:
         editor->SetPalette(RadiumPalette());
         editor->SetShowWhitespaces(false);
 
-        Radium::Nodes::Node::Register();
-        Radium::Nodes::Node2D::Register();
-        Radium::Nodes::Sprite2D::Register();
+        
     }
 
     void OnEarlyLoad() override
@@ -545,7 +567,7 @@ public:
 
     void OnTick(float dt) override
     {
-        //scene->OnTick(dt);
+        scene->tree.UpdateAllGlobalPositions();
     }
 
     void OnPreRender() override
@@ -557,27 +579,78 @@ public:
     {
     }
 
+    bool IsDescendantOf(Radium::Nodes::Node* parent, Radium::Nodes::Node* possibleChild) {
+        if (!possibleChild) return false;
+        if (possibleChild == parent) return true;
+
+        for (auto* child : possibleChild->children) {
+            if (IsDescendantOf(parent, child)) return true;
+        }
+
+        return false;
+    }
+
+
     void DrawNode(Radium::Nodes::Node* node) {
         ImGui::PushID(node);
+
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
-        if (node->children.empty()) {
+        const bool isLeaf = node->children.empty();
+        if (isLeaf) {
             flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
         }
 
-        bool open = ImGui::TreeNodeEx((void*)(intptr_t)&node, flags, "%s", node->name.c_str());
+        bool open = ImGui::TreeNodeEx((void*)(intptr_t)node, flags, "%s", node->name.c_str());
 
-        if (ImGui::IsItemClicked()) {
+        // Select node on click only (not drag)
+        if (ImGui::IsItemClicked() && !ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
             selectedNode = node;
         }
 
-        if (open && !node->children.empty()) {
-            for (auto& child : node->children)
+        // === Drag Source ===
+        if (ImGui::BeginDragDropSource()) {
+            ImGui::SetDragDropPayload("RADIUM_NODE", &node, sizeof(node));
+            ImGui::Text("Move %s", node->name.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        // === Drop Target ===
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RADIUM_NODE")) {
+                Radium::Nodes::Node* dragged = *(Radium::Nodes::Node**)payload->Data;
+
+                if (dragged != node && dragged->parent != node && !IsDescendantOf(dragged, node)) {
+                    // Detach from old parent
+                    if (dragged->parent) {
+                        auto& siblings = dragged->parent->children;
+                        siblings.erase(std::remove(siblings.begin(), siblings.end(), dragged), siblings.end());
+                    }
+
+                    // Reassign parent
+                    dragged->parent = node;
+                    node->children.push_back(dragged);
+
+                    // If dragged node was a root node, remove it from the root list
+                    auto& roots = scene->tree.nodes;
+                    roots.erase(std::remove(roots.begin(), roots.end(), dragged), roots.end());
+
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        // Only draw children and TreePop if this node was actually opened (and not a leaf)
+        if (open && !isLeaf) {
+            for (auto& child : node->children) {
                 DrawNode(child);
+            }
             ImGui::TreePop();
         }
+
         ImGui::PopID();
     }
+
 
     void ImGuiTextEdit(const std::string &label, std::string &val) {
         // Use a persistent per-node+property buffer so multiple InputText fields
@@ -612,7 +685,61 @@ public:
 
     void OnImgui() override
     {
-        scene->OnImgui();
+        static int dialogState = 0;
+        static std::string openPath = "";
+
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) { // => will show a dialog
+            if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+                std::string currentFileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+                // action
+
+                std::string relativePath = MakeRelativeToCWD(filePathName);
+
+                switch (dialogState) {
+                    case 0: // new
+                        openPath = relativePath;
+                        scene->tree.nodes.clear();
+                        break;
+                    
+                    case 1: // open
+                        openPath = relativePath;
+                        scene->tree.Deserialize(relativePath, true);
+                        break;
+                    
+                    case 2: // save
+                        scene->tree.Serialize(relativePath);
+                        openPath = relativePath;
+                        break;
+                    
+                    case 3: // add script
+                    {
+                        std::string finalPath = relativePath;
+                        const std::string prefix = "assets/";
+
+                        if (finalPath.rfind(prefix, 0) == 0) {
+                            // Remove the "assets/" prefix
+                            finalPath = finalPath.substr(prefix.length());
+                        }
+
+                        selectedNode->script = new Radium::Nodes::ChaiScript(finalPath, false);
+                        selectedNode->script->me = selectedNode;
+                        break;
+                    }
+
+                    
+                    default:
+                        break;
+                }
+
+                spdlog::info("dialogState: {}", dialogState);
+                spdlog::info("openPath: {}", openPath);
+            }
+            
+            // close
+            ImGuiFileDialog::Instance()->Close();
+        }
         {
             ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
@@ -641,15 +768,30 @@ public:
             {
                 if (ImGui::BeginMenu("File"))
                 {
-                    if (ImGui::MenuItem("New", NULL, false))
-                        exit(0);
-                    if (ImGui::MenuItem("Open", NULL, false))
-                        exit(0);
-                    if (ImGui::MenuItem("Save", NULL, false))
-                        exit(0);
+                    if (ImGui::MenuItem("New", NULL, false)) {
+                        dialogState = 0;
+                        IGFD::FileDialogConfig config;config.path = ".";
+		                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose Path", ".json", config);
+                    }
+                    if (ImGui::MenuItem("Open", NULL, false)) {
+                        dialogState = 1;
+                        IGFD::FileDialogConfig config;config.path = ".";
+		                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Open JSON Scene", ".json", config);
 
-                    if (ImGui::MenuItem("Close", NULL, false))
+                    }
+                    if (ImGui::MenuItem("Save", NULL, false)) {
+                        if (openPath == "") {
+                            dialogState = 2;
+                            IGFD::FileDialogConfig config;config.path = ".";
+                            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Save JSON Scene", ".json", config);
+                        } else {
+                            scene->tree.Serialize(openPath);
+                        }
+                        
+                    }
+                    if (ImGui::MenuItem("Close", NULL, false)) {
                         exit(0);
+                    }
                     ImGui::EndMenu();
                 }
 
@@ -666,11 +808,40 @@ public:
                 
                 ImGui::Separator();
 
+                // Script picker
+                if (selectedNode->script) {
+                    Radium::Nodes::ChaiScript* script = reinterpret_cast<Radium::Nodes::ChaiScript*>(selectedNode->script);
+                    if (script != nullptr)
+                        ImGui::Text("Script: %s", script->path.c_str());
+                    
+                    if (ImGui::Button("Remove")) {
+                        selectedNode->script = NULL;
+                    }
+                } else {
+                    ImGui::Text("No Script Attached");
+                }
+
+                if (ImGui::Button("Select a new ChaiScript")) {
+                    dialogState = 3;
+                    IGFD::FileDialogConfig config;config.path = ".";
+                    ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose a ChaiScript", ".chai", config);
+                    
+                }
+
+                ImGui::Separator();
+
+
                 for (auto property : Radium::Nodes::ClassDB::GetProperties(selectedNode)) {
                     ImGui::PushID(selectedNode);
                     ImGui::PushID(property.name.c_str());
                     if (property.name == "name") {
+                        ImGui::PopID();
+                        ImGui::PopID();
                         continue;
+                    }
+                    if (Radium::Nodes::ClassDB::IsEnum(property.type)) {
+                        int* f = Radium::Nodes::ClassDB::GetPropertyPointer<int>(property.name, selectedNode);
+                        ImGui::InputInt(property.name.c_str(), f);
                     }
                     if (property.type == "Radium::Vector2f") {
                         Radium::Vector2f* value = Radium::Nodes::ClassDB::GetPropertyPointer<Radium::Vector2f>(property.name, selectedNode);
@@ -698,6 +869,10 @@ public:
                         unsigned int* f = Radium::Nodes::ClassDB::GetPropertyPointer<unsigned int>(property.name, selectedNode);
                         ImGui::InputScalar(property.name.c_str(), ImGuiDataType_U32, f);
                     }
+                    if (property.type == "int") {
+                        int* f = Radium::Nodes::ClassDB::GetPropertyPointer<int>(property.name, selectedNode);
+                        ImGui::InputInt(property.name.c_str(), f);
+                    }
                     if (property.type == "Radium::RectangleF") {
                         Radium::RectangleF* value = Radium::Nodes::ClassDB::GetPropertyPointer<Radium::RectangleF>(property.name, selectedNode);
                     
@@ -716,6 +891,28 @@ public:
                             value->h = size[1];
                         }
                     }
+                    if (property.type == "Radium::Nodes::Node*") {
+                        Radium::Nodes::Node** ptr = Radium::Nodes::ClassDB::GetPropertyPointer<Radium::Nodes::Node*>(property.name, selectedNode);
+
+                        if (ptr && *ptr)
+                            ImGui::Text("%s: %s", property.name.c_str(), (*ptr)->name.c_str());
+                        else
+                            ImGui::Text("%s: <None>", property.name.c_str());
+
+                        // Allow dropping node into this slot
+                        if (ImGui::BeginDragDropTarget()) {
+                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RADIUM_NODE")) {
+                                spdlog::info("Got payload");
+                                Radium::Nodes::Node* dropped = *(Radium::Nodes::Node**)payload->Data;
+
+                                if (ptr && dropped != selectedNode) {
+                                    *ptr = dropped;
+                                }
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+                    }
+
                     ImGui::PopID();
                     ImGui::PopID();
                 }
@@ -887,7 +1084,7 @@ RADIUM_ENTRYPOINT(Editor)
 #else
 extern "C" int SDL_main(int argc, char *argv[])
 {
-    MyApp app;
+    Editor app;
     Radium::currentApplication = &app;
     app.Run();
     return 0;

@@ -7,13 +7,14 @@
 namespace Radium::Nodes {
     class ChaiScript: public Script {
     public:
-        ChaiScript(std::string path);
+        ChaiScript(std::string path, bool realLoad = true);
 
         void OnLoad() override;
         void OnTick(float dt) override;
         void OnRender() override;
         void OnImgui() override;
 
+        std::string path;
         Node* GetMe();
         void SetMe(Node node);
 
@@ -23,6 +24,7 @@ namespace Radium::Nodes {
         }
 
     private:
+        bool stubbed = false;
         chaiscript::ChaiScript chai;
     };
 }
