@@ -95,18 +95,18 @@ if (EMSCRIPTEN)
 endif ()
 
 if (NOT ANDROID AND NOT IOS)
-    add_executable(TestApp
-        src/TestApp/main.cpp
+    add_executable(RadiumRuntime
+        src/RadiumRuntime/main.cpp
     )
 else()
     if (ANDROID)
-        add_library(TestApp SHARED
-            src/TestApp/main.cpp
+        add_library(RadiumRuntime SHARED
+            src/RadiumRuntime/main.cpp
         )
     else()
 
         # Path to your assets folder
-        set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/src/TestApp/assets")
+        set(ASSETS_DIR "${CMAKE_SOURCE_DIR}/src/RadiumRuntime/assets")
 
         # Get all files recursively
         file(GLOB_RECURSE ASSET_FILES
@@ -114,7 +114,7 @@ else()
         )
 
         foreach(asset ${ASSET_FILES})
-            set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/TestApp")
+            set(BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/RadiumRuntime")
 
             file(RELATIVE_PATH REL_PATH "${BASE_DIR}" "${asset}")
 
@@ -128,14 +128,14 @@ else()
         endforeach()
 
         # Add executable
-        add_executable(TestApp MACOSX_BUNDLE
-            src/TestApp/main.cpp
+        add_executable(RadiumRuntime MACOSX_BUNDLE
+            src/RadiumRuntime/main.cpp
             ${ASSET_FILES}
         )
 
         
 
-        set_target_properties(TestApp PROPERTIES
+        set_target_properties(RadiumRuntime PROPERTIES
             MACOSX_BUNDLE_GUI_IDENTIFIER "com.radium.TestApp"
             MACOSX_BUNDLE_BUNDLE_NAME "TestApp"
             MACOSX_BUNDLE_BUNDLE_VERSION "1.0"
@@ -149,16 +149,16 @@ else()
     endif()
 endif()
 
-target_link_libraries(TestApp PUBLIC Radium)
+target_link_libraries(RadiumRuntime PUBLIC Radium)
 
 
 if (EMSCRIPTEN)
-    set_target_properties(TestApp PROPERTIES
+    set_target_properties(RadiumRuntime PROPERTIES
         LINK_FLAGS "--preload-file assets"
     )
 endif ()
 
-set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/TestApp/assets")
+set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/RadiumRuntime/assets")
 set(ASSETS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/assets")
 
 add_custom_target(copy_assets ALL
