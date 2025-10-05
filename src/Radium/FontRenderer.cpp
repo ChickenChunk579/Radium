@@ -94,8 +94,10 @@ namespace Radium {
             SDL_FreeSurface(glyphSurface);
         }
 
-    // Upload atlas pixels directly (Texture uploads into GPU memory immediately)
-    Rune::Texture* texture = new Rune::Texture(atlas->w, atlas->h, atlas->pitch, atlas->pixels, Rune::SamplingMode::Linear);
+        void* copiedPixels = malloc(atlas->h * atlas->pitch);
+        memcpy(copiedPixels, atlas->pixels, atlas->h * atlas->pitch);
+
+        Rune::Texture* texture = new Rune::Texture(atlas->w, atlas->h, atlas->pitch, atlas->pixels, Rune::SamplingMode::Linear);
 
         batch = new Rune::SpriteBatch(texture, Rune::SpriteOrigin::TopLeft);
         if (!batch) {

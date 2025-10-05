@@ -87,9 +87,7 @@ namespace Rune
 
     void Texture::Destroy()
     {
-        if (textureView)
-            wgpuTextureViewRelease(textureView);
-        if (sampler)
-            wgpuSamplerRelease(sampler);
+        wgpuTextureViewRelease(textureView);
+        wgpuSamplerRelease(sampler);
     }
 }

@@ -6,11 +6,9 @@
 #include <Rune/GeometryRenderer.hpp>
 #include <spdlog/spdlog.h>
 #include <unordered_map>
-#include <unordered_set>
 #undef Status
 
-// texture pointer + whether this backend owns (allocated) the Texture instance
-static std::unordered_map<ImTextureID, std::pair<Rune::Texture*, bool>> textures;
+std::unordered_map<ImTextureID, Rune::Texture *> textures;
 
 struct ImGui_ImplRune_Data
 {
@@ -68,18 +66,9 @@ void ImGui_ImplRune_Shutdown()
     IM_DELETE(bd);
 
 
-    for (auto &pair : textures) {
-        Rune::Texture* t = pair.second.first;
-        bool owned = pair.second.second;
-        if (t) {
-            if (owned) {
-                t->Destroy();
-                delete t;
-            }
-            // If not owned, don't delete — caller owns it
-        }
+    for (auto pair : textures) {
+        delete pair.second;
     }
-    textures.clear();
 }
 
 void ImGui_ImplRune_NewFrame()
@@ -110,7 +99,6 @@ void ImGui_ImplRune_RenderDrawData(ImDrawData *draw_data)
 
     int drawCalls = 0;
 
-    static std::unordered_set<uintptr_t> s_missingTexIDs;
     for (int n = 0; n < draw_data->CmdListsCount; n++)
     {
         std::vector<float> vertices;
@@ -162,29 +150,7 @@ void ImGui_ImplRune_RenderDrawData(ImDrawData *draw_data)
                 continue;
             }
             ImTextureRef id = pcmd->TexRef;
-            auto it = textures.find(pcmd->GetTexID());
-            Rune::Texture* tx = nullptr;
-            if (it != textures.end()) {
-                tx = it->second.first;
-            } else {
-                // Fallback: perhaps the key representation differs; try to find by pointer equality
-                Rune::Texture* candidate = reinterpret_cast<Rune::Texture*>(pcmd->GetTexID());
-                for (const auto &pair : textures) {
-                    if (pair.second.first == candidate) {
-                        tx = pair.second.first;
-                        break;
-                    }
-                }
-            }
-
-            if (!tx) {
-                uintptr_t key = (uintptr_t)pcmd->GetTexID();
-                if (s_missingTexIDs.find(key) == s_missingTexIDs.end()) {
-                    s_missingTexIDs.insert(key);
-                    spdlog::warn("ImGui_ImplRune: missing texture for id {}", key);
-                }
-            }
-            bd->renderer->SetTexture(tx);
+            bd->renderer->SetTexture(textures[pcmd->GetTexID()]);
             bd->renderer->SetVertices(vertices);
             bd->renderer->Draw();
             drawCalls += 1;
@@ -201,23 +167,15 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         void *pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;
-    Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
+        Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
 
-    uintptr_t fakeTexID = reinterpret_cast<uintptr_t>(rtex);
-    tex->SetTexID((ImTextureID)fakeTexID);
-    textures[fakeTexID] = std::make_pair(rtex, true); // we own textures we create here
+        uintptr_t fakeTexID = reinterpret_cast<uintptr_t>(rtex);
+        tex->SetTexID((ImTextureID)fakeTexID);
+        textures[fakeTexID] = rtex;
     }
     else if (tex->Status == ImTextureStatus_WantUpdates)
     {
-        // Destroy and delete previous texture instance if we own it
-        auto itOld = textures.find(tex->TexID);
-        if (itOld != textures.end()) {
-            if (itOld->second.second && itOld->second.first) {
-                itOld->second.first->Destroy();
-                delete itOld->second.first;
-            }
-            textures.erase(itOld);
-        }
+        textures[tex->TexID]->Destroy();
 
         IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
         IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
@@ -228,18 +186,12 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
 
         ImTextureID id = tex->TexID;
 
-        textures[id] = std::make_pair(rtex, true);
+        textures[id] = rtex;
     }
     else if (tex->Status == ImTextureStatus_WantDestroy)
     {
-        auto it = textures.find(tex->TexID);
-        if (it != textures.end()) {
-            if (it->second.second && it->second.first) {
-                it->second.first->Destroy();
-                delete it->second.first;
-            }
-            textures.erase(it);
-        }
+        textures[tex->TexID]->Destroy();
+        delete textures[tex->TexID];
 
         tex->SetTexID(ImTextureID_Invalid);
         tex->SetStatus(ImTextureStatus_Destroyed);
@@ -251,15 +203,15 @@ ImTextureID ImGui_ImplRune_TextureToID(Rune::Texture* texture)
     // Search for existing texture ID
     for (const auto& pair : textures)
     {
-        if (pair.second.first == texture)
+        if (pair.second == texture)
             return pair.first;
     }
 
     // Create a new ID by casting the pointer to ImTextureID
     ImTextureID id = reinterpret_cast<ImTextureID>(texture);
 
-    // Store in the map but mark as not owned by the backend (caller owns it)
-    textures[id] = std::make_pair(texture, false);
+    // Store in the map
+    textures[id] = texture;
 
     return id;
 }

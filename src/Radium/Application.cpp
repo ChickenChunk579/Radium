@@ -13,9 +13,6 @@
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyC.h>
 #include <Radium/SpriteBatchRegistry.hpp>
-#include <fstream>
-#include <sstream>
-#include <sys/resource.h>
 #ifdef __ANDROID__
 #include <android/log.h>
 #include <spdlog/sinks/base_sink.h>
@@ -95,38 +92,6 @@ const char* SDL_SYSWMTypeToString(SDL_SYSWM_TYPE type) {
 
 namespace Radium {
     Application* currentApplication;
-
-// Return resident set size in MB. On Linux parse /proc/self/status; otherwise use getrusage.
-static double GetProcessMemoryMB()
-{
-#if defined(__linux__)
-    std::ifstream f("/proc/self/status");
-    if (!f)
-        return 0.0;
-
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.rfind("VmRSS:", 0) == 0) {
-            // Format: "VmRSS:\t  12345 kB"
-            std::istringstream iss(line);
-            std::string key;
-            long value_kb = 0;
-            std::string unit;
-            if (iss >> key >> value_kb >> unit) {
-                return static_cast<double>(value_kb) / 1024.0; // MB
-            }
-        }
-    }
-    return 0.0;
-#else
-    struct rusage usage;
-    if (getrusage(RUSAGE_SELF, &usage) == 0) {
-        // ru_maxrss is in kilobytes on many Unices; convert to MB
-        return static_cast<double>(usage.ru_maxrss) / 1024.0;
-    }
-    return 0.0;
-#endif
-}
 
     Application::Application() {
         spdlog::set_level(spdlog::level::trace);
@@ -314,10 +279,8 @@ static double GetProcessMemoryMB()
         #endif
 
         OnRelease();
-        // Shutdown ImGui renderer first so it stops referencing textures and renderer resources
-        ImGui_ImplRune_Shutdown();
-        // Then clear sprite batches and textures owned by the registry
         SpriteBatchRegistry::Clear();
+        ImGui_ImplRune_Shutdown();
         IMG_Quit();
         SDL_Quit();
     }
@@ -426,10 +389,6 @@ static double GetProcessMemoryMB()
             ZoneScopedN("Finish frame");
             Rune::FinishFrame();
         }
-
-        // Log memory usage every frame (resident set size in MB)
-        double memMB = GetProcessMemoryMB();
-        spdlog::debug("Memory usage: {:.2f} MB", memMB);
     }
 
     #ifdef __EMSCRIPTEN__
