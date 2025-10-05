@@ -8,6 +8,10 @@ namespace Radium {
         viewport = new Rune::Viewport(width, height);
     }
 
+    SubViewport::~SubViewport() {
+        delete viewport;
+    }
+
     void SubViewport::OnLoad() {
         tree.OnLoad();
     }
@@ -38,6 +42,9 @@ namespace Radium {
         tree.OnRender();
         auto batches = Radium::SpriteBatchRegistry::GetAll();
         for (auto batch : batches) {
+            if (!batch) {
+                continue;
+            }
             if (batch->started) {
                 batch->End();
             }

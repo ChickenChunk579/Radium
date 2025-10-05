@@ -64,6 +64,11 @@ void ImGui_ImplRune_Shutdown()
     io.BackendFlags &= ~(ImGuiBackendFlags_RendererHasTextures);
     // platform_io.ClearPlatformHandlers();
     IM_DELETE(bd);
+
+
+    for (auto pair : textures) {
+        delete pair.second;
+    }
 }
 
 void ImGui_ImplRune_NewFrame()
@@ -186,6 +191,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
     else if (tex->Status == ImTextureStatus_WantDestroy)
     {
         textures[tex->TexID]->Destroy();
+        delete textures[tex->TexID];
 
         tex->SetTexID(ImTextureID_Invalid);
         tex->SetStatus(ImTextureStatus_Destroyed);

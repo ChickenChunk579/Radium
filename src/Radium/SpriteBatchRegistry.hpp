@@ -8,4 +8,6 @@ namespace Radium::SpriteBatchRegistry {
     void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin, Rune::SamplingMode mode);
     void Add(std::string name, Rune::Texture* texture, Rune::SpriteOrigin origin, Rune::SamplingMode mode);
     std::vector<Rune::SpriteBatch*> GetAll();
+
+    void Clear();
 }

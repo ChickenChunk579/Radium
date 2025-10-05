@@ -25,7 +25,7 @@ namespace Rune
         textureDesc.mipLevelCount = 1;
         textureDesc.sampleCount = 1;
 
-        WGPUTexture texture = wgpuDeviceCreateTexture(device, &textureDesc);
+        texture = wgpuDeviceCreateTexture(device, &textureDesc);
 
         textureView = wgpuTextureCreateView(texture, nullptr);
 
@@ -76,6 +76,13 @@ namespace Rune
         sampler = wgpuDeviceCreateSampler(device, &samplerDesc);
         textureView = view;
 
+    }
+
+    Texture::~Texture() {
+        if (texture)
+            wgpuTextureRelease(texture);
+        wgpuTextureViewRelease(textureView);
+        wgpuSamplerRelease(sampler);
     }
 
     void Texture::Destroy()

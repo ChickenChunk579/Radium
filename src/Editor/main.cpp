@@ -498,22 +498,22 @@ public:
 
         scene->tree.nodes.push_back(background);
 
-        Radium::Nodes::Sprite2D* background = new Radium::Nodes::Sprite2D();
-        background->batchTag = "flappy";
-        background->sourceRect = {0, 0, 288, 512};
-        background->textureWidth = 1024;
-        background->textureHeight = 1024;
-        background->position = {0, 0};
-        background->r = 1.0f;
-        background->g = 1.0f;
-        background->b = 1.0f;
-        background->z = -10.0f;
-        background->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
-        background->position.x = 0;
-        background->size = {288, 512};
-        background->name = "Background";
+        Radium::Nodes::Sprite2D* background2 = new Radium::Nodes::Sprite2D();
+        background2->batchTag = "flappy";
+        background2->sourceRect = {0, 0, 288, 512};
+        background2->textureWidth = 1024;
+        background2->textureHeight = 1024;
+        background2->position = {0, 0};
+        background2->r = 1.0f;
+        background2->g = 1.0f;
+        background2->b = 1.0f;
+        background2->z = -10.0f;
+        background2->origin = Radium::Nodes::CoordinateOrigin::TopLeft;
+        background2->position.x = 0;
+        background2->size = {288, 512};
+        background2->name = "Background";
 
-        scene->tree.nodes.push_back(background);
+        scene->tree.nodes.push_back(background2);
         
         scene->OnLoad();
 
@@ -558,6 +558,7 @@ public:
     }
 
     void DrawNode(Radium::Nodes::Node* node) {
+        ImGui::PushID(node);
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
         if (node->children.empty()) {
@@ -575,6 +576,7 @@ public:
                 DrawNode(child);
             ImGui::TreePop();
         }
+        ImGui::PopID();
     }
 
     void ImGuiTextEdit(const std::string &label, std::string &val) {
@@ -722,6 +724,55 @@ public:
         }
         {
             ImGui::Begin("Hierarchy");
+
+            static bool openMenu = false;
+            static char filter[128] = "";
+            static int selectedItem = -1;
+            static std::vector<std::string> items = Radium::Nodes::ClassDB::GetNodeClasses();
+            
+            if (ImGui::Button("Add Node")) {
+                openMenu = true;
+                filter[0] = '\0'; // reset filter
+                selectedItem = -1;
+                ImGui::OpenPopup("RofiMenu");
+            }
+
+            if (ImGui::BeginPopup("RofiMenu")) {
+                ImGui::InputText("##Filter", filter, IM_ARRAYSIZE(filter));
+
+                ImGui::Separator();
+
+                ImGui::BeginChild("ScrollRegion", ImVec2(0, 150), true);
+
+                int index = 0;
+                for (const auto& item : items) {
+                    if (strlen(filter) > 0 && item.find(filter) == std::string::npos)
+                        continue;
+
+                    if (ImGui::Selectable(item.c_str())) {
+                        selectedItem = index;
+                        openMenu = false;
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ++index;
+                }
+
+                ImGui::EndChild();
+                ImGui::EndPopup();
+            }
+
+            if (selectedItem != -1) {
+                std::string selected = items[selectedItem];
+                
+                selectedItem = -1;
+                
+                spdlog::info("Selected: {}", selected);
+
+                auto node = (Radium::Nodes::Node*)Radium::Nodes::ClassDB::Create(selected);
+
+                scene->tree.nodes.push_back(node);
+            }
 
             for (auto node : scene->tree.nodes) {
                 DrawNode(node);

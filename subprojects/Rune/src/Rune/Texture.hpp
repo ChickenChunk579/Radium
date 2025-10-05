@@ -28,7 +28,10 @@ namespace Rune {
 
         Texture(WGPUTextureView textureView, SamplingMode samplingMode);
 
+        ~Texture();
+
         WGPUTextureView textureView;
+        WGPUTexture texture;
         WGPUSampler sampler;
 
         void Destroy();

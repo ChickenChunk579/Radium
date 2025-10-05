@@ -6,6 +6,7 @@ namespace Radium {
     class SubViewport {
     public:
         SubViewport(int width, int height);
+        ~SubViewport();
 
         Rune::Viewport* viewport;
         Nodes::SceneTree tree;

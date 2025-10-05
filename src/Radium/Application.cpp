@@ -277,6 +277,12 @@ namespace Radium {
             //std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
         #endif
+
+        OnRelease();
+        SpriteBatchRegistry::Clear();
+        ImGui_ImplRune_Shutdown();
+        IMG_Quit();
+        SDL_Quit();
     }
 
     Radium::Vector2i Application::GetSize() {
@@ -345,6 +351,9 @@ namespace Radium {
 
             auto batches = Radium::SpriteBatchRegistry::GetAll();
             for (auto batch : batches) {
+                if (!batch) {
+                    continue;
+                }
                 if (batch->started) {
                     batch->End();
                 }

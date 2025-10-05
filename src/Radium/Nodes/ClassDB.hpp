@@ -48,6 +48,7 @@ namespace Radium::Nodes
         {
             std::vector<PropertyInfo> properties;
             ClassInfo *parent = nullptr;
+            std::string name;
             std::function<Object*()> factory;
         };
 
@@ -69,6 +70,7 @@ namespace Radium::Nodes
             info.factory = []() -> Object* {
                 return new T();
             };
+            info.name = typeName;
             registeredClasses[typeName] = info;
         }
 
@@ -94,6 +96,7 @@ namespace Radium::Nodes
             info.factory = []() -> Object* {
                 return new T();
             };
+            info.name = typeName;
             registeredClasses[typeName] = info;
         }
 
@@ -245,6 +248,31 @@ namespace Radium::Nodes
 
             return it->second.factory();
         }
+
+        inline std::vector<std::string> GetNodeClasses()
+        {
+            std::vector<std::string> result;
+
+            const std::string baseNodeType = "Radium::Nodes::Node";  // <-- Adjust if your full demangled name differs
+
+            for (const auto& [className, classInfo] : registeredClasses)
+            {
+                const ClassInfo* current = &classInfo;
+
+                while (current)
+                {
+                    if (current->name == baseNodeType)
+                    {
+                        result.push_back(className);
+                        break;
+                    }
+                    current = current->parent;
+                }
+            }
+
+            return result;
+        }
+
 
 
     }
