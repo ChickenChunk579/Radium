@@ -65,7 +65,7 @@ namespace Rune
             data,
             pitch * height, // total size of the buffer in bytes
             &dataLayout,
-            &writeSize);
+            &writeSize); // why does this line make a 128mb allocation in libvulkan_intel.so?
     }
 
     Texture::Texture(WGPUTextureView view, SamplingMode mode) {

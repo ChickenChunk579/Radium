@@ -537,15 +537,15 @@ public:
         // attach the previously-declared ImGuiSink so spdlog messages are shown in the UI console
         auto sink = std::make_shared<ImGuiSink>(&g_imguiConsole);
         imguiSink = sink;
-        if (spdlog::default_logger())
-        {
-            spdlog::default_logger()->sinks().push_back(sink);
-        }
+        //if (spdlog::default_logger())
+        //{
+        //    spdlog::default_logger()->sinks().push_back(sink);
+        //}
     }
 
     void OnTick(float dt) override
     {
-        scene->OnTick(dt);
+        //scene->OnTick(dt);
     }
 
     void OnPreRender() override
@@ -639,13 +639,20 @@ public:
 
             if (ImGui::BeginMenuBar())
             {
-                if (ImGui::BeginMenu("Radium"))
+                if (ImGui::BeginMenu("File"))
                 {
+                    if (ImGui::MenuItem("New", NULL, false))
+                        exit(0);
+                    if (ImGui::MenuItem("Open", NULL, false))
+                        exit(0);
+                    if (ImGui::MenuItem("Save", NULL, false))
+                        exit(0);
 
                     if (ImGui::MenuItem("Close", NULL, false))
                         exit(0);
                     ImGui::EndMenu();
                 }
+
                 ImGui::EndMenuBar();
             }
 

@@ -397,7 +397,7 @@ namespace Rune
 
         WGPURequestAdapterOptions adapterOpts = {};
         adapterOpts.compatibleSurface = surface;
-        adapterOpts.backendType = WGPUBackendType_Undefined;
+        adapterOpts.backendType = WGPUBackendType_OpenGL;
         adapterOpts.nextInChain = nullptr;
 
         adapter = requestAdapterSync(instance, &adapterOpts);
