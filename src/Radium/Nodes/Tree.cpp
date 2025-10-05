@@ -12,6 +12,13 @@ namespace Radium::Nodes
     {
     }
 
+    SceneTree::SceneTree() : name("Default") {}
+
+    void SceneTree::Register() {
+        CLASSDB_REGISTER(SceneTree);
+        CLASSDB_DECLARE_PROPERTY(SceneTree, std::string, name);
+    }
+
     void SceneTree::OnLoad()
     {
         for (auto &node : nodes)
@@ -135,7 +142,7 @@ namespace Radium::Nodes
         }
     }
 
-    Node *DeserializeNode(const json &nodeJson, Node *parent = nullptr, bool stubScripts = false)
+    Node *DeserializeNode(const json &nodeJson, SceneTree* tree, Node *parent = nullptr, bool stubScripts = false)
     {
         std::string typeName = nodeJson.value("type", "");
         if (typeName.empty())
@@ -162,7 +169,7 @@ namespace Radium::Nodes
                 if (scriptJson.contains("path"))
                 {
                     std::string path = scriptJson["path"].get<std::string>();
-                    auto chaiScript = new Radium::Nodes::ChaiScript(path, !stubScripts);
+                    auto chaiScript = new Radium::Nodes::ChaiScript(path, tree, !stubScripts);
 
                     chaiScript->me = node;
 
@@ -190,7 +197,9 @@ namespace Radium::Nodes
             
             try
             {
+                spdlog::info("{} is {} an enum", prop.type, ClassDB::IsEnum(prop.type));
                 if (ClassDB::IsEnum(prop.type)) {
+                    spdlog::info("Enum {} {}", prop.type, prop.name);
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
                 }
 
@@ -243,7 +252,7 @@ namespace Radium::Nodes
         {
             for (const auto &childJson : nodeJson["children"])
             {
-                Node *child = DeserializeNode(childJson, node);
+                Node *child = DeserializeNode(childJson, tree, node);
                 if (child)
                 {
                     node->children.push_back(child);
@@ -272,7 +281,7 @@ namespace Radium::Nodes
 
         for (const auto &nodeJson : j["nodes"])
         {
-            Node *node = DeserializeNode(nodeJson, nullptr, stubScripts);
+            Node *node = DeserializeNode(nodeJson, this, nullptr, stubScripts);
             if (node)
             {
                 nodes.push_back(node);
@@ -301,5 +310,57 @@ namespace Radium::Nodes
             UpdateGlobalPositionsRecursive(rootNode);
         }
     }
+
+    Node* SceneTree::GetNodeByPath(std::string path) {
+        if (path.empty()) return nullptr;
+
+        // Remove leading slash if present
+        if (path.front() == '/') {
+            path.erase(0, 1);
+        }
+
+        // Split the path by '/'
+        std::vector<std::string> parts;
+        size_t start = 0;
+        while (true) {
+            size_t pos = path.find('/', start);
+            if (pos == std::string::npos) {
+                parts.push_back(path.substr(start));
+                break;
+            }
+            parts.push_back(path.substr(start, pos - start));
+            start = pos + 1;
+        }
+
+        // Search for the first part in root nodes
+        Node* current = nullptr;
+        for (auto* rootNode : nodes) {
+            if (rootNode->name == parts[0]) {
+                current = rootNode;
+                break;
+            }
+        }
+
+        if (!current) return nullptr;
+
+        // Traverse down children for the remaining parts
+        for (size_t i = 1; i < parts.size(); ++i) {
+            const auto& part = parts[i];
+            Node* next = nullptr;
+            for (auto* child : current->children) {
+                if (child->name == part) {
+                    next = child;
+                    break;
+                }
+            }
+            if (!next) {
+                return nullptr; // part not found in children
+            }
+            current = next;
+        }
+
+        return current;
+    }
+
 
 }

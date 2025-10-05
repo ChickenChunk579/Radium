@@ -723,7 +723,7 @@ public:
                             finalPath = finalPath.substr(prefix.length());
                         }
 
-                        selectedNode->script = new Radium::Nodes::ChaiScript(finalPath, false);
+                        selectedNode->script = new Radium::Nodes::ChaiScript(finalPath, &scene->tree, false);
                         selectedNode->script->me = selectedNode;
                         break;
                     }

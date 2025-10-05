@@ -35,13 +35,18 @@ namespace Radium::Nodes
         return me;
     }
 
+    SceneTree* ChaiScript::GetSceneTree() {
+        return sceneTree;
+    }
+
     void ChaiScript::SetMe(Node node)
     {
     }
 
-    ChaiScript::ChaiScript(std::string path, bool real)
+    ChaiScript::ChaiScript(std::string path, SceneTree* tree, bool real)
     {
         this->path = path;
+        this->sceneTree = tree;
         if (!real) {
             stubbed = true;
             return;
@@ -61,6 +66,7 @@ namespace Radium::Nodes
         chai.add(chaiscript::user_type<ChaiScript>(), "ChaiScript");
         chai.add(chaiscript::user_type<Node2D>(), "Node2D");
         chai.add(chaiscript::user_type<Sprite2D>(), "Sprite2D");
+        chai.add(chaiscript::user_type<SceneTree>(), "SceneTree");
 
         chai.add(chaiscript::user_type<Vector2f>(), "Vector2f");
         chai.add(chaiscript::user_type<Vector2i>(), "Vector2i");
@@ -71,6 +77,7 @@ namespace Radium::Nodes
         chai.add(chaiscript::constructor<RectangleF(float, float, float, float)>(), "RectangleF");
 
         chai.add(chaiscript::fun(&ChaiScript::GetMe), "GetMe");
+        chai.add(chaiscript::fun(&ChaiScript::GetSceneTree), "GetSceneTree");
         chai.add(chaiscript::fun(&Node2D::GetPosition), "GetPosition");
         chai.add(chaiscript::fun(&Node2D::SetPosition), "SetPosition");
         chai.add(chaiscript::fun(&Node2D::GetGlobalPosition), "GetGlobalPosition");
@@ -85,6 +92,7 @@ namespace Radium::Nodes
         chai.add(chaiscript::fun(&RectangleF::SetY), "SetY");
         chai.add(chaiscript::fun(&RectangleF::SetW), "SetW");
         chai.add(chaiscript::fun(&RectangleF::SetH), "SetH");
+        chai.add(chaiscript::fun(&SceneTree::GetNodeByPath), "GetNodeByPath");
         chai.add(chaiscript::fun(&AABB), "AABB");
         chai.add(chaiscript::fun(&exit), "exit");
         chai.add(chaiscript::fun(&Random::FloatBetween), "randf_floatbetween");

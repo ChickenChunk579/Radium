@@ -19,5 +19,7 @@ namespace Radium::Nodes {
         virtual void OnTick(float dt);
         virtual void OnRender();
         virtual void OnImgui();
+
+        Node* GetChildByName(std::string name);
     };
 }

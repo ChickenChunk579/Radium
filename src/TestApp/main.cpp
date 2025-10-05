@@ -48,13 +48,11 @@ public:
         Radium::Nodes::Node::Register();
         Radium::Nodes::Node2D::Register();
         Radium::Nodes::Sprite2D::Register();
+        Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::CoordinateOrigin>();
 
         tree.Deserialize("test.json");
 
         //tree.Serialize("scene.json");
-
-        
-
 
 
         //viewport = new Rune::Viewport(128, 128);

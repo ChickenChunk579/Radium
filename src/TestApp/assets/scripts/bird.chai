@@ -1,19 +1,26 @@
 global velocity = 0.0f;
 global gravity = 0.075f;
+global topPipe;
+global bottomPipe;
 
 def onLoad() {
     // Can optionally reset velocity here if needed
+    topPipe = self.GetSceneTree().GetNodeByPath("/PipeGroup/TopPipe");
+    bottomPipe = self.GetSceneTree().GetNodeByPath("/PipeGroup/BottomPipe");
 }
 
 def onTick(dt) {
-    print("Tick");
     var me = self.GetMe();
     var pos = me.GetPosition();
+    var x = pos.GetX();
     var y = pos.GetY();
 
     velocity = velocity - gravity;
 
     pos.SetY(y + velocity);
+
+    info("Bird X: " + x.to_string());
+    info("Bird Y: " + y.to_string());
 
     me.SetPosition(pos);
 
@@ -21,8 +28,6 @@ def onTick(dt) {
     if (WasKeyPressedThisFrame(SPACE)) {
         velocity = 3;
     }
-
-
 
     var topPipePos = topPipe.GetGlobalPosition();
     var bottomPipePos = bottomPipe.GetGlobalPosition();

@@ -50,4 +50,19 @@ namespace Radium::Nodes {
             child->OnImgui();
         }
     }
+
+    Node* Node::GetChildByName(std::string name) {
+        for (auto& child : children) {
+            if (child) {
+                if (child->name.data()) {
+                    spdlog::info("{}", child->name);
+                    if (child->name == name) {
+                        return child;
+                    }
+                }
+                
+            }
+            
+        }
+    }
 }
