@@ -1,13 +1,22 @@
 #include <Radium/AssetLoader.hpp>
 #include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
 namespace Radium
 {
-    std::string ReadFileToString(std::string filename)
+    std::string assetBase = "";
+
+    std::string ReadFileToString(std::string filename, bool external)
     {
-        std::string expandedFileName = filename;
-        #ifndef __ANDROID__
-        expandedFileName = "assets/" + filename;
-        #endif
+        spdlog::info("Asset base: {}", assetBase);
+        std::string expandedFileName = assetBase + filename;
+        if (external) {
+            expandedFileName = filename;
+        } else {
+            #ifndef __ANDROID__
+            expandedFileName = "assets/" + assetBase + filename;
+            #endif
+        }
+        
 
 
         SDL_RWops *file = SDL_RWFromFile(expandedFileName.c_str(), "rb");
@@ -20,7 +29,7 @@ namespace Radium
 
         if (!file)
         {
-            std::cerr << "Failed to open file: " << filename << "\n";
+            std::cerr << "Failed to open file: " << expandedFileName << "\n";
             return {};
         }
 

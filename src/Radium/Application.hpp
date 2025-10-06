@@ -27,6 +27,7 @@ namespace Radium {
         virtual void OnPreRender() {}
         virtual void OnEarlyLoad() {}
         virtual void OnRelease() {}
+        virtual void OnPreLoad(int argc, char* argv[]) {}
 
         void Run();
 
@@ -47,8 +48,9 @@ namespace Radium {
     #endif
 };
 
-#define RADIUM_ENTRYPOINT(appClass) int main() { \
+#define RADIUM_ENTRYPOINT(appClass) int main(int argc, char* argv[]) { \
     appClass app; \
+    app.OnPreLoad(argc, argv); \
     Radium::currentApplication = &app; \
     app.Run(); \
     return 0; \

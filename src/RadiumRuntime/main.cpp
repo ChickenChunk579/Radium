@@ -15,50 +15,59 @@
 #include "imgui.h"
 #include <spdlog/spdlog.h>
 #include <Radium/Random.hpp>
+#include <RadiumRuntime/GameDataParser.hpp>
 
 class MyApp : public Radium::Application
 {
 public:
     Rune::Viewport* viewport;
     Rune::GeometryRenderer* geometry;
+    std::string appBase = ".";
+    GameConfig config;
+
+    void OnPreLoad(int argc, char* argv[]) override {
+        if (argc > 1) {
+            appBase = std::string(argv[1]);
+        }
+        std::string appConfig = Radium::ReadFileToString(appBase + "/app.json");
+        json j = json::parse(appConfig);
+        config = j.get<GameConfig>();
+    }
 
     std::string GetTitle() override
     {
-        return "My Empty Radium App";
+        return config.title;
     }
 
     Radium::Vector2i GetPreferredSize() override
     {
-        return {1280, 720};
+        return {config.preferedSize[0], config.preferedSize[1]};
     }
 
     Radium::Vector2f GetGravity() override
     {
-        return {0.0f, -200.0f};
+        return {config.gravity[0], config.gravity[1]};
     }
 
 
     void OnLoad() override
     {
         
-        Radium::SpriteBatchRegistry::Add("flappy", "texture.png", Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
-        Radium::SpriteBatchRegistry::Add("flappyCenter", "texture.png", Rune::SpriteOrigin::Center, Rune::SamplingMode::Nearest);
 
+        Radium::assetBase = appBase + "/";
+
+        for (auto batchInfo : config.spriteBatches) {
+            Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
+        }
 
         Radium::Nodes::Node::Register();
         Radium::Nodes::Node2D::Register();
         Radium::Nodes::Sprite2D::Register();
         Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::CoordinateOrigin>();
 
-        tree.Deserialize("test.json");
+        spdlog::info("Running app at {}", appBase);
 
-        //tree.Serialize("scene.json");
-
-
-        //viewport = new Rune::Viewport(128, 128);
-        
-        //Radium::SpriteBatchRegistry::Add("viewportDisplay", new Rune::Texture(viewport->textureView, Rune::SamplingMode::Linear), Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
-
+        tree.Deserialize(config.initialScene);
     }
 
     void OnTick(float dt) override
@@ -67,22 +76,14 @@ public:
     }
 
     void OnPreRender() override {
-        //viewport->SetupFrame();
-        //viewport->FinishFrame();
     }
 
     void OnRender() override
     {
-        //Rune::SpriteBatch* batch = Radium::SpriteBatchRegistry::Get("viewportDisplay");
-
-        //batch->Begin();
-        //batch->DrawImageRect(0, 0, 100, 100, 1, 1, 1, 0, 0, 128, 128, 128, 128, 0);
-        //batch->End();
     }
 
     void OnImgui() override
     {
-        //ImGui::ShowDemoWindow();
     }
 };
 #ifndef __ANDROID__

@@ -32,7 +32,7 @@ namespace Radium::Nodes {
         void UpdateAllGlobalPositions();
 
         void Serialize(std::string path);
-        void Deserialize(std::string path, bool stubScripts = false);
+        void Deserialize(std::string path, bool stubScripts = false, bool external = false);
 
         Node* GetNodeByPath(std::string path);
     };

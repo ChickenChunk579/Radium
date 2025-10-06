@@ -169,13 +169,19 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         int h = tex->Height;
         Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
 
+        spdlog::info("Create texture");
+
         uintptr_t fakeTexID = reinterpret_cast<uintptr_t>(rtex);
         tex->SetTexID((ImTextureID)fakeTexID);
         textures[fakeTexID] = rtex;
+
+        tex->SetStatus(ImTextureStatus_OK);
     }
     else if (tex->Status == ImTextureStatus_WantUpdates)
     {
-        textures[tex->TexID]->Destroy();
+        ImTextureID id = tex->TexID;
+
+        delete textures[tex->TexID];
 
         IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
         IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
@@ -184,13 +190,15 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         int h = tex->Height;
         Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
 
-        ImTextureID id = tex->TexID;
+        spdlog::info("Update texture");
+
+        tex->SetStatus(ImTextureStatus_OK);
 
         textures[id] = rtex;
     }
     else if (tex->Status == ImTextureStatus_WantDestroy)
     {
-        textures[tex->TexID]->Destroy();
+        spdlog::info("Delete");
         delete textures[tex->TexID];
 
         tex->SetTexID(ImTextureID_Invalid);

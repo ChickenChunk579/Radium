@@ -2,6 +2,7 @@
 #include <Radium/Nodes/ChaiScript.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Math.hpp>
+#include <Radium/AssetLoader.hpp>
 #include <fstream>
 #include <ostream>
 #include <spdlog/spdlog.h>
@@ -197,9 +198,7 @@ namespace Radium::Nodes
             
             try
             {
-                spdlog::info("{} is {} an enum", prop.type, ClassDB::IsEnum(prop.type));
                 if (ClassDB::IsEnum(prop.type)) {
-                    spdlog::info("Enum {} {}", prop.type, prop.name);
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
                 }
 
@@ -263,18 +262,11 @@ namespace Radium::Nodes
         return node;
     }
 
-    void SceneTree::Deserialize(std::string path, bool stubScripts)
+    void SceneTree::Deserialize(std::string path, bool stubScripts, bool external)
     {
-        std::ifstream file(path);
-        if (!file.is_open())
-        {
-            spdlog::error("Failed to open file: {}", path);
-            return;
-        }
+        std::string file = Radium::ReadFileToString(path, external);
 
-        json j;
-        file >> j;
-        file.close();
+        json j = json::parse(file);
 
         name = j.value("name", "UnnamedScene");
         nodes.clear();

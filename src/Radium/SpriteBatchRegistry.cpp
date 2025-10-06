@@ -1,4 +1,5 @@
 #include <Radium/SpriteBatchRegistry.hpp>
+#include <Radium/AssetLoader.hpp>
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
@@ -13,13 +14,13 @@ namespace Radium::SpriteBatchRegistry {
 
     void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin, Rune::SamplingMode mode) {
         #if !defined(__ANDROID__)
-        std::string fullPath = "assets/" + texturePath;
+        std::string fullPath = "assets/" + assetBase + texturePath;
         const char* path = fullPath.c_str();
 
         spdlog::info("Resolved texture path: {}", path);
         SDL_Surface* surface = IMG_Load(path);
         #else
-        SDL_Surface* surface = IMG_Load(texturePath.c_str());
+        SDL_Surface* surface = IMG_Load(assetBase + texturePath.c_str());
         #endif
 
         if (!surface) {

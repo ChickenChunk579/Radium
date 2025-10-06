@@ -268,6 +268,12 @@ namespace Radium {
 
         spdlog::trace("Done!");
 
+        ImGui::StyleColorsDark();
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.Colors[ImGuiCol_TableRowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);      // dark row
+        style.Colors[ImGuiCol_TableRowBgAlt] = ImVec4(0.15f, 0.15f, 0.15f, 1.0f); // alternate row
+
+
         #endif
         
 
