@@ -15,7 +15,7 @@
 #include "imgui.h"
 #include <spdlog/spdlog.h>
 #include <Radium/Random.hpp>
-#include <RadiumRuntime/GameDataParser.hpp>
+#include <Radium/GameDataParser.hpp>
 
 class MyApp : public Radium::Application
 {
@@ -23,7 +23,7 @@ public:
     Rune::Viewport* viewport;
     Rune::GeometryRenderer* geometry;
     std::string appBase = ".";
-    GameConfig config;
+    Radium::GameConfig config;
 
     void OnPreLoad(int argc, char* argv[]) override {
         if (argc > 1) {
@@ -31,7 +31,7 @@ public:
         }
         std::string appConfig = Radium::ReadFileToString(appBase + "/app.json");
         json j = json::parse(appConfig);
-        config = j.get<GameConfig>();
+        config = j.get<Radium::GameConfig>();
     }
 
     std::string GetTitle() override

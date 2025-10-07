@@ -5,6 +5,7 @@ set(BUILD_SHARED_LIBS OFF)
 set(SDL2TTF_VENDORED ON)
 set(BUILD_TESTING OFF)
 set(BUILD_SAMPLES OFF)
+set(DYNLOAD_ENABLED OFF)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
@@ -20,6 +21,25 @@ if (IOS)
     set(SDL2IMAGE_BACKEND_IMAGEIO 0)
 endif()
 
+set(SDL2IMAGE_AVIF OFF CACHE BOOL "Support loading AVIF images" FORCE)
+set(SDL2IMAGE_BMP OFF CACHE BOOL "Support loading BMP images" FORCE)
+set(SDL2IMAGE_GIF OFF CACHE BOOL "Support loading GIF images" FORCE)
+set(SDL2IMAGE_JPG OFF CACHE BOOL "Support loading JPEG images" FORCE)
+set(SDL2IMAGE_JXL OFF CACHE BOOL "Support loading JXL images" FORCE)
+set(SDL2IMAGE_LBM OFF CACHE BOOL "Support loading LBM images" FORCE)
+set(SDL2IMAGE_PCX OFF CACHE BOOL "Support loading PCX images" FORCE)
+set(SDL2IMAGE_PNG ON CACHE BOOL "Support loading PNG images" FORCE)  # Enable only PNG
+set(SDL2IMAGE_PNM OFF CACHE BOOL "Support loading PNM images" FORCE)
+set(SDL2IMAGE_QOI OFF CACHE BOOL "Support loading QOI images" FORCE)
+set(SDL2IMAGE_SVG OFF CACHE BOOL "Support loading SVG images" FORCE)
+set(SDL2IMAGE_TGA OFF CACHE BOOL "Support loading TGA images" FORCE)
+set(SDL2IMAGE_TIF OFF CACHE BOOL "Support loading TIFF images" FORCE)
+set(SDL2IMAGE_WEBP OFF CACHE BOOL "Support loading WEBP images" FORCE)
+set(SDL2IMAGE_XCF OFF CACHE BOOL "Support loading XCF images" FORCE)
+set(SDL2IMAGE_XPM OFF CACHE BOOL "Support loading XPM images" FORCE)
+set(SDL2IMAGE_XV OFF CACHE BOOL "Support loading XV images" FORCE)
+
+
 add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
@@ -27,6 +47,7 @@ add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/tracy)
 add_subdirectory(subprojects/ChaiScript)
+#add_subdirectory(subprojects/tiny-process-library)
 
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
@@ -70,6 +91,7 @@ target_link_libraries(Radium PUBLIC
     imgui
     box2d
     chaiscript
+    tiny-process-library
 )
 target_include_directories(Radium PUBLIC
     src

@@ -58,8 +58,6 @@ namespace Radium::Nodes
         std::string typeName = Demangle(typeid(*node).name());
         nodeJson["type"] = typeName;
 
-        spdlog::info("Has property: {}", ClassDB::HasProperty("script", node));
-
         // Serialize script if it's a ChaiScript
         if (ClassDB::HasProperty("script", node))
         {
@@ -143,7 +141,7 @@ namespace Radium::Nodes
         }
     }
 
-    Node *DeserializeNode(const json &nodeJson, SceneTree* tree, Node *parent = nullptr, bool stubScripts = false)
+    Node *DeserializeNode(const json &nodeJson, SceneTree* tree, Node *parent, bool stubScripts)
     {
         std::string typeName = nodeJson.value("type", "");
         if (typeName.empty())

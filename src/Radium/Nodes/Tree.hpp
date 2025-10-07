@@ -36,4 +36,8 @@ namespace Radium::Nodes {
 
         Node* GetNodeByPath(std::string path);
     };
+
+    json SerializeNode(Node *node);
+
+    Node *DeserializeNode(const json &nodeJson, SceneTree* tree, Node *parent = nullptr, bool stubScripts = false);
 }

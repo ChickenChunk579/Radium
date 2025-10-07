@@ -13,15 +13,10 @@ namespace Radium::SpriteBatchRegistry {
     }
 
     void Add(std::string name, std::string texturePath, Rune::SpriteOrigin origin, Rune::SamplingMode mode) {
-        #if !defined(__ANDROID__)
-        std::string fullPath = "assets/" + assetBase + texturePath;
-        const char* path = fullPath.c_str();
+        std::string resolvedPath = Radium::assetBase + texturePath;
+        SDL_Surface* surface = IMG_Load(resolvedPath.c_str());
 
-        spdlog::info("Resolved texture path: {}", path);
-        SDL_Surface* surface = IMG_Load(path);
-        #else
-        SDL_Surface* surface = IMG_Load(assetBase + texturePath.c_str());
-        #endif
+        spdlog::info("Loading texture at {}", resolvedPath);
 
         if (!surface) {
             spdlog::error("Failed to load image: {}", SDL_GetError());

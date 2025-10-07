@@ -2,6 +2,8 @@
 #include <Radium/SpriteBatchRegistry.hpp>
 #include <Radium/Nodes/ClassDB.hpp>
 #include <Radium/SubViewport.hpp>
+#include <Radium/AssetLoader.hpp>
+#include <Radium/GameDataParser.hpp>
 #include <Radium/Nodes/ChaiScript.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include "imgui.h"
@@ -22,6 +24,7 @@
 #include <ImGuiFileDialog.h>
 #include <filesystem>
 #include <iostream>
+#include <process.hpp>
 
 namespace fs = std::filesystem;
 
@@ -472,6 +475,7 @@ public:
     std::shared_ptr<spdlog::sinks::sink> imguiSink;
     Radium::Nodes::Node* selectedNode = nullptr;
     std::string projectFolder = "none";
+    json copiedNodeJson = "";
 
     std::vector<std::string> directories;
     std::vector<std::string> files;
@@ -514,9 +518,6 @@ public:
 
     void OnLoad() override
     {
-        Radium::SpriteBatchRegistry::Add("flappy", "texture.png", Rune::SpriteOrigin::TopLeft, Rune::SamplingMode::Nearest);
-        Radium::SpriteBatchRegistry::Add("flappyCenter", "texture.png", Rune::SpriteOrigin::Center, Rune::SamplingMode::Nearest);
-
         scene = new Radium::SubViewport(1280, 720);
         Rune::Texture *tex = new Rune::Texture(scene->viewport->textureView, Rune::SamplingMode::Nearest);
 
@@ -586,6 +587,9 @@ public:
         const bool isLeaf = node->children.empty();
         if (isLeaf) {
             flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+        }
+        if (node == selectedNode) {
+            flags |= ImGuiTreeNodeFlags_Selected;
         }
 
         bool open = ImGui::TreeNodeEx((void*)(intptr_t)node, flags, "%s", node->name.c_str());
@@ -708,15 +712,9 @@ public:
                     
                     case 3: // add script
                     {
-                        std::string finalPath = relativePath;
-                        const std::string prefix = "assets/";
-
-                        if (finalPath.rfind(prefix, 0) == 0) {
-                            // Remove the "assets/" prefix
-                            finalPath = finalPath.substr(prefix.length());
-                        }
-
-                        selectedNode->script = new Radium::Nodes::ChaiScript(finalPath, &scene->tree, false);
+                        std::string finalPath = filePathName;
+                        fs::path relativePath = fs::relative(finalPath, projectFolder);
+                        selectedNode->script = new Radium::Nodes::ChaiScript(relativePath.generic_string(), &scene->tree, false);
                         selectedNode->script->me = selectedNode;
                         break;
                     }
@@ -725,9 +723,21 @@ public:
                     {
                         projectFolder = filePath;
 
+                        Radium::assetBase = projectFolder + "/";
+
                         spdlog::info("Opened project: {}", projectFolder);
 
                         RefreshAssets(projectFolder);
+
+                        std::string appConfig = Radium::ReadFileToString("app.json");
+                        json j = json::parse(appConfig);
+                        auto config = j.get<Radium::GameConfig>();
+
+                        Radium::SpriteBatchRegistry::Clear();
+
+                        for (auto batchInfo : config.spriteBatches) {
+                            Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
+                        }
 
                         break;
                     }
@@ -789,7 +799,8 @@ public:
                             IGFD::FileDialogConfig config;config.path = ".";
                             ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Save JSON Scene", ".json", config);
                         } else {
-                            scene->tree.Serialize(openPath);
+                            spdlog::info("Open path {}", openPath);
+                            scene->tree.Serialize((fs::path(projectFolder) / openPath).generic_string());
                         }
                         
                     }
@@ -805,8 +816,25 @@ public:
                         ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Select app.json file", ".json", config);
                     }
                     if (ImGui::MenuItem("Run", NULL, false)) {
-                        
+                        TinyProcessLib::Process lsProcess(std::filesystem::current_path().string() + "/RadiumRuntime .", projectFolder, 
+                            [](const char *bytes, size_t n) {
+                                std::cout << std::string(bytes, n);
+                            }
+                        );
+
                     }
+                    if (ImGui::MenuItem("Refresh Batches", NULL, false)) {
+                        std::string appConfig = Radium::ReadFileToString(projectFolder + "/app.json");
+                        json j = json::parse(appConfig);
+                        auto config = j.get<Radium::GameConfig>();
+
+                        Radium::SpriteBatchRegistry::Clear();
+
+                        for (auto batchInfo : config.spriteBatches) {
+                            Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
+                        }
+                    }
+
 
                     ImGui::EndMenu();
                 }
@@ -839,7 +867,7 @@ public:
 
                 if (ImGui::Button("Select a new ChaiScript")) {
                     dialogState = 3;
-                    IGFD::FileDialogConfig config;config.path = ".";
+                    IGFD::FileDialogConfig config;config.path = projectFolder;
                     ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose a ChaiScript", ".chai", config);
                     
                 }
@@ -938,8 +966,8 @@ public:
         }
 
         {
-            static std::string folder = "/";
-            std::string expandedFolder = projectFolder + folder;
+            static std::string folder = "";
+            std::string expandedFolder = (fs::path(projectFolder) / folder).generic_string();
 
             ImGui::Begin("Assets");
 
@@ -949,7 +977,7 @@ public:
                 ImGui::Text(folder.c_str());
                 ImGui::SameLine();
                 if (ImGui::Button("Reload")) {
-                    RefreshAssets(projectFolder + folder);
+                    RefreshAssets(expandedFolder);
                 }
                 ImGui::Separator();
 
@@ -988,9 +1016,10 @@ public:
                         ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
                     }
                     if (ImGui::Selectable(dir.c_str())) {
-                        fs::path newFolder = fs::path(folder) / dir;
-                        folder = newFolder.generic_string();
-                        RefreshAssets(projectFolder + folder);
+                        fs::path combined = fs::path(projectFolder) / folder / dir;
+                        folder = (fs::path(folder) / dir).generic_string();
+
+                        RefreshAssets(combined.generic_string());
                     }
                     ImGui::PopStyleColor(3);
                 }
@@ -1009,10 +1038,10 @@ public:
                         if (endsWith(file, ".rscn")) {
                             if (openPath != "")
                                 scene->tree.Serialize(openPath);
-                            std::string expandedFilePath =  expandedFolder + "/" + file;
-                            spdlog::info("Scene: {}", expandedFilePath);
-                            scene->tree.Deserialize(expandedFilePath, true, true);
-                            openPath = expandedFilePath;
+                            fs::path path = fs::path(folder) / file;
+                            spdlog::info("Scene: {}", path.generic_string());
+                            scene->tree.Deserialize(path.generic_string(), true, true);
+                            openPath = path.generic_string();
                         }
                     }
                     ImGui::PopStyleColor(3);
@@ -1024,6 +1053,49 @@ public:
         }
         {
             ImGui::Begin("Hierarchy");
+
+            if (selectedNode) {
+                if (ImGui::Button("Copy")) {
+                    // Serialize selected node to string
+                    copiedNodeJson = Radium::Nodes::SerializeNode(selectedNode); // Assumes you have SerializeToString()
+                    spdlog::info("Copied node: {}", selectedNode->name);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Paste")) {
+                    if (!copiedNodeJson.empty()) {
+                        // Deserialize the node
+                        Radium::Nodes::Node* cloned = Radium::Nodes::DeserializeNode(copiedNodeJson, &scene->tree, nullptr, true); // You’ll implement this
+                        if (cloned) {
+                            cloned->name += "_copy";
+                            scene->tree.nodes.push_back(cloned);
+                            selectedNode = cloned;
+                            spdlog::info("Pasted node as: {}", cloned->name);
+                        } else {
+                            spdlog::error("Failed to paste node.");
+                        }
+                    }
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Up")) {
+                    auto& siblings = (selectedNode->parent ? selectedNode->parent->children : scene->tree.nodes);
+                    auto it = std::find(siblings.begin(), siblings.end(), selectedNode);
+                    if (it != siblings.begin() && it != siblings.end()) {
+                        std::iter_swap(it, it - 1);
+                        spdlog::info("Moved node up: {}", selectedNode->name);
+                    }
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Down")) {
+                    auto& siblings = (selectedNode->parent ? selectedNode->parent->children : scene->tree.nodes);
+                    auto it = std::find(siblings.begin(), siblings.end(), selectedNode);
+                    if (it != siblings.end() && (it + 1) != siblings.end()) {
+                        std::iter_swap(it, it + 1);
+                        spdlog::info("Moved node down: {}", selectedNode->name);
+                    }
+                }
+            }
+
 
             static bool openMenu = false;
             static char filter[128] = "";
@@ -1155,6 +1227,7 @@ public:
             if (offsetY < 0.0f)
                 offsetY = 0.0f;
             ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + offsetX, cursorScreenPos.y + offsetY));
+            cursorScreenPos = ImGui::GetCursorScreenPos();
 
             ImGui::Image(sceneTexture, renderSize);
 
@@ -1162,6 +1235,9 @@ public:
             ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + avail.x, cursorScreenPos.y + avail.y));
 
             ImGui::Dummy({0, 0});
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+            draw_list->AddLine(ImVec2(0, 0), ImVec2(0 + 100, 0 + 100), 0xffffffff, 5.0f);
 
             ImGui::End();
         }
@@ -1173,6 +1249,8 @@ public:
             
             ImGui::End();
         }
+
+        ImGui::ShowDemoWindow();
     }
 };
 #ifndef __ANDROID__

@@ -9,13 +9,6 @@ namespace Radium
     {
         spdlog::info("Asset base: {}", assetBase);
         std::string expandedFileName = assetBase + filename;
-        if (external) {
-            expandedFileName = filename;
-        } else {
-            #ifndef __ANDROID__
-            expandedFileName = "assets/" + assetBase + filename;
-            #endif
-        }
         
 
 

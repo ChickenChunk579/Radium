@@ -298,8 +298,6 @@ namespace Rune
     {
         windowWidth = width;
         windowHeight = height;
-
-        setenv("RUST_BACKTRACE", "1", 1);
         
         std::cout << "[Rune] Initializing renderer..." << std::endl;
 
@@ -377,8 +375,22 @@ namespace Rune
         
 
         #else
+        #ifdef _MSC_VER
+        WGPUSurfaceSourceWindowsHWND fromHwnd;
+        void** val = (void**)x11Display;
+        fromHwnd.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
+        fromHwnd.chain.next = NULL;
+        fromHwnd.hwnd = val[0];
+        fromHwnd.hinstance = val[1];
+
+        WGPUSurfaceDescriptor surfaceDescriptor;
+        surfaceDescriptor.nextInChain = &fromHwnd.chain;
+        surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
+
+        surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
+        #else
         surface = CreateSurfaceForWindow(x11Display, instance);
-        
+        #endif
         #endif
 
         #else
