@@ -2,6 +2,8 @@
 #include <spdlog/spdlog.h>
 #include <Rune/Rune.hpp>
 #include <Radium/Input.hpp>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <SDL2/SDL_syswm.h>
 #include "imgui.h"
 #include "imgui_impl_rune.h"
@@ -169,7 +171,7 @@ namespace Radium {
         spdlog::info("Display: {}, Window: {}", static_cast<void*>(x11Display), x11Window);
         #else
 
-        #ifndef TARGET_OS_IOS
+        #if !defined(TARGET_OS_IOS) && !defined(_MSC_VER)
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_COCOA) {
@@ -183,7 +185,7 @@ namespace Radium {
         uint32_t x11Window = 0;
 
         #else
-
+        #ifdef TARGET_OS_IOS
         SDL_SysWMinfo wmInfo;
         SDL_VERSION(&wmInfo.version);
         if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_UIKIT) {
@@ -195,6 +197,26 @@ namespace Radium {
 
         Display* x11Display = wmInfo.info.uikit.window;
         uint32_t x11Window = 0;
+        #else
+        SDL_SysWMinfo wmInfo;
+        SDL_VERSION(&wmInfo.version);
+        if (!SDL_GetWindowWMInfo(window, &wmInfo) || wmInfo.subsystem != SDL_SYSWM_WINDOWS) {
+            spdlog::error("Failed to get Windows window info");
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            exit(1);
+        }
+
+        Display* x11Display = nullptr;
+        uint32_t x11Window = 0;
+        
+        handles = new void*[2];
+
+        handles[0] = (void*)wmInfo.info.win.window;
+        handles[1] = (void*)wmInfo.info.win.hinstance;
+        x11Display = (Display*)handles;
+
+        #endif
 
         #endif
 
@@ -245,7 +267,7 @@ namespace Radium {
         spdlog::trace("Successfully initialized Rune.");
         spdlog::info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
-        #if defined(__linux__) && !defined(__ANDROID__)
+        #if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
         spdlog::trace("Setting up imgui...");
 
         IMGUI_CHECKVERSION();
@@ -280,7 +302,7 @@ namespace Radium {
         spdlog::trace("Creating physics stuff");
 
         b2WorldDef worldDef = b2DefaultWorldDef();
-        worldDef.gravity = (b2Vec2){GetGravity().x, GetGravity().y};
+        worldDef.gravity = {GetGravity().x, GetGravity().y};
 
         worldId = b2CreateWorld(&worldDef);
 
@@ -299,6 +321,8 @@ namespace Radium {
         }, 0, 1);
 
         #else
+        this->running = true;
+
         while (running) {
             RunFrame(0.0);
             //std::this_thread::sleep_for(std::chrono::milliseconds(16));
@@ -326,7 +350,7 @@ namespace Radium {
             ZoneScopedN("Event Poll");
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
-                #if defined(__linux__) && !defined(__ANDROID__)
+                #if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
                 ImGui_ImplSDL2_ProcessEvent(&event);
                 #endif
                 if (event.type == SDL_QUIT)
@@ -336,7 +360,7 @@ namespace Radium {
             Radium::Input::Update();
         }
 
-        //spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
+        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
         {
             ZoneScopedN("User Tick");
             this->OnTick(0);
@@ -393,7 +417,7 @@ namespace Radium {
             //this->OnRender();
             
         }
-        #if defined(__linux__) && !defined(__ANDROID__)
+        #if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
 
         {
             ZoneScopedN("ImGui setup");

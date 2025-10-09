@@ -385,7 +385,7 @@ namespace Rune
 
         WGPUSurfaceDescriptor surfaceDescriptor;
         surfaceDescriptor.nextInChain = &fromHwnd.chain;
-        surfaceDescriptor.label = (WGPUStringView){NULL, WGPU_STRLEN};
+        surfaceDescriptor.label = {"", 0};
 
         surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
         #else
@@ -427,7 +427,7 @@ namespace Rune
 
         WGPURequestAdapterOptions adapterOpts = {};
         adapterOpts.compatibleSurface = surface;
-        adapterOpts.backendType = WGPUBackendType_Undefined;
+        adapterOpts.backendType = WGPUBackendType_Vulkan;
         adapterOpts.nextInChain = nullptr;
 
         adapter = requestAdapterSync(instance, &adapterOpts);

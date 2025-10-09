@@ -83,3 +83,16 @@ if(APPLE)
         target_link_libraries(Rune PRIVATE "-framework Cocoa")
     endif()
 endif()
+
+
+if(MSVC)
+    target_link_libraries(Rune PRIVATE
+        opengl32
+        d3dcompiler
+        propsys
+        userenv
+        runtimeobject
+        ntdll
+    )
+
+endif()

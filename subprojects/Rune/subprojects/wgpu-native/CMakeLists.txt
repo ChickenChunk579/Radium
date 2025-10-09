@@ -26,8 +26,8 @@ elseif(APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     set(WGPU_PLATFORM "macos-x86_64")
     set(WGPU_ZIP "wgpu-macos-x86_64-debug.zip")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    set(WGPU_PLATFORM "wgpu-windows-x86_64-gnu")
-    set(WGPU_ZIP "wgpu-windows-x86_64-gnu-debug.zip")
+    set(WGPU_PLATFORM "windows-x86_64-msvc")
+    set(WGPU_ZIP "wgpu-windows-x86_64-msvc-debug.zip")
 else()
     message(FATAL_ERROR "Unsupported platform or architecture")
 endif()
@@ -66,8 +66,13 @@ endif()
 # Header path
 set(WGPU_INCLUDE_DIR "${WGPU_EXTRACT_DIR}/include")
 
-# Static library path
-set(WGPU_STATIC_LIB "${WGPU_EXTRACT_DIR}/lib/libwgpu_native.a")
+# Detect correct library extension
+if(MSVC)
+    set(WGPU_STATIC_LIB "${WGPU_EXTRACT_DIR}/lib/wgpu_native.lib")
+else()
+    set(WGPU_STATIC_LIB "${WGPU_EXTRACT_DIR}/lib/libwgpu_native.a")
+endif()
+
 
 # Check that required files exist
 if(NOT EXISTS "${WGPU_STATIC_LIB}")

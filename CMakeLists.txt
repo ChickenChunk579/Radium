@@ -9,17 +9,15 @@ set(DYNLOAD_ENABLED OFF)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
-set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
 if (IOS)
     # Disable ImageIO for SDL2_image as it's not available for iOS, just OS X, and will fail at link time
     set(SDL2IMAGE_BACKEND_IMAGEIO 0)
 endif()
+
+add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -DTRACY_NO_INVARIANT_CHECK=1)
 
 set(SDL2IMAGE_AVIF OFF CACHE BOOL "Support loading AVIF images" FORCE)
 set(SDL2IMAGE_BMP OFF CACHE BOOL "Support loading BMP images" FORCE)
@@ -47,7 +45,7 @@ add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/tracy)
 add_subdirectory(subprojects/ChaiScript)
-#add_subdirectory(subprojects/tiny-process-library)
+add_subdirectory(subprojects/tiny-process-library)
 
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
@@ -93,6 +91,9 @@ target_link_libraries(Radium PUBLIC
     chaiscript
     tiny-process-library
 )
+if (MSVC)
+    target_link_libraries(Radium PUBLIC dbghelp)
+endif()
 target_include_directories(Radium PUBLIC
     src
     subprojects/ImGuiColorTextEdit/
@@ -107,6 +108,12 @@ target_precompile_headers(Radium
 
 target_link_libraries(Radium PRIVATE TracyClient)
 target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
+
+# MSVC: fix C1128 (section count) on large translation units like ChaiScript.cpp
+if (MSVC)
+    target_compile_options(Radium PRIVATE /bigobj)
+    target_compile_options(imgui PRIVATE /bigobj)
+endif()
 
 if (EMSCRIPTEN)
     # Linker flags

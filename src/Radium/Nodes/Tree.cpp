@@ -95,7 +95,11 @@ namespace Radium::Nodes
             {
                 nodeJson[prop.name] = ClassDB::GetProperty<unsigned int>(prop.name, node);
             }
+            #if !defined(_MSC_VER)
             else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+            #else
+            else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")
+            #endif
             {
                 nodeJson[prop.name] = ClassDB::GetProperty<std::string>(prop.name, node);
             }
@@ -150,7 +154,10 @@ namespace Radium::Nodes
             return nullptr;
         }
 
+        spdlog::trace("Creating type: {}", typeName);
+
         Node *node = dynamic_cast<Node *>(ClassDB::Create(typeName));
+        spdlog::trace("Post create");
         if (!node)
         {
             spdlog::error("Failed to create node of type {}", typeName);
@@ -196,6 +203,7 @@ namespace Radium::Nodes
             
             try
             {
+                
                 if (ClassDB::IsEnum(prop.type)) {
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
                 }
@@ -212,7 +220,11 @@ namespace Radium::Nodes
                 {
                     ClassDB::SetProperty<unsigned int>(prop.name, node, nodeJson[prop.name].get<unsigned int>());
                 }
+                #if !defined(_MSC_VER)
                 else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+                #else
+                else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")
+                #endif
                 {
                     ClassDB::SetProperty<std::string>(prop.name, node, nodeJson[prop.name].get<std::string>());
                 }
@@ -264,16 +276,24 @@ namespace Radium::Nodes
     {
         std::string file = Radium::ReadFileToString(path, external);
 
+        spdlog::trace("Got file: {}", file);
+
         json j = json::parse(file);
+        spdlog::trace("Created json");
 
         name = j.value("name", "UnnamedScene");
+        spdlog::trace("Name: {}", name);
         nodes.clear();
+        spdlog::trace("Cleared nodes");
 
         for (const auto &nodeJson : j["nodes"])
         {
+            spdlog::trace("Before deserialize");
             Node *node = DeserializeNode(nodeJson, this, nullptr, stubScripts);
+            spdlog::trace("Post deserialize");
             if (node)
             {
+                spdlog::trace("Added node: {}", node->name);
                 nodes.push_back(node);
             }
         }

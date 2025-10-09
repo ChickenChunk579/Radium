@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <typeinfo>
 #include <spdlog/spdlog.h>
-#include <cxxabi.h>
 #include <algorithm>
 
 template <typename T, typename U>
@@ -91,14 +90,18 @@ namespace Radium::Nodes
             std::string typeName = Demangle(typeid(T).name());
             std::string parentName = Demangle(typeid(P).name());
 
+            spdlog::info("Registering type {} with parent {}", typeName, parentName);
+
             if (registeredClasses.find(typeName) != registeredClasses.end())
             {
+                spdlog::info("Already registered");
                 return;
             }
 
             // Ensure parent is registered
             if (registeredClasses.find(parentName) == registeredClasses.end())
             {
+                spdlog::info("Need to register: {}", parentName);
                 Register<P>();
             }
 
@@ -109,6 +112,7 @@ namespace Radium::Nodes
             };
             info.name = typeName;
             registeredClasses[typeName] = info;
+            spdlog::info("Register finished!");
         }
 
         template <typename T1, typename T2>
@@ -249,9 +253,13 @@ namespace Radium::Nodes
         inline Object* Create(const std::string& className)
         {
             auto it = registeredClasses.find(className);
+            spdlog::trace("Post find");
             if (it == registeredClasses.end()) {
-                throw std::runtime_error("Class not registered: " + className);
+                spdlog::error("Class not registered: " + className);
+                abort();
             }
+
+            spdlog::trace("Found: {}", it->second.name);
 
             if (!it->second.factory) {
                 throw std::runtime_error("No factory function for class: " + className);

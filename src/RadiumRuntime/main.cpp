@@ -46,7 +46,7 @@ public:
 
     Radium::Vector2f GetGravity() override
     {
-        return {config.gravity[0], config.gravity[1]};
+        return {(float)config.gravity[0], (float)config.gravity[1]};
     }
 
 

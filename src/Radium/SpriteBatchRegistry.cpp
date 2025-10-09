@@ -38,7 +38,7 @@ namespace Radium::SpriteBatchRegistry {
         // Now pixels is a tightly packed RGBA buffer
         Rune::Texture* texture = new Rune::Texture(w, h, w*4, pixels, mode);
 
-        free(pixels);
+        delete[] pixels;
 
         // Free surfaces
         SDL_FreeSurface(converted);

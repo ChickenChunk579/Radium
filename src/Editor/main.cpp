@@ -897,7 +897,11 @@ public:
                         value->x = val[0];
                         value->y = val[1];
                     }
+                    #if !defined(_MSC_VER)
                     if (property.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >") {
+                    #else
+                    if (property.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >") {
+                    #endif
                         // Edit the actual property string in-place. Use GetPropertyPointer so changes
                         // persist back to the node.
                         std::string* strPtr = Radium::Nodes::ClassDB::GetPropertyPointer<std::string>(property.name, selectedNode);
@@ -1235,10 +1239,6 @@ public:
             ImGui::SetCursorScreenPos(ImVec2(cursorScreenPos.x + avail.x, cursorScreenPos.y + avail.y));
 
             ImGui::Dummy({0, 0});
-            ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
-            draw_list->AddLine(ImVec2(0, 0), ImVec2(0 + 100, 0 + 100), 0xffffffff, 5.0f);
-
             ImGui::End();
         }
 
