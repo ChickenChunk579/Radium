@@ -57,21 +57,6 @@ else()
 
     # Native configuration
     target_link_libraries(Rune PUBLIC wgpu::native)
-
-    # SDL2 via pkg-config
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SDL2 REQUIRED sdl2)
-endif()
-
-# ─── Optional Test App ─────────────────────────────────────────────────────────
-if(BUILD_TESTAPP)
-    add_executable(testapp testapp/main.cpp)
-    target_link_libraries(testapp PRIVATE Rune)
-
-    if(NOT IS_WASM)
-        target_include_directories(testapp PRIVATE ${SDL2_INCLUDE_DIRS} lib/include)
-        target_link_libraries(testapp PRIVATE ${SDL2_LIBRARIES})
-    endif()
 endif()
 
 # ─── macOS / iOS Frameworks ─────────────────────────────────────────────────────
