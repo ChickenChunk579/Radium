@@ -1,0 +1,106 @@
+714c714
+< 		if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Z)))
+---
+> 		if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Z)))
+716c716
+< 		else if (!IsReadOnly() && !ctrl && !shift && alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+---
+> 		else if (!IsReadOnly() && !ctrl && !shift && alt && ImGui::IsKeyPressed((ImGuiKey_Backspace)))
+718c718
+< 		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Y)))
+---
+> 		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Y)))
+720c720
+< 		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_UpArrow)))
+---
+> 		else if (!ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_UpArrow)))
+722c722
+< 		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_DownArrow)))
+---
+> 		else if (!ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_DownArrow)))
+724c724
+< 		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_LeftArrow)))
+---
+> 		else if (!alt && ImGui::IsKeyPressed((ImGuiKey_LeftArrow)))
+726c726
+< 		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_RightArrow)))
+---
+> 		else if (!alt && ImGui::IsKeyPressed((ImGuiKey_RightArrow)))
+728c728
+< 		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageUp)))
+---
+> 		else if (!alt && ImGui::IsKeyPressed((ImGuiKey_PageUp)))
+730c730
+< 		else if (!alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_PageDown)))
+---
+> 		else if (!alt && ImGui::IsKeyPressed((ImGuiKey_PageDown)))
+732c732
+< 		else if (!alt && ctrl && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
+---
+> 		else if (!alt && ctrl && ImGui::IsKeyPressed((ImGuiKey_Home)))
+734c734
+< 		else if (ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
+---
+> 		else if (ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_End)))
+736c736
+< 		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home)))
+---
+> 		else if (!ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_Home)))
+738c738
+< 		else if (!ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End)))
+---
+> 		else if (!ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_End)))
+740c740
+< 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
+---
+> 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Delete)))
+742c742
+< 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+---
+> 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Backspace)))
+744c744
+< 		else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+---
+> 		else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Insert)))
+746c746
+< 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+---
+> 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Insert)))
+748c748
+< 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_C)))
+---
+> 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_C)))
+750c750
+< 		else if (!IsReadOnly() && !ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
+---
+> 		else if (!IsReadOnly() && !ctrl && shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Insert)))
+752c752
+< 		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_V)))
+---
+> 		else if (!IsReadOnly() && ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_V)))
+754c754
+< 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_X)))
+---
+> 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_X)))
+756c756
+< 		else if (!ctrl && shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
+---
+> 		else if (!ctrl && shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Delete)))
+758c758
+< 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
+---
+> 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_A)))
+760c760
+< 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
+---
+> 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_Enter)))
+762c762
+< 		else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Tab)))
+---
+> 		else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed((ImGuiKey_Tab)))
+1135d1134
+< 		ImGui::PushAllowKeyboardFocus(true);
+1143,1145d1141
+< 
+< 	if (mHandleKeyboardInputs)
+< 		ImGui::PopAllowKeyboardFocus();

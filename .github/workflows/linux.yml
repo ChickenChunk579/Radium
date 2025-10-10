@@ -1,0 +1,42 @@
+name: Build (linux)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y ninja-build cmake zip
+      
+      - name: Clone subprojects
+        run: |
+          cd subprojects
+          ./clone.sh
+
+      - name: Configure CMake with Ninja
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Ninja ..
+
+      - name: Build with Ninja
+        run: |
+          cd build
+          ninja
+
+      - name: Create zip artifact
+        run: |
+          cd build
+          zip -r artifact.zip RadiumRuntime Editor libRadium.a subprojects/Rune/libRune.a
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: build/artifact.zip

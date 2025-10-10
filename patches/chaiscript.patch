@@ -1,0 +1,14 @@
+214c214
+<       #list(APPEND LIBS "dl")
+---
+>       list(APPEND LIBS "dl")
+249,250c249,250
+< #add_executable(chai src/main.cpp ${Chai_INCLUDES})
+< #target_link_libraries(chai ${LIBS} ${CHAISCRIPT_LIBS})
+---
+> add_executable(chai src/main.cpp ${Chai_INCLUDES})
+> target_link_libraries(chai ${LIBS} ${CHAISCRIPT_LIBS})
+428c428
+< install(TARGETS chaiscript_stdlib-${CHAI_VERSION} ${MODULES} RUNTIME DESTINATION bin LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/chaiscript")
+---
+> install(TARGETS chai chaiscript_stdlib-${CHAI_VERSION} ${MODULES} RUNTIME DESTINATION bin LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/chaiscript")
