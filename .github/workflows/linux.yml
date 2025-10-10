@@ -14,10 +14,9 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y ninja-build cmake zip
       
-      - name: Clone subprojects
+      - name: Setup repo
         run: |
-          cd subprojects
-          ./clone.sh
+          ./setup.sh
 
       - name: Configure CMake with Ninja
         run: |
