@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build cmake zip libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+        run: sudo apt-get update && sudo apt-get install -y ninja-build cmake zip libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev libwayland-egl-backend-dev libxkbcommon-dev libegl1-mesa-dev
       
       - name: Setup repo
         run: |
