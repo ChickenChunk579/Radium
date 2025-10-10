@@ -4,7 +4,7 @@
 #include <Radium/SubViewport.hpp>
 #include <Radium/AssetLoader.hpp>
 #include <Radium/GameDataParser.hpp>
-#include <Radium/Nodes/ChaiScript.hpp>
+#include <Radium/Nodes/LuaScript.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include "imgui.h"
 #include <spdlog/spdlog.h>
@@ -714,7 +714,7 @@ public:
                     {
                         std::string finalPath = filePathName;
                         fs::path relativePath = fs::relative(finalPath, projectFolder);
-                        selectedNode->script = new Radium::Nodes::ChaiScript(relativePath.generic_string(), &scene->tree, false);
+                        selectedNode->script = new Radium::Nodes::LuaScript(relativePath.generic_string(), &scene->tree, false);
                         selectedNode->script->me = selectedNode;
                         break;
                     }
@@ -854,7 +854,7 @@ public:
 
                 // Script picker
                 if (selectedNode->script) {
-                    Radium::Nodes::ChaiScript* script = reinterpret_cast<Radium::Nodes::ChaiScript*>(selectedNode->script);
+                    Radium::Nodes::LuaScript* script = reinterpret_cast<Radium::Nodes::LuaScript*>(selectedNode->script);
                     if (script != nullptr)
                         ImGui::Text("Script: %s", script->path.c_str());
                     
@@ -865,10 +865,10 @@ public:
                     ImGui::Text("No Script Attached");
                 }
 
-                if (ImGui::Button("Select a new ChaiScript")) {
+                if (ImGui::Button("Select a new Lua script")) {
                     dialogState = 3;
                     IGFD::FileDialogConfig config;config.path = projectFolder;
-                    ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose a ChaiScript", ".chai", config);
+                    ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose a lua script", ".lua", config);
                     
                 }
 

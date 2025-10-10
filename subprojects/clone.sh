@@ -10,3 +10,5 @@ git clone https://github.com/ChaiScript/ChaiScript --depth 1 --recursive
 git clone https://github.com/BalazsJako/ImGuiColorTextEdit --depth 1 --recursive
 git clone https://github.com/aiekick/ImGuiFileDialog --depth 1 --recursive
 git clone https://github.com/eidheim/tiny-process-library --depth 1 --recursive
+git clone https://github.com/ThePhD/sol2 --depth 1 --recursive
+git clone https://github.com/lua/lua --depth 1 --recursive --branch v5.4

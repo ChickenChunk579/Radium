@@ -1,4 +1,5 @@
 #include <Radium/Math.hpp>
+#include <Radium/Nodes/LuaScript.hpp>
 #include <cmath>
 #include <spdlog/spdlog.h>
 
@@ -287,4 +288,48 @@ namespace Radium
             a.y < b.y + b.h &&
             a.y + a.h > b.y);
     }
+
+    void Vector2f::Register() {
+        CLASSDB_REGISTER(Vector2f);
+        CLASSDB_DECLARE_PROPERTY(Vector2f, float, x);
+        CLASSDB_DECLARE_PROPERTY(Vector2f, float, y);
+
+        LUA_CONSTRUCTOR("Vector2f", [](lua_State* L) -> int {
+            float x = lua_tonumber(L, 1);
+            float y = lua_tonumber(L, 2);
+            return Radium::Nodes::classdb_lua_wrap(L, new Vector2f(x, y));
+        });
+    }
+
+    void Vector2i::Register() {
+        CLASSDB_REGISTER(Vector2i);
+        CLASSDB_DECLARE_PROPERTY(Vector2i, int, x);
+        CLASSDB_DECLARE_PROPERTY(Vector2i, int, y);
+
+        LUA_CONSTRUCTOR("Vector2i", [](lua_State* L) -> int {
+            int x = lua_tointeger(L, 1);
+            int y = lua_tointeger(L, 2);
+            return Radium::Nodes::classdb_lua_wrap(L, new Vector2i(x, y));
+        });
+    }
+
+    void RectangleF::Register() {
+        CLASSDB_REGISTER(RectangleF);
+        CLASSDB_DECLARE_PROPERTY(RectangleF, float, x);
+        CLASSDB_DECLARE_PROPERTY(RectangleF, float, y);
+        CLASSDB_DECLARE_PROPERTY(RectangleF, float, w);
+        CLASSDB_DECLARE_PROPERTY(RectangleF, float, h);
+
+        LUA_CONSTRUCTOR("RectangleF", [](lua_State* L) -> int {
+            float x = lua_tonumber(L, 1);
+            float y = lua_tonumber(L, 2);
+            float w = lua_tonumber(L, 3);
+            float h = lua_tonumber(L, 4);
+            return Radium::Nodes::classdb_lua_wrap(L, new RectangleF(x, y, w, h));
+        });
+    }
+
+    Vector2f::Vector2f() : x(0), y(0) {}
+    Vector2i::Vector2i() : x(0), y(0) {}
+    RectangleF::RectangleF() : x(0), y(0), w(0), h(0) {}
 };

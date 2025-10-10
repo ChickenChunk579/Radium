@@ -9,6 +9,10 @@
                     "children": [],
                     "flags": 0,
                     "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        0.0
+                    ],
                     "name": "Background1",
                     "origin": 0,
                     "position": [
@@ -38,6 +42,10 @@
                     "children": [],
                     "flags": 0,
                     "g": 1.0,
+                    "globalPosition": [
+                        288.0,
+                        0.0
+                    ],
                     "name": "Background2",
                     "origin": 0,
                     "position": [
@@ -67,6 +75,10 @@
                     "children": [],
                     "flags": 0,
                     "g": 1.0,
+                    "globalPosition": [
+                        576.0,
+                        0.0
+                    ],
                     "name": "Background3",
                     "origin": 0,
                     "position": [
@@ -91,6 +103,10 @@
                     "z": 0.0
                 }
             ],
+            "globalPosition": [
+                0.0,
+                0.0
+            ],
             "name": "BackgroundGroup",
             "position": [
                 0.0,
@@ -110,6 +126,10 @@
                     "children": [],
                     "flags": 1,
                     "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        -225.0
+                    ],
                     "name": "BottomPipe",
                     "origin": 1,
                     "position": [
@@ -139,6 +159,10 @@
                     "children": [],
                     "flags": 2,
                     "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        225.0
+                    ],
                     "name": "TopPipe",
                     "origin": 1,
                     "position": [
@@ -162,6 +186,10 @@
                     "type": "Radium::Nodes::Sprite2D",
                     "z": 0.0
                 }
+            ],
+            "globalPosition": [
+                0.0,
+                0.0
             ],
             "name": "PipeGroup",
             "position": [
@@ -169,8 +197,8 @@
                 0.0
             ],
             "script": {
-                "path": "assets/scripts/pipe.chai",
-                "type": "ChaiScript"
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
             },
             "size": [
                 0.0,
@@ -186,6 +214,10 @@
                     "children": [],
                     "flags": 1,
                     "g": 1.0,
+                    "globalPosition": [
+                        300.0,
+                        -225.0
+                    ],
                     "name": "BottomPipe",
                     "origin": 1,
                     "position": [
@@ -215,6 +247,10 @@
                     "children": [],
                     "flags": 2,
                     "g": 1.0,
+                    "globalPosition": [
+                        300.0,
+                        225.0
+                    ],
                     "name": "TopPipe",
                     "origin": 1,
                     "position": [
@@ -238,6 +274,10 @@
                     "type": "Radium::Nodes::Sprite2D",
                     "z": 0.0
                 }
+            ],
+            "globalPosition": [
+                300.0,
+                0.0
             ],
             "name": "PipeGroup2",
             "position": [
@@ -245,8 +285,8 @@
                 0.0
             ],
             "script": {
-                "path": "assets/scripts/pipe.chai",
-                "type": "ChaiScript"
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
             },
             "size": [
                 0.0,
@@ -262,6 +302,10 @@
                     "children": [],
                     "flags": 1,
                     "g": 1.0,
+                    "globalPosition": [
+                        600.0,
+                        -225.0
+                    ],
                     "name": "BottomPipe",
                     "origin": 1,
                     "position": [
@@ -291,6 +335,10 @@
                     "children": [],
                     "flags": 2,
                     "g": 1.0,
+                    "globalPosition": [
+                        600.0,
+                        225.0
+                    ],
                     "name": "TopPipe",
                     "origin": 1,
                     "position": [
@@ -315,14 +363,18 @@
                     "z": 0.0
                 }
             ],
+            "globalPosition": [
+                600.0,
+                0.0
+            ],
             "name": "PipeGroup3",
             "position": [
                 600.0,
                 0.0
             ],
             "script": {
-                "path": "assets/scripts/pipe.chai",
-                "type": "ChaiScript"
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
             },
             "size": [
                 0.0,
@@ -336,6 +388,10 @@
             "children": [],
             "flags": 0,
             "g": 1.0,
+            "globalPosition": [
+                -300.0,
+                0.0
+            ],
             "name": "Bird",
             "origin": 1,
             "position": [
@@ -345,8 +401,8 @@
             "r": 1.0,
             "rotation": 0.0,
             "script": {
-                "path": "assets/scripts/bird.chai",
-                "type": "ChaiScript"
+                "path": "assets/scripts/bird.lua",
+                "type": "LuaScript"
             },
             "size": [
                 32.0,

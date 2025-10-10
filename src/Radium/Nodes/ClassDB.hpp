@@ -22,10 +22,8 @@ constexpr size_t offsetOf(U T::*member)
 
 namespace Radium::Nodes
 {
-    
 
-    std::string Demangle(const char* name);
-
+    std::string Demangle(const char *name);
 
     class Object
     {
@@ -49,7 +47,7 @@ namespace Radium::Nodes
             std::vector<PropertyInfo> properties;
             ClassInfo *parent = nullptr;
             std::string name;
-            std::function<Object*()> factory;
+            std::function<Object *()> factory;
         };
 
         // Declarations
@@ -65,10 +63,10 @@ namespace Radium::Nodes
                 return;
             }
 
-
             ClassInfo info;
             info.parent = nullptr;
-            info.factory = []() -> Object* {
+            info.factory = []() -> Object *
+            {
                 return new T();
             };
             info.name = typeName;
@@ -76,12 +74,14 @@ namespace Radium::Nodes
         }
 
         template <typename T>
-        void RegisterEnum() {
+        void RegisterEnum()
+        {
             enums.push_back(Demangle(typeid(T).name()));
         }
 
-        inline bool IsEnum(std::string typeName) {
-            return std::find(enums.begin(), enums.end(), typeName) != enums.end(); 
+        inline bool IsEnum(std::string typeName)
+        {
+            return std::find(enums.begin(), enums.end(), typeName) != enums.end();
         }
 
         template <typename T, typename P>
@@ -107,7 +107,8 @@ namespace Radium::Nodes
 
             ClassInfo info;
             info.parent = &registeredClasses[parentName];
-            info.factory = []() -> Object* {
+            info.factory = []() -> Object *
+            {
                 return new T();
             };
             info.name = typeName;
@@ -185,7 +186,7 @@ namespace Radium::Nodes
         }
 
         template <typename T>
-        T* GetPropertyPointer(std::string propertyName, Object *instance)
+        T *GetPropertyPointer(std::string propertyName, Object *instance)
         {
             std::string typeName = Demangle(typeid(*instance).name());
             ClassInfo *info = &registeredClasses[typeName];
@@ -223,45 +224,86 @@ namespace Radium::Nodes
             std::string typeName = Demangle(typeid(*instance).name());
 
             auto it = registeredClasses.find(typeName);
-            if (it == registeredClasses.end()) {
+            if (it == registeredClasses.end())
+            {
                 throw std::runtime_error("Type not registered: " + typeName);
             }
 
-            ClassInfo* info = &it->second;
+            ClassInfo *info = &it->second;
 
             // Walk the inheritance chain, deepest base first
-            std::vector<ClassInfo*> classChain;
-            while (info) {
+            std::vector<ClassInfo *> classChain;
+            while (info)
+            {
                 classChain.insert(classChain.begin(), info);
                 info = info->parent;
             }
 
             // Collect properties from base to derived
-            for (ClassInfo* cls : classChain) {
+            for (ClassInfo *cls : classChain)
+            {
                 result.insert(result.end(), cls->properties.begin(), cls->properties.end());
             }
 
             return result;
         }
 
+        inline Object *GetPropertyAsObject(Object *instance, const std::string &propertyName)
+        {
+            if (!instance)
+            {
+                spdlog::error("No instance!");
+                return nullptr;
+            }
+
+            std::string typeName = Radium::Nodes::Demangle(typeid(*instance).name());
+            auto it = Radium::Nodes::ClassDB::registeredClasses.find(typeName);
+
+            if (it == Radium::Nodes::ClassDB::registeredClasses.end())
+            {
+                spdlog::error("Class not registered: {}", typeName);
+                return nullptr;
+            }
+
+            Radium::Nodes::ClassDB::ClassInfo *info = &it->second;
+
+            while (info)
+            {
+                for (const auto &prop : info->properties)
+                {
+                    if (prop.name == propertyName)
+                    {
+                        // Return pointer to sub-object
+                        uint8_t *base = reinterpret_cast<uint8_t *>(instance);
+                        Object *subObj = reinterpret_cast<Object *>(base + prop.offset);
+                        return subObj;
+                    }
+                }
+                info = info->parent;
+            }
+
+            return nullptr;
+        }
 
         inline std::string GetType(Object *object)
         {
             return Demangle(typeid(*object).name());
         }
 
-        inline Object* Create(const std::string& className)
+        inline Object *Create(const std::string &className)
         {
             auto it = registeredClasses.find(className);
             spdlog::trace("Post find");
-            if (it == registeredClasses.end()) {
+            if (it == registeredClasses.end())
+            {
                 spdlog::error("Class not registered: " + className);
                 abort();
             }
 
             spdlog::trace("Found: {}", it->second.name);
 
-            if (!it->second.factory) {
+            if (!it->second.factory)
+            {
                 throw std::runtime_error("No factory function for class: " + className);
             }
 
@@ -272,11 +314,11 @@ namespace Radium::Nodes
         {
             std::vector<std::string> result;
 
-            const std::string baseNodeType = "Radium::Nodes::Node";  // <-- Adjust if your full demangled name differs
+            const std::string baseNodeType = "Radium::Nodes::Node"; // <-- Adjust if your full demangled name differs
 
-            for (const auto& [className, classInfo] : registeredClasses)
+            for (const auto &[className, classInfo] : registeredClasses)
             {
-                const ClassInfo* current = &classInfo;
+                const ClassInfo *current = &classInfo;
 
                 while (current)
                 {
@@ -292,21 +334,24 @@ namespace Radium::Nodes
             return result;
         }
 
-
-
-        inline bool HasProperty(std::string propertyName, Object* obj) {
+        inline bool HasProperty(std::string propertyName, Object *obj)
+        {
             std::string typeName = ClassDB::GetType(obj);
-            
+
             auto it = registeredClasses.find(typeName);
-            if (it == registeredClasses.end()) {
+            if (it == registeredClasses.end())
+            {
                 throw std::runtime_error("Type not registered: " + typeName);
             }
 
-            ClassInfo* info = &it->second;
+            ClassInfo *info = &it->second;
 
-            while (info) {
-                for (const auto& prop : info->properties) {
-                    if (prop.name == propertyName) {
+            while (info)
+            {
+                for (const auto &prop : info->properties)
+                {
+                    if (prop.name == propertyName)
+                    {
                         return true;
                     }
                 }
@@ -315,9 +360,6 @@ namespace Radium::Nodes
 
             return false;
         }
-
-
-
 
     }
 }

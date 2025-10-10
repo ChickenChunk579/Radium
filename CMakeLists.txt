@@ -37,7 +37,6 @@ set(SDL2IMAGE_XCF OFF CACHE BOOL "Support loading XCF images" FORCE)
 set(SDL2IMAGE_XPM OFF CACHE BOOL "Support loading XPM images" FORCE)
 set(SDL2IMAGE_XV OFF CACHE BOOL "Support loading XV images" FORCE)
 
-
 add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/Rune)
 add_subdirectory(subprojects/SDL)
@@ -45,7 +44,13 @@ add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/tracy)
 add_subdirectory(subprojects/ChaiScript)
+# add_subdirectory(subprojects/sol2)
 add_subdirectory(subprojects/tiny-process-library)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+add_definitions(-DMAKE_LIB)
 
 add_library(imgui STATIC
     subprojects/imgui/imgui_demo.cpp
@@ -74,10 +79,14 @@ add_library(Radium STATIC
     src/Radium/Nodes/Tree.cpp
     src/Radium/Nodes/Node.cpp
     src/Radium/Nodes/ChaiScript.cpp
+    src/Radium/Nodes/LuaScript.cpp
     src/Radium/Nodes/ClassDB.cpp
     src/Radium/Nodes/2D/Node2D.cpp
     src/Radium/Nodes/2D/Sprite2D.cpp
+    subprojects/lua/onelua.c
 )
+
+target_include_directories(Radium PUBLIC subprojects/lua)
 
 target_link_libraries(Radium PUBLIC
     SDL2::SDL2
@@ -99,12 +108,6 @@ target_include_directories(Radium PUBLIC
     subprojects/ImGuiColorTextEdit/
     subprojects/ImGuiFileDialog/
 )
-
-target_precompile_headers(Radium
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Radium/pch.hpp
-)
-
 
 target_link_libraries(Radium PRIVATE TracyClient)
 target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
@@ -186,16 +189,6 @@ if (EMSCRIPTEN)
         LINK_FLAGS "--preload-file assets"
     )
 endif ()
-
-set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/RadiumRuntime/assets")
-set(ASSETS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/assets")
-
-add_custom_target(copy_assets ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${ASSETS_SOURCE_DIR} ${ASSETS_OUTPUT_DIR}
-    COMMENT "Copying assets to build output directory"
-    VERBATIM
-)
-
 
 
 

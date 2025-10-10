@@ -60,6 +60,10 @@ public:
             Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
         }
 
+        Radium::Vector2f::Register();
+        Radium::Vector2i::Register();
+        Radium::RectangleF::Register();
+        Radium::Nodes::SceneTree::Register();
         Radium::Nodes::Node::Register();
         Radium::Nodes::Node2D::Register();
         Radium::Nodes::Sprite2D::Register();

@@ -8,6 +8,7 @@ namespace Radium::Nodes {
 
     void Node2D::Register() {
         CLASSDB_REGISTER_SUBCLASS(Node2D, Node);
+        CLASSDB_DECLARE_PROPERTY(Node2D, Radium::Vector2f, globalPosition);
         CLASSDB_DECLARE_PROPERTY(Node2D, Radium::Vector2f, position);
         CLASSDB_DECLARE_PROPERTY(Node2D, Radium::Vector2f, size);
     }

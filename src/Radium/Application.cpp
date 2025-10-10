@@ -360,7 +360,7 @@ namespace Radium {
             Radium::Input::Update();
         }
 
-        spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
+        //spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
         {
             ZoneScopedN("User Tick");
             this->OnTick(0);

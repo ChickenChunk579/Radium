@@ -179,12 +179,17 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
     }
     else if (tex->Status == ImTextureStatus_WantUpdates)
     {
+        if (tex->TexID == 0){
+            return;    
+        }
+
         ImTextureID id = tex->TexID;
 
         delete textures[tex->TexID];
+        
 
-        IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
-        IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
+        //IM_ASSERT(tex->TexID == 0 && tex->BackendUserData == nullptr);
+        //IM_ASSERT(tex->Format == ImTextureFormat_RGBA32);
         void *pixels = tex->GetPixels();
         int w = tex->Width;
         int h = tex->Height;

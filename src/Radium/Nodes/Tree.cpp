@@ -1,5 +1,6 @@
 #include <Radium/Nodes/Tree.hpp>
 #include <Radium/Nodes/ChaiScript.hpp>
+#include <Radium/Nodes/LuaScript.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Math.hpp>
 #include <Radium/AssetLoader.hpp>
@@ -18,6 +19,14 @@ namespace Radium::Nodes
     void SceneTree::Register() {
         CLASSDB_REGISTER(SceneTree);
         CLASSDB_DECLARE_PROPERTY(SceneTree, std::string, name);
+
+        LUA_FUNC("Radium::Nodes::SceneTree::GetNodeByPath", [](lua_State* L) -> int {
+            SceneTree* instance = (SceneTree*)lua_touserdata(L, lua_upvalueindex(1));
+            const char* cstr = lua_tostring(L, 2);
+            std::string path = std::string(cstr);
+
+            return classdb_lua_wrap(L, instance->GetNodeByPath(path));
+        });
     }
 
     void SceneTree::OnLoad()
@@ -67,6 +76,16 @@ namespace Radium::Nodes
                 json scriptInfo = {
                     {"type", "ChaiScript"},
                     {"path", chaiScript->path},
+                };
+
+                nodeJson["script"] = scriptInfo;
+
+            }
+            if (auto luaScript = dynamic_cast<Radium::Nodes::LuaScript*>(script))
+            {
+                json scriptInfo = {
+                    {"type", "LuaScript"},
+                    {"path", luaScript->path},
                 };
 
                 nodeJson["script"] = scriptInfo;
@@ -185,6 +204,24 @@ namespace Radium::Nodes
                 else
                 {
                     spdlog::error("Failed to create ChaiScript instance during deserialization");
+                }
+            }
+            else if (scriptType == "LuaScript") {
+                // Create a LuaScript instance
+                // Set the path property from JSON
+                if (scriptJson.contains("path"))
+                {
+                    std::string path = scriptJson["path"].get<std::string>();
+                    auto luaScript = new Radium::Nodes::LuaScript(path, tree, !stubScripts);
+
+                    luaScript->me = node;
+
+                    // Assign script property on the node
+                    ClassDB::SetProperty<Radium::Nodes::LuaScript*>("script", node, luaScript);
+                }
+                else
+                {
+                    spdlog::error("Failed to create LuaScript instance during deserialization");
                 }
             }
             else

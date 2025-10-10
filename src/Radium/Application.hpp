@@ -7,6 +7,14 @@
 #include <box2d/box2d.h>
 #include <Radium/Nodes/Tree.hpp>
 
+#define RADIUM_ENTRYPOINT(appClass) int main(int argc, char* argv[]) { \
+    appClass app; \
+    app.OnPreLoad(argc, argv); \
+    Radium::currentApplication = &app; \
+    app.Run(); \
+    return 0; \
+}
+
 namespace Radium {
     class Application {
     public:
@@ -47,11 +55,3 @@ namespace Radium {
     bool RunFrameWrapper(double time, void* userdata);
     #endif
 };
-
-#define RADIUM_ENTRYPOINT(appClass) int main(int argc, char* argv[]) { \
-    appClass app; \
-    app.OnPreLoad(argc, argv); \
-    Radium::currentApplication = &app; \
-    app.Run(); \
-    return 0; \
-}
