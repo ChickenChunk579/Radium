@@ -11,7 +11,7 @@
 #include <iostream>
 #include <assert.h>
 
-#define MAX_SPRITES 2048
+#define MAX_SPRITES 1024
 
 namespace Rune {
     struct SpriteData {

@@ -10,7 +10,7 @@
 
 const char *shaderSource = R"(
 
-const MAX_SPRITES = 2048;
+const MAX_SPRITES = 1024;
 struct SpriteData {
     color: vec3<f32>,       // offset 0 (12 bytes)
     flags: u32,             // offset 12 (matches uint8_t + padding on CPU)

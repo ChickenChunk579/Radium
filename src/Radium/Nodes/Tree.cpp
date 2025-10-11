@@ -115,7 +115,11 @@ namespace Radium::Nodes
                 nodeJson[prop.name] = ClassDB::GetProperty<unsigned int>(prop.name, node);
             }
             #if !defined(_MSC_VER)
+            #if defined(__EMSCRIPTEN__)
+            else if (prop.type == "std::__2::basic_string<char, std::__2::char_traits<char>, std::__2::allocator<char>>")
+            #else
             else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+            #endif
             #else
             else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")
             #endif
@@ -240,7 +244,8 @@ namespace Radium::Nodes
             
             try
             {
-                
+                spdlog::info("Is it a string or not: {}", prop.type);
+
                 if (ClassDB::IsEnum(prop.type)) {
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
                 }
@@ -258,7 +263,11 @@ namespace Radium::Nodes
                     ClassDB::SetProperty<unsigned int>(prop.name, node, nodeJson[prop.name].get<unsigned int>());
                 }
                 #if !defined(_MSC_VER)
+                #if defined(__EMSCRIPTEN__)
+                else if (prop.type == "std::__2::basic_string<char, std::__2::char_traits<char>, std::__2::allocator<char>>")
+                #else
                 else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+                #endif
                 #else
                 else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")
                 #endif

@@ -54,9 +54,27 @@ public:
     {
         
 
-        Radium::assetBase = appBase + "/";
+        //Radium::assetBase = appBase + "/";
 
         for (auto batchInfo : config.spriteBatches) {
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
             Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
         }
 
