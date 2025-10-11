@@ -100,6 +100,10 @@ add_library(Radium STATIC
     subprojects/lua/onelua.c
 )
 
+if (ANDROID)
+    target_link_libraries(Radium PUBLIC log)
+endif()
+
 target_include_directories(Radium PUBLIC subprojects/lua)
 
 target_link_libraries(Radium PUBLIC
@@ -149,7 +153,6 @@ else()
         add_library(RadiumRuntime SHARED
             src/RadiumRuntime/main.cpp
         )
-        target_link_libraries(RadiumRuntime PUBLIC log)
     else()
 
         # Path to your assets folder
