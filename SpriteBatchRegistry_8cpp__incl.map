@@ -1,0 +1,22 @@
+<map id="/home/runner/work/Radium/Radium/src/Radium/SpriteBatchRegistry.cpp" name="/home/runner/work/Radium/Radium/src/Radium/SpriteBatchRegistry.cpp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="593,5,825,60"/>
+<area shape="rect" id="Node000002" href="$SpriteBatchRegistry_8hpp.html" title=" " alt="" coords="119,108,350,133"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="594,57,312,108,311,103,593,52"/>
+<area shape="rect" id="Node000006" href="$AssetLoader_8hpp.html" title=" " alt="" coords="374,108,557,133"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="636,63,512,106,510,101,634,58"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="581,108,705,133"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="691,62,662,99,658,95,687,58"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="729,108,825,133"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="732,58,762,95,757,99,728,62"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="849,108,956,133"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="769,58,866,100,863,105,767,63"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="981,108,1105,133"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="812,57,986,102,984,107,810,63"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,181,168,207"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="212,136,124,178,122,173,210,131"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="193,181,327,207"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="241,133,254,168,249,169,236,135"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="401,181,481,207"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="269,131,396,174,394,179,267,136"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="464,135,452,169,447,167,459,133"/>
+</map>

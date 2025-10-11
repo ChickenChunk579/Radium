@@ -1,0 +1,5 @@
+<map id="Radium::Nodes::LuaScript" name="Radium::Nodes::LuaScript">
+<area shape="rect" id="Node000001" title="Wraps Lua scripts so they can be used on nodes." alt="" coords="5,79,195,104"/>
+<area shape="rect" id="Node000002" href="$classRadium_1_1Nodes_1_1Script.html" title="A base class for scripts to inherit." alt="" coords="17,5,183,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,44,103,79,97,79,97,44"/>
+</map>

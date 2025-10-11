@@ -1,0 +1,9 @@
+<map id="Radium::Nodes::Script" name="Radium::Nodes::Script">
+<area shape="rect" id="Node000001" title="A base class for scripts to inherit." alt="" coords="5,5,172,31"/>
+<area shape="rect" id="Node000002" href="$classRadium_1_1Nodes_1_1Node.html" title="Base of all nodes." alt="" coords="79,93,242,119"/>
+<area shape="poly" id="edge4_Node000002_Node000001" title=" " alt="" coords="83,44,83,57,87,68,100,81,116,91,114,96,96,86,82,71,78,58,78,44"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="147,83,129,56,103,33,107,29,133,53,151,80"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="257,98,269,106,260,113,243,116,242,111,258,108,263,106,255,103"/>
+<area shape="rect" id="Node000003" href="$classRadium_1_1Nodes_1_1Object.html" title=" " alt="" coords="197,5,367,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="256,41,179,95,176,91,253,37"/>
+</map>
