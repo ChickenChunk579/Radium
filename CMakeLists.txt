@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 3.12)
 project(Radium LANGUAGES C CXX)
 
+if(MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # Debug mode
+        add_compile_options(/MTd /Zi /Od /RTC1)
+        add_compile_definitions(_DEBUG _ITERATOR_DEBUG_LEVEL=2)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+    else()
+        # Release mode
+        add_compile_options(/MT /O2)
+        add_compile_definitions(NDEBUG _ITERATOR_DEBUG_LEVEL=0)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    endif()
+endif()
+
 set(BUILD_SHARED_LIBS OFF)
 set(SDL2TTF_VENDORED ON)
 set(BUILD_TESTING OFF)

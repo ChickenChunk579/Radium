@@ -36,10 +36,10 @@ jobs:
 
       - name: Configure CMake (Release)
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=../msvc.toolchain.cmake
 
       - name: Build
-        run: cmake --build build --verbose
+        run: cmake --build build --config Release --verbose
 
       - name: Create zip artifact
         run: |

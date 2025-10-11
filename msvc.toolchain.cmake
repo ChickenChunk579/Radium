@@ -1,6 +1,5 @@
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR amd64)
-
 set(CMAKE_C_COMPILER cl)
 set(CMAKE_CXX_COMPILER cl)
 set(CMAKE_AR lib)
@@ -11,3 +10,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+# Use static runtime to match your libraries
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")  # /MTd
+else()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")       # /MT
+endif()
