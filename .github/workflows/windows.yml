@@ -1,0 +1,50 @@
+name: Build (windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install MSYS2 (for patch)
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: patch
+          msystem: MINGW64
+
+      - name: Setup repo
+        shell: cmd
+        run: |
+          cd subprojects
+          call clone.bat
+          call patch.bat
+          cd Rune\subprojects
+          call clone.bat
+
+      - name: Configure CMake with Ninja (MSVC)
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build with Ninja
+        run: |
+          cd build
+          ninja
+
+      - name: Create zip artifact
+        run: |
+          cd build
+          powershell Compress-Archive -Path RadiumRuntime,Editor,libRadium.lib,subprojects\Rune\libRune.lib -DestinationPath artifact.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build-artifact
+          path: build/artifact.zip
