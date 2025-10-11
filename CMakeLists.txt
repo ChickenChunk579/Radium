@@ -149,6 +149,7 @@ else()
         add_library(RadiumRuntime SHARED
             src/RadiumRuntime/main.cpp
         )
+        target_link_libraries(RadiumRuntime PUBLIC log)
     else()
 
         # Path to your assets folder
