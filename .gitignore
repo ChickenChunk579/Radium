@@ -6,7 +6,6 @@ ios-build/
 android/distribution/
 android/app/.cxx/
 android/.gradle
-android/gradle
 subprojects/entt
 subprojects/Rune/subprojects/spdlog
 subprojects/SDL
