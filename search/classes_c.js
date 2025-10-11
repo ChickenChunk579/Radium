@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['rectanglef_0',['RectangleF',['../classRadium_1_1RectangleF.html',1,'Radium']]]
+  ['propertyinfo_0',['PropertyInfo',['../structRadium_1_1Nodes_1_1ClassDB_1_1PropertyInfo.html',1,'Radium::Nodes::ClassDB']]]
 ];

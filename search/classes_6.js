@@ -1,7 +1,4 @@
 var searchData=
 [
-  ['imgui_5fimplrune_5fdata_0',['ImGui_ImplRune_Data',['../structImGui__ImplRune__Data.html',1,'']]],
-  ['imguiconsole_1',['ImGuiConsole',['../structImGuiConsole.html',1,'']]],
-  ['imguisink_2',['ImGuiSink',['../classImGuiSink.html',1,'']]],
-  ['intref_3',['IntRef',['../structRadium_1_1Nodes_1_1IntRef.html',1,'Radium::Nodes']]]
+  ['hash_3c_20radium_3a_3avector2i_20_3e_0',['hash&lt; Radium::Vector2i &gt;',['../structstd_1_1hash_3_01Radium_1_1Vector2i_01_4.html',1,'std']]]
 ];

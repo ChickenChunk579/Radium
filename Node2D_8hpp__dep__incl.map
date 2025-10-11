@@ -1,19 +1,24 @@
 <map id="/home/runner/work/Radium/Radium/src/Radium/Nodes/2D/Node2D.hpp" name="/home/runner/work/Radium/Radium/src/Radium/Nodes/2D/Node2D.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="526,5,725,60"/>
-<area shape="rect" id="Node000002" href="$Node2D_8cpp.html" title=" " alt="" coords="167,108,366,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="519,66,361,111,359,105,518,61"/>
-<area shape="rect" id="Node000003" href="$Sprite2D_8hpp.html" title=" " alt="" coords="390,108,589,163"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="580,70,527,110,523,106,577,66"/>
-<area shape="rect" id="Node000006" href="$ChaiScript_8cpp.html" title=" " alt="" coords="458,211,657,265"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="624,74,616,118,602,164,578,212,573,209,598,162,611,117,618,73"/>
-<area shape="rect" id="Node000007" href="$RadiumRuntime_2main_8cpp.html" title=" " alt="" coords="681,211,889,265"/>
-<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="646,71,671,116,703,161,753,208,749,212,699,164,667,118,641,73"/>
-<area shape="rect" id="Node000008" href="$Tree_8cpp.html" title=" " alt="" coords="713,108,911,163"/>
-<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="687,64,764,105,762,110,685,69"/>
-<area shape="rect" id="Node000004" href="$Editor_2main_8cpp.html" title=" " alt="" coords="5,218,211,258"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="378,169,180,220,179,215,376,164"/>
-<area shape="rect" id="Node000005" href="$Sprite2D_8cpp.html" title=" " alt="" coords="235,211,434,265"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="439,172,377,213,374,208,436,168"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="517,173,542,209,537,212,513,176"/>
-<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="580,165,709,208,707,213,579,170"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="572,5,771,60"/>
+<area shape="rect" id="Node000002" href="$Node2D_8cpp.html" title=" " alt="" coords="188,108,387,163"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="559,66,388,111,386,105,558,61"/>
+<area shape="rect" id="Node000003" href="$Sprite2D_8hpp.html" title=" " alt="" coords="411,108,609,163"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="619,69,554,110,551,106,616,65"/>
+<area shape="rect" id="Node000006" href="$ChaiScript_8cpp.html" title=" " alt="" coords="459,211,657,265"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="662,74,646,118,623,164,586,212,582,209,618,161,641,116,657,72"/>
+<area shape="rect" id="Node000007" href="$RadiumRuntime_2main_8cpp.html" title=" " alt="" coords="682,211,890,265"/>
+<area shape="poly" id="edge12_Node000001_Node000007" title=" " alt="" coords="685,72,702,116,724,161,762,209,758,212,720,164,697,118,680,74"/>
+<area shape="rect" id="Node000008" href="$TileMap2D_8hpp.html" title=" " alt="" coords="733,108,932,163"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="726,65,792,106,789,110,723,69"/>
+<area shape="rect" id="Node000010" href="$Tree_8cpp.html" title=" " alt="" coords="956,108,1155,163"/>
+<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="785,61,956,105,955,111,783,66"/>
+<area shape="rect" id="Node000004" href="$Editor_2main_8cpp.html" title=" " alt="" coords="229,218,434,258"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="453,172,366,220,364,215,450,167"/>
+<area shape="rect" id="Node000005" href="$Sprite2D_8cpp.html" title=" " alt="" coords="5,211,204,265"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="398,167,205,215,204,209,397,162"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="531,174,548,209,543,212,526,176"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="595,165,715,208,713,213,594,170"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="817,176,801,212,796,209,812,174"/>
+<area shape="rect" id="Node000009" href="$TileMap2D_8cpp.html" title=" " alt="" coords="915,211,1113,265"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="893,167,968,208,965,213,891,172"/>
 </map>

@@ -1,0 +1,9 @@
+<map id="Radium::Nodes::TileMap2D" name="Radium::Nodes::TileMap2D">
+<area shape="rect" id="Node000001" title="2D tile map node." alt="" coords="5,225,204,251"/>
+<area shape="rect" id="Node000002" href="$classRadium_1_1Nodes_1_1Node2D.html" title="A 2D node representing an element in a scene graph with position and size." alt="" coords="14,152,195,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,191,107,225,102,225,102,191"/>
+<area shape="rect" id="Node000003" href="$classRadium_1_1Nodes_1_1Node.html" title="Base of all nodes." alt="" coords="23,79,186,104"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,118,107,152,102,152,102,118"/>
+<area shape="rect" id="Node000004" href="$classRadium_1_1Nodes_1_1Object.html" title=" " alt="" coords="19,5,190,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="107,44,107,79,102,79,102,44"/>
+</map>

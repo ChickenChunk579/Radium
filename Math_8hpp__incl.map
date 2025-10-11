@@ -1,7 +1,9 @@
 <map id="/home/runner/work/Radium/Radium/src/Radium/Math.hpp" name="/home/runner/work/Radium/Radium/src/Radium/Math.hpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="308,5,527,45"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="392,5,611,45"/>
 <area shape="rect" id="Node000002" href="$ClassDB_8hpp.html" title=" " alt="" coords="316,93,519,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="420,46,420,79,415,79,415,46"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="483,48,442,86,438,82,479,44"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="543,93,630,119"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="524,44,566,82,562,86,520,48"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,167,72,192"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,121,86,169,85,164,344,116"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="97,167,167,192"/>
