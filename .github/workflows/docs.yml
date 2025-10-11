@@ -1,0 +1,32 @@
+name: Generate & Deploy Docs
+
+on:
+  push:
+    branches: [main]  # Or your default branch
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y doxygen graphviz cmake ninja-build
+
+      - name: Setup repo
+        run: ./setup.sh
+
+      - name: Configure CMake
+        run: cmake -B build -G Ninja
+
+      - name: Build docs
+        run: cmake --build build --target doc
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/docs/html

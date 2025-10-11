@@ -10,6 +10,14 @@
 #include <spdlog/spdlog.h>
 #include <algorithm>
 
+/**
+ * @brief Calculate the offset of a member variable within a class.
+ *
+ * @tparam T Class type
+ * @tparam U Member type
+ * @param member Pointer to member
+ * @return size_t Offset in bytes
+ */
 template <typename T, typename U>
 constexpr size_t offsetOf(U T::*member)
 {
@@ -33,15 +41,28 @@ namespace Radium::Nodes
 
     namespace ClassDB
     {
-
+        /**
+         * @struct PropertyInfo
+         * @brief Stores metadata about a class property.
+         * 
+         * Contains the property's name, type, memory offset within class,
+         * and its size in bytes.
+         */
         struct PropertyInfo
         {
-            std::string name;
-            std::string type;
-            size_t offset;
-            size_t size;
+            std::string name; /**< The name of the property */
+            std::string type; /**< The type of the property, demangled */
+            size_t offset; /**< Byte offset of the property within the class */
+            size_t size; /**< Size of the property in bytes */
         };
 
+        /**
+         * @struct ClassInfo
+         * @brief Holds reflection metadata for a registered class
+         * 
+         * Includes a list of properties, pointer to the parent class's metadata,
+         * the class name, and a factory function to instantiate the object.
+         */
         struct ClassInfo
         {
             std::vector<PropertyInfo> properties;
@@ -51,9 +72,20 @@ namespace Radium::Nodes
         };
 
         // Declarations
+        /**
+         * Holds a map of all registered class names to there relevant ClassInfo metadata
+         */
         extern std::unordered_map<std::string, ClassInfo> registeredClasses;
+        /**
+         * Holds a list for the names of all registered enums
+         */
         extern std::vector<std::string> enums;
 
+        /**
+         * @brief Register a class with ClassDB.
+         *
+         * @tparam T Class type to register
+         */
         template <typename T>
         void Register()
         {
@@ -72,7 +104,11 @@ namespace Radium::Nodes
             info.name = typeName;
             registeredClasses[typeName] = info;
         }
-
+        /**
+         * @brief Register an enum type with ClassDB.
+         *
+         * @tparam T Enum type to register
+         */
         template <typename T>
         void RegisterEnum()
         {
@@ -84,6 +120,12 @@ namespace Radium::Nodes
             return std::find(enums.begin(), enums.end(), typeName) != enums.end();
         }
 
+        /**
+         * @brief Register a subclass and its parent class with ClassDB.
+         *
+         * @tparam T Subclass type to register
+         * @tparam P Parent class type
+         */
         template <typename T, typename P>
         void Register()
         {
@@ -116,6 +158,15 @@ namespace Radium::Nodes
             spdlog::info("Register finished!");
         }
 
+        /**
+         * @brief Register a property of a class.
+         *
+         * @tparam T1 Class type owning the property
+         * @tparam T2 Property type
+         * @param propertyName Name of the property as string
+         * @param offset Byte offset of the property within the class
+         * @param size Size of the property type
+         */
         template <typename T1, typename T2>
         void RegisterProperty(const std::string &propertyName, size_t offset, size_t size)
         {
@@ -130,6 +181,15 @@ namespace Radium::Nodes
             registeredClasses[typeName].properties.push_back(prop);
         }
 
+        /**
+         * @brief Set a property value on an instance of a registered class.
+         *
+         * @tparam T Property type
+         * @param propertyName Name of the property
+         * @param instance Pointer to the object instance
+         * @param value New value to set
+         * @throws std::runtime_error If property not found or size mismatch
+         */
         template <typename T>
         void SetProperty(std::string propertyName, Object *instance, T value)
         {
@@ -158,6 +218,15 @@ namespace Radium::Nodes
             throw std::runtime_error("Property not found");
         }
 
+        /**
+         * @brief Get a property value from an instance of a registered class.
+         *
+         * @tparam T Property type
+         * @param propertyName Name of the property
+         * @param instance Pointer to the object instance
+         * @return T Value of the property
+         * @throws std::runtime_error If property not found or size mismatch
+         */
         template <typename T>
         T GetProperty(std::string propertyName, Object *instance)
         {
@@ -185,6 +254,15 @@ namespace Radium::Nodes
             throw std::runtime_error("Property not found");
         }
 
+        /**
+         * @brief Get a pointer to a property inside an object instance.
+         *
+         * @tparam T Property type
+         * @param propertyName Name of the property
+         * @param instance Pointer to the object instance
+         * @return T* Pointer to the property data
+         * @throws std::runtime_error If property not found or size mismatch
+         */
         template <typename T>
         T *GetPropertyPointer(std::string propertyName, Object *instance)
         {
@@ -212,11 +290,24 @@ namespace Radium::Nodes
             throw std::runtime_error("Property not found");
         }
 
+        /**
+         * @brief Get class information for a given object instance.
+         *
+         * @param object Pointer to the object instance
+         * @return ClassInfo Class information structure
+         */
         inline ClassInfo GetClassInfo(Object *object)
         {
             return registeredClasses[Demangle(typeid(*object).name())];
         }
 
+        /**
+         * @brief Get all properties of an object instance, including inherited ones.
+         *
+         * @param instance Pointer to the object instance
+         * @return std::vector<PropertyInfo> List of property info structures
+         * @throws std::runtime_error If class is not registered
+         */
         inline std::vector<PropertyInfo> GetProperties(Object *instance)
         {
             std::vector<PropertyInfo> result;
@@ -248,6 +339,13 @@ namespace Radium::Nodes
             return result;
         }
 
+        /**
+         * @brief Get a sub-object property as an Object pointer.
+         *
+         * @param instance Pointer to the object instance
+         * @param propertyName Name of the property
+         * @return Object* Pointer to the sub-object, or nullptr if not found
+         */
         inline Object *GetPropertyAsObject(Object *instance, const std::string &propertyName)
         {
             if (!instance)
@@ -285,11 +383,24 @@ namespace Radium::Nodes
             return nullptr;
         }
 
+        /**
+        * @brief Get the demangled type name of an object instance.
+        *
+        * @param object Pointer to the object instance
+        * @return std::string Demangled type name
+        */
         inline std::string GetType(Object *object)
         {
             return Demangle(typeid(*object).name());
         }
 
+        /**
+        * @brief Create a new instance of a registered class by name.
+        *
+        * @param className Name of the class
+        * @return Object* Pointer to the new instance
+        * @throws std::runtime_error If class not registered or no factory available
+        */
         inline Object *Create(const std::string &className)
         {
             auto it = registeredClasses.find(className);
@@ -310,6 +421,11 @@ namespace Radium::Nodes
             return it->second.factory();
         }
 
+        /**
+        * @brief Get all classes derived from the base Node class.
+        *
+        * @return std::vector<std::string> List of registered Node subclass names
+        */
         inline std::vector<std::string> GetNodeClasses()
         {
             std::vector<std::string> result;
@@ -334,6 +450,15 @@ namespace Radium::Nodes
             return result;
         }
 
+        /**
+        * @brief Check if an object has a property by name.
+        *
+        * @param propertyName Name of the property to check
+        * @param obj Pointer to the object instance
+        * @return true If the property exists
+        * @return false Otherwise
+        * @throws std::runtime_error If class is not registered
+        */
         inline bool HasProperty(std::string propertyName, Object *obj)
         {
             std::string typeName = ClassDB::GetType(obj);

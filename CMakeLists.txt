@@ -215,3 +215,44 @@ if (NOT ANDROID AND NOT IOS)
 add_executable(Editor src/Editor/main.cpp)
 target_link_libraries(Editor PUBLIC Radium)
 endif()
+
+
+
+include(FetchContent)
+
+# 1. Fetch the doxygen-awesome-css theme
+FetchContent_Declare(
+    doxygen-awesome-css
+    URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
+)
+FetchContent_MakeAvailable(doxygen-awesome-css)
+FetchContent_GetProperties(doxygen-awesome-css SOURCE_DIR AWESOME_CSS_DIR)
+
+# 2. Find Doxygen
+find_package(Doxygen REQUIRED)
+
+# 3. Set variables for substitution in Doxyfile.in
+set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/src)
+set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
+set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
+
+set(DOXYGEN_GENERATE_LATEX NO)
+set(DOXYGEN_GENERATE_HTML YES)
+
+# Pass the theme directory into Doxyfile.in
+set(AWESOME_CSS_DIR ${AWESOME_CSS_DIR})
+
+# 4. Configure the Doxyfile with all variables
+configure_file(
+    ${CMAKE_SOURCE_DIR}/Doxyfile.in
+    ${CMAKE_BINARY_DIR}/Doxyfile
+    @ONLY
+)
+
+# 5. Add custom target to build docs
+add_custom_target(doc
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen + Awesome CSS"
+    VERBATIM
+)
