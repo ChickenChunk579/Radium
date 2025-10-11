@@ -36,9 +36,7 @@ jobs:
 
       - name: Configure CMake (Release)
         run: |
-          cmake -S . -B build -G Ninja ^
-            -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
 
       - name: Build
         run: cmake --build build --verbose
