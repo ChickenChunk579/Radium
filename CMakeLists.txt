@@ -200,7 +200,7 @@ target_link_libraries(RadiumRuntime PUBLIC Radium)
 
 if (EMSCRIPTEN)
     set_target_properties(RadiumRuntime PROPERTIES
-        LINK_FLAGS "--preload-file assets"
+        LINK_FLAGS "--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/examples/flappybird@/"
     )
 endif ()
 

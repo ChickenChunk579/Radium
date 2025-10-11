@@ -39,6 +39,7 @@ namespace Rune {
     extern WGPUSurfaceCapabilities caps;
     extern WGPUTextureView depthTextureView;
     extern bool ready;
+    extern int totalSprites;
     extern float windowWidth;
     extern float windowHeight;
     extern std::vector<WGPUCommandBuffer> commandBuffers;

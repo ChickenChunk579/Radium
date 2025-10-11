@@ -3,12 +3,14 @@
 #include <cstdint>
 #include <vector>
 #include <Rune/Texture.hpp>
+#include <Rune/Viewport.hpp>
 #include <sstream>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 const char *shaderSource = R"(
 
-const MAX_SPRITES = 512;
+const MAX_SPRITES = 2048;
 struct SpriteData {
     color: vec3<f32>,       // offset 0 (12 bytes)
     flags: u32,             // offset 12 (matches uint8_t + padding on CPU)
@@ -520,6 +522,49 @@ namespace Rune
             Rune::Log("SpriteBatch::DrawImageRect: objectCount exceeds MAX_SPRITES!");
             return;
         }
+
+        float screenW = windowWidth;
+        float screenH = windowHeight;
+        if (currentViewport) {
+            screenW = currentViewport->width;
+            screenH = currentViewport->height;
+        }
+
+        float spriteX = x;
+        float spriteY = y;
+        float spriteW = static_cast<float>(w);
+        float spriteH = static_cast<float>(h);
+
+        float minX, minY, maxX, maxY;
+
+        if (origin == SpriteOrigin::Center) {
+            float halfW = spriteW * 0.5f;
+            float halfH = spriteH * 0.5f;
+            minX = x - halfW;
+            maxX = x + halfW;
+            minY = y - halfH;
+            maxY = y + halfH;
+        } else { // TopLeft
+            minX = x;
+            maxX = x + spriteW;
+            minY = y;
+            maxY = y + spriteH;
+        }
+
+        // Screen bounds
+        float screenMinX = 0.0f;
+        float screenMaxX = screenW;
+        float screenMinY = 0.0f;
+        float screenMaxY = screenH;
+
+        // AABB intersection check (culling)
+        if (maxX < screenMinX || minX > screenMaxX ||
+            maxY < screenMinY || minY > screenMaxY) {
+            return;
+        }
+
+        totalSprites++;
+            
 
         SpriteData sprite;
         sprite.pos[0] = x;

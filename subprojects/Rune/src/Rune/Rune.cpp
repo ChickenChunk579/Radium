@@ -251,6 +251,7 @@ namespace Rune
     WGPUCommandEncoder encoder = nullptr;
     WGPUSurfaceCapabilities caps;
     WGPUTextureView depthTextureView = nullptr;
+    int totalSprites = 0;
     bool ready = false;
     float windowWidth, windowHeight = 0;
     std::vector<WGPUCommandBuffer> commandBuffers;
@@ -695,6 +696,9 @@ namespace Rune
 
     void FinishFrame()
     {
+        spdlog::info("Total sprites: {}", totalSprites);
+        totalSprites = 0;
+
         wgpuRenderPassEncoderEnd(windowRenderPass);
         wgpuRenderPassEncoderRelease(windowRenderPass);
         // Finally encode and submit the render pass
