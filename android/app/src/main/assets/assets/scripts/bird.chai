@@ -1,0 +1,71 @@
+global velocity = 0.0f;
+global gravity = 0.075f;
+global topPipe;
+global bottomPipe;
+
+def onLoad() {
+    // Can optionally reset velocity here if needed
+    topPipe = self.GetSceneTree().GetNodeByPath("/PipeGroup/TopPipe");
+    bottomPipe = self.GetSceneTree().GetNodeByPath("/PipeGroup/BottomPipe");
+}
+
+def onTick(dt) {
+    var me = self.GetMe();
+    var pos = me.GetPosition();
+    var x = pos.GetX();
+    var y = pos.GetY();
+
+    velocity = velocity - gravity;
+
+    pos.SetY(y + velocity);
+
+    info("Bird X: " + x.to_string());
+    info("Bird Y: " + y.to_string());
+
+    me.SetPosition(pos);
+
+
+    if (WasKeyPressedThisFrame(SPACE)) {
+        velocity = 3;
+    }
+
+    var topPipePos = topPipe.GetGlobalPosition();
+    var bottomPipePos = bottomPipe.GetGlobalPosition();
+    var birdPos = me.GetGlobalPosition();
+    var topPipeSize = topPipe.GetSize();
+    var bottomPipeSize = bottomPipe.GetSize();
+    var birdSize = me.GetSize();
+
+    var topPipeRect = RectangleF(
+        topPipePos.GetX() - (topPipeSize.GetX() / 2),
+        topPipePos.GetY() - (topPipeSize.GetY() / 2),
+        topPipeSize.GetX(),
+        topPipeSize.GetY()
+    );
+
+    var bottomPipeRect = RectangleF(
+        bottomPipePos.GetX() - (bottomPipeSize.GetX() / 2),
+        bottomPipePos.GetY() - (bottomPipeSize.GetY() / 2),
+        bottomPipeSize.GetX(),
+        bottomPipeSize.GetY()
+    );
+
+
+    var birdRect = RectangleF(
+        birdPos.GetX() - (birdSize.GetX() / 2),
+        birdPos.GetY() - (birdSize.GetY() / 2),
+        
+        birdSize.GetX(),
+        birdSize.GetY()
+    );
+
+
+    if (AABB(birdRect, bottomPipeRect) || AABB(birdRect, topPipeRect)) {
+        info("Closing - you lost bozo");
+        exit(0);
+    }
+}
+
+def onRender() { }
+
+def onImgui() { }

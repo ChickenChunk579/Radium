@@ -118,7 +118,11 @@ namespace Radium::Nodes
             #if defined(__EMSCRIPTEN__)
             else if (prop.type == "std::__2::basic_string<char, std::__2::char_traits<char>, std::__2::allocator<char>>")
             #else
+            #if defined(__ANDROID__)
+            else if (prop.type == "std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>")
+            #else
             else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+            #endif
             #endif
             #else
             else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")
@@ -266,7 +270,11 @@ namespace Radium::Nodes
                 #if defined(__EMSCRIPTEN__)
                 else if (prop.type == "std::__2::basic_string<char, std::__2::char_traits<char>, std::__2::allocator<char>>")
                 #else
+                #if defined(__ANDROID__)
+                else if (prop.type == "std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>")
+                #else
                 else if (prop.type == "std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >")
+                #endif
                 #endif
                 #else
                 else if (prop.type == "std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >")

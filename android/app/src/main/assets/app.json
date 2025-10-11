@@ -1,0 +1,18 @@
+{
+    "title": "Flappy Bird - Radium Demo",
+    "preferedSize": [1280, 720],
+    "gravity": [0, -200],
+    "initialScene": "assets/scenes/Main.rscn",
+    "spriteBatches": [
+        {
+            "tag": "flappy",
+            "path": "assets/sprites/texture.png",
+            "origin": 0
+        },
+        {
+            "tag": "flappyCenter",
+            "path": "assets/sprites/texture.png",
+            "origin": 1
+        }
+    ]
+}

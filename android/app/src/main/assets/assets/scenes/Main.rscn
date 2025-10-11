@@ -1,0 +1,423 @@
+{
+    "name": "Main",
+    "nodes": [
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "flappy",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Background1",
+                    "origin": 0,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        288.0,
+                        512.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        0.0,
+                        288.0,
+                        512.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": -10.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "flappy",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        288.0,
+                        0.0
+                    ],
+                    "name": "Background2",
+                    "origin": 0,
+                    "position": [
+                        288.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        288.0,
+                        512.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        0.0,
+                        288.0,
+                        512.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": -10.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "flappy",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        576.0,
+                        0.0
+                    ],
+                    "name": "Background3",
+                    "origin": 0,
+                    "position": [
+                        576.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        288.0,
+                        512.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        0.0,
+                        288.0,
+                        512.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "globalPosition": [
+                0.0,
+                0.0
+            ],
+            "name": "BackgroundGroup",
+            "position": [
+                0.0,
+                0.0
+            ],
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 1,
+                    "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        -225.0
+                    ],
+                    "name": "BottomPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        -225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 2,
+                    "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        225.0
+                    ],
+                    "name": "TopPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "globalPosition": [
+                0.0,
+                0.0
+            ],
+            "name": "PipeGroup",
+            "position": [
+                0.0,
+                0.0
+            ],
+            "script": {
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
+            },
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 1,
+                    "g": 1.0,
+                    "globalPosition": [
+                        300.0,
+                        -225.0
+                    ],
+                    "name": "BottomPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        -225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 2,
+                    "g": 1.0,
+                    "globalPosition": [
+                        300.0,
+                        225.0
+                    ],
+                    "name": "TopPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "globalPosition": [
+                300.0,
+                0.0
+            ],
+            "name": "PipeGroup2",
+            "position": [
+                300.0,
+                0.0
+            ],
+            "script": {
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
+            },
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 1,
+                    "g": 1.0,
+                    "globalPosition": [
+                        600.0,
+                        -225.0
+                    ],
+                    "name": "BottomPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        -225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "flappyCenter",
+                    "children": [],
+                    "flags": 2,
+                    "g": 1.0,
+                    "globalPosition": [
+                        600.0,
+                        225.0
+                    ],
+                    "name": "TopPipe",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        225.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        52.0,
+                        320.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        624.0,
+                        52.0,
+                        320.0
+                    ],
+                    "textureHeight": 1024,
+                    "textureWidth": 1024,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "globalPosition": [
+                600.0,
+                0.0
+            ],
+            "name": "PipeGroup3",
+            "position": [
+                600.0,
+                0.0
+            ],
+            "script": {
+                "path": "assets/scripts/pipe.lua",
+                "type": "LuaScript"
+            },
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "b": 1.0,
+            "batchTag": "flappyCenter",
+            "children": [],
+            "flags": 0,
+            "g": 1.0,
+            "globalPosition": [
+                -300.0,
+                0.0
+            ],
+            "name": "Bird",
+            "origin": 1,
+            "position": [
+                -300.0,
+                0.0
+            ],
+            "r": 1.0,
+            "rotation": 0.0,
+            "script": {
+                "path": "assets/scripts/bird.lua",
+                "type": "LuaScript"
+            },
+            "size": [
+                32.0,
+                24.0
+            ],
+            "sourceRect": [
+                178.0,
+                768.0,
+                32.0,
+                24.0
+            ],
+            "textureHeight": 1024,
+            "textureWidth": 1024,
+            "type": "Radium::Nodes::Sprite2D",
+            "z": 0.0
+        }
+    ]
+}

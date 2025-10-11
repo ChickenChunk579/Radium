@@ -22,14 +22,19 @@ class MyApp : public Radium::Application
 public:
     Rune::Viewport* viewport;
     Rune::GeometryRenderer* geometry;
-    std::string appBase = ".";
+    std::string appBase = "";
     Radium::GameConfig config;
 
     void OnPreLoad(int argc, char* argv[]) override {
         if (argc > 1) {
             appBase = std::string(argv[1]);
         }
-        std::string appConfig = Radium::ReadFileToString(appBase + "/app.json");
+        std::string configPath = appBase + "/app.json";
+        if (appBase == "") {
+            configPath = "app.json";
+        }
+        std::string appConfig = Radium::ReadFileToString(configPath);
+        spdlog::info("App config file: {}", appConfig);
         json j = json::parse(appConfig);
         config = j.get<Radium::GameConfig>();
     }
@@ -57,23 +62,6 @@ public:
         //Radium::assetBase = appBase + "/";
 
         for (auto batchInfo : config.spriteBatches) {
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
             spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
             Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
         }
@@ -115,6 +103,7 @@ extern "C" int SDL_main(int argc, char *argv[])
 {
     MyApp app;
     Radium::currentApplication = &app;
+    app.OnPreLoad(argc, argv);
     app.Run();
     return 0;
 }
