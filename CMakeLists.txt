@@ -229,30 +229,42 @@ FetchContent_MakeAvailable(doxygen-awesome-css)
 FetchContent_GetProperties(doxygen-awesome-css SOURCE_DIR AWESOME_CSS_DIR)
 
 # 2. Find Doxygen
-find_package(Doxygen REQUIRED)
+find_package(Doxygen)
 
-# 3. Set variables for substitution in Doxyfile.in
-set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/src)
-set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
-set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
+if (DOXYGEN_FOUND)
+    message(STATUS "Doxygen found: ${DOXYGEN_EXECUTABLE}")
 
-set(DOXYGEN_GENERATE_LATEX NO)
-set(DOXYGEN_GENERATE_HTML YES)
+    # Fetch the Doxygen Awesome CSS theme
+    include(FetchContent)
+    FetchContent_Declare(
+        doxygen-awesome-css
+        URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
+    )
+    FetchContent_MakeAvailable(doxygen-awesome-css)
+    FetchContent_GetProperties(doxygen-awesome-css SOURCE_DIR AWESOME_CSS_DIR)
 
-# Pass the theme directory into Doxyfile.in
-set(AWESOME_CSS_DIR ${AWESOME_CSS_DIR})
+    # Set variables for Doxyfile.in substitution
+    set(DOXYGEN_INPUT_DIR ${CMAKE_SOURCE_DIR}/src)
+    set(DOXYGEN_OUTPUT_DIR ${CMAKE_BINARY_DIR}/docs)
+    set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
+    set(DOXYGEN_GENERATE_LATEX NO)
+    set(DOXYGEN_GENERATE_HTML YES)
 
-# 4. Configure the Doxyfile with all variables
-configure_file(
-    ${CMAKE_SOURCE_DIR}/Doxyfile.in
-    ${CMAKE_BINARY_DIR}/Doxyfile
-    @ONLY
-)
+    # Configure Doxyfile
+    configure_file(
+        ${CMAKE_SOURCE_DIR}/Doxyfile.in
+        ${CMAKE_BINARY_DIR}/Doxyfile
+        @ONLY
+    )
 
-# 5. Add custom target to build docs
-add_custom_target(doc
-    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Generating API documentation with Doxygen + Awesome CSS"
-    VERBATIM
-)
+    # Add a doc target
+    add_custom_target(doc
+        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen + Awesome CSS"
+        VERBATIM
+    )
+else()
+    message(WARNING "Doxygen not found. Documentation will not be generated.")
+endif()
+
