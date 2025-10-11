@@ -1,5 +1,5 @@
 <map id="Radium::RectangleF" name="Radium::RectangleF">
-<area shape="rect" id="Node000001" title=" " alt="" coords="14,79,167,104"/>
+<area shape="rect" id="Node000001" title="Represents an axis&#45;aligned rectangle with floating&#45;point precision." alt="" coords="14,79,167,104"/>
 <area shape="rect" id="Node000002" href="$classRadium_1_1Nodes_1_1Object.html" title=" " alt="" coords="5,5,176,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,44,93,79,88,79,88,44"/>
 </map>

@@ -7,7 +7,7 @@
 <area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="68,117,60,130,56,151,60,172,77,196,73,199,56,174,50,151,56,128,64,114"/>
 <area shape="rect" id="Node000003" href="$classRadium_1_1Nodes_1_1Object.html" title=" " alt="" coords="125,5,295,31"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="180,40,109,82,107,78,178,35"/>
-<area shape="rect" id="Node000005" href="$classRadium_1_1Vector2f.html" title=" " alt="" coords="265,80,400,105"/>
+<area shape="rect" id="Node000005" href="$classRadium_1_1Vector2f.html" title="Represents a 2D vector with floating&#45;point precision." alt="" coords="265,80,400,105"/>
 <area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="243,35,314,77,312,82,240,40"/>
 <area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="86,184,86,105,91,105,91,184"/>
 <area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="330,119,315,198,310,197,325,118"/>

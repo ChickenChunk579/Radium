@@ -1,5 +1,5 @@
 <map id="Radium::SubViewport" name="Radium::SubViewport">
-<area shape="rect" id="Node000001" title=" " alt="" coords="21,168,184,193"/>
+<area shape="rect" id="Node000001" title="Represents a sub&#45;viewport within the main application window." alt="" coords="21,168,184,193"/>
 <area shape="rect" id="Node000002" href="$classRadium_1_1Nodes_1_1SceneTree.html" title="Holds the nodes in a scene." alt="" coords="5,80,200,105"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,119,105,167,100,167,100,119"/>
 <area shape="rect" id="Node000003" href="$classRadium_1_1Nodes_1_1Object.html" title=" " alt="" coords="17,5,188,31"/>
