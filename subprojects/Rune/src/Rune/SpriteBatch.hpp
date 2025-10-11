@@ -72,6 +72,7 @@ namespace Rune {
         SpriteOrigin origin;
     public:
         SpriteBatch(Rune::Texture* texture, SpriteOrigin);
+        ~SpriteBatch();
         void Begin();
 
         void Draw(float x, float y, uint32_t w, uint32_t h, float r, float g, float b, float rotation = 0, float z = 0, uint32_t flags = 0);

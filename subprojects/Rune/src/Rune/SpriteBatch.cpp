@@ -633,4 +633,59 @@ namespace Rune
     {
         delete[] uniformWorking;
     }
+
+    SpriteBatch::~SpriteBatch() {
+        if (uniformWorking) {
+            delete[] uniformWorking;
+            uniformWorking = nullptr;
+        }
+
+        if (uniformBuffer) {
+            wgpuBufferDestroy(uniformBuffer);
+            wgpuBufferRelease(uniformBuffer);
+            uniformBuffer = nullptr;
+        }
+
+        if (vertexBuffer) {
+            wgpuBufferDestroy(vertexBuffer);
+            wgpuBufferRelease(vertexBuffer);
+            vertexBuffer = nullptr;
+        }
+
+        if (resolutionBuffer) {
+            wgpuBufferDestroy(resolutionBuffer);
+            wgpuBufferRelease(resolutionBuffer);
+            resolutionBuffer = nullptr;
+        }
+
+        if (bindGroup) {
+            wgpuBindGroupRelease(bindGroup);
+            bindGroup = nullptr;
+        }
+
+        if (bindGroupLayout) {
+            wgpuBindGroupLayoutRelease(bindGroupLayout);
+            bindGroupLayout = nullptr;
+        }
+
+        if (pipeline) {
+            wgpuRenderPipelineRelease(pipeline);
+            pipeline = nullptr;
+        }
+
+        if (sampler) {
+            wgpuSamplerRelease(sampler);
+            sampler = nullptr;
+        }
+
+        if (textureView) {
+            wgpuTextureViewRelease(textureView);
+            textureView = nullptr;
+        }
+
+        objectCount = 0;
+        bufferCreated = false;
+        bindGroupCreated = false;
+        started = false;
+    }
 }

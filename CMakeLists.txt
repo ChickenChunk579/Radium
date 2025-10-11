@@ -51,7 +51,9 @@ set(SDL2IMAGE_XCF OFF CACHE BOOL "Support loading XCF images" FORCE)
 set(SDL2IMAGE_XPM OFF CACHE BOOL "Support loading XPM images" FORCE)
 set(SDL2IMAGE_XV OFF CACHE BOOL "Support loading XV images" FORCE)
 
-link_libraries(log)
+if(MSVC)
+    link_libraries(log)
+endif()
 
 add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/Rune)
@@ -99,6 +101,7 @@ add_library(Radium STATIC
     src/Radium/Nodes/ClassDB.cpp
     src/Radium/Nodes/2D/Node2D.cpp
     src/Radium/Nodes/2D/Sprite2D.cpp
+    src/Radium/Nodes/2D/TileMap2D.cpp
     subprojects/lua/onelua.c
 )
 

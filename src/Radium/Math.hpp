@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Radium/Nodes/ClassDB.hpp>
+#include <functional>
 
 namespace Radium {
 
@@ -184,5 +185,16 @@ namespace Radium {
      * @param rect2 Second rectangle.
      * @return true if rectangles intersect, false otherwise.
      */
-    bool AABB(RectangleF rect1, RectangleF rect2);
+    bool AABB(RectangleF rect1, RectangleF rect2);    
+}
+
+namespace std {
+    template <>
+    struct hash<Radium::Vector2i> {
+        std::size_t operator()(const Radium::Vector2i& v) const noexcept {
+            std::size_t h1 = std::hash<int>{}(v.x);
+            std::size_t h2 = std::hash<int>{}(v.y);
+            return h1 ^ (h2 << 1); // Combine hashes
+        }
+    };
 }

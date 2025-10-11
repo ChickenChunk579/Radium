@@ -2,6 +2,7 @@
 #include <Radium/SpriteBatchRegistry.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
+#include <Radium/Nodes/2D/TileMap2D.hpp>
 #include <Radium/Nodes/Node.hpp>
 #include <Radium/Nodes/Node.hpp>
 #include <Radium/Nodes/ChaiScript.hpp>
@@ -59,7 +60,7 @@ public:
     {
         
 
-        //Radium::assetBase = appBase + "/";
+        Radium::assetBase = appBase + "/";
 
         for (auto batchInfo : config.spriteBatches) {
             spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
@@ -73,11 +74,30 @@ public:
         Radium::Nodes::Node::Register();
         Radium::Nodes::Node2D::Register();
         Radium::Nodes::Sprite2D::Register();
+        Radium::Nodes::TileMap2D::Register();
         Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::CoordinateOrigin>();
 
         spdlog::info("Running app at {}", appBase);
 
         tree.Deserialize(config.initialScene);
+
+        auto tileMap = new Radium::Nodes::TileMap2D();
+        tileMap->LoadSourceTexture("examples/flappybird/assets/sprites/blocks.png");
+        // Set tile size (e.g., 16x16 pixels per tile)
+        tileMap->tileSize = Radium::Vector2i(16, 16);
+
+        // If tiles in your atlas have spacing or a margin:
+        tileMap->tileOffset = Radium::Vector2i(0, 0);
+        tileMap->tileSeperation = Radium::Vector2i(0, 0);
+
+        // Add a chunk at world chunk position (0, 0)
+        tileMap->AddChunk(Radium::Vector2i(0, 0));
+
+        auto chunk = tileMap->GetChunk(Radium::Vector2i(0, 0));
+    
+        chunk->SetTile(Radium::Vector2i(0, 0), Radium::Vector2i(0, 0));
+        
+        tree.nodes.push_back(tileMap);
     }
 
     void OnTick(float dt) override

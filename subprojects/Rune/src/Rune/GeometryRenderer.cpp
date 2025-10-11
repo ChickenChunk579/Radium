@@ -3,7 +3,7 @@
 
 const char *geometryShaderSource = R"(
 struct VertexInput {
-    @location(0) position: vec2f,
+    @location(0) position: vec3f,
     @location(1) color: vec3f,
     @location(2) uv: vec2f,
 };
@@ -26,8 +26,12 @@ var mySampler: sampler;
 @vertex
 fn vs_main(input: VertexInput) -> VertexOutput {
     var out: VertexOutput;
-    let ndc = (input.position / screenSize) * 2.0 - vec2f(1.0, 1.0);
-    out.position = vec4f(ndc.x, -ndc.y, 0.0, 1.0);
+    let zNear = 100.0;
+    let zFar = -100.0;
+    let ndc = (input.position.xy / screenSize) * 2.0 - vec2f(1.0, 1.0);
+    let normalizedZ = (input.position.z - zNear) / (zFar - zNear);
+    
+    out.position = vec4f(ndc.x, -ndc.y, normalizedZ, 1.0);
     out.color = input.color;
     out.uv = input.uv;
     return out;
@@ -143,13 +147,13 @@ namespace Rune
 
         // Vertex layout
         WGPUVertexAttribute attributes[3] = {
-            {.format = WGPUVertexFormat_Float32x2, .offset = 0, .shaderLocation = 0}, // position
-            {.format = WGPUVertexFormat_Float32x3, .offset = sizeof(float) * 2, .shaderLocation = 1},
-            {.format = WGPUVertexFormat_Float32x2, .offset = sizeof(float) * 5, .shaderLocation = 2} // color
+            {.format = WGPUVertexFormat_Float32x3, .offset = 0, .shaderLocation = 0}, // position
+            {.format = WGPUVertexFormat_Float32x3, .offset = sizeof(float) * 3, .shaderLocation = 1},
+            {.format = WGPUVertexFormat_Float32x2, .offset = sizeof(float) * 6, .shaderLocation = 2} // color
         };
 
         WGPUVertexBufferLayout vertexLayout = {};
-        vertexLayout.arrayStride = sizeof(float) * 7;
+        vertexLayout.arrayStride = sizeof(float) * 8;
         vertexLayout.stepMode = WGPUVertexStepMode_Vertex;
         vertexLayout.attributeCount = 3;
         vertexLayout.attributes = attributes;
