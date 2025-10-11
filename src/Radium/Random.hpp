@@ -11,13 +11,13 @@ namespace Radium {
             return engine;
         }
 
-        // Returns a random integer between [min, max] inclusive
+        /// @brief Returns a random integer between [min, max] inclusive
         inline int IntBetween(int min, int max) {
             std::uniform_int_distribution<int> dist(min, max);
             return dist(GetEngine());
         }
 
-        // Returns a random float between [min, max]
+        /// @brief Returns a random float between [min, max]
         inline float FloatBetween(float min, float max) {
             std::uniform_real_distribution<float> dist(min, max);
             return dist(GetEngine());

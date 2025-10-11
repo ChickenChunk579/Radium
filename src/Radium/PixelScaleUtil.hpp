@@ -3,9 +3,13 @@
 #include <Rune/Viewport.hpp>
 
 namespace Radium {
+    /// @brief The base width that the game will be scaled down to
     constexpr float baseWidth = 640.0f;
+    
+    /// @brief The base height that the game will be scaled down to
     constexpr float baseHeight = 480.0f;
 
+    /// @brief Get a scale factor based on baseWidth and height 
     inline float GetPixelScale() {
         
         float windowWidth = (Rune::windowWidth > 0) ? Rune::windowWidth : baseWidth;

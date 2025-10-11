@@ -155,6 +155,7 @@
 #endif
 
 
+/// @brief Keys (identical to SDL scancodes, just nicer as an enum class)
 enum class Key
 {
     KEY_UNKNOWN = 0,
