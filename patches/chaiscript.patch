@@ -1,0 +1,31 @@
+--- subprojects-clean/ChaiScript/CMakeLists.txt	2025-10-10 21:29:49.954739353 +0100
++++ subprojects/ChaiScript/CMakeLists.txt	2025-10-07 22:02:27.939241545 +0100
+@@ -211,7 +211,7 @@
+ if(CMAKE_HOST_UNIX)
+   if(DYNLOAD_ENABLED)
+     if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD" AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Haiku")
+-      list(APPEND LIBS "dl")
++      #list(APPEND LIBS "dl")
+     endif()
+   endif()
+ 
+@@ -246,8 +246,8 @@
+ 
+ set(CHAISCRIPT_LIBS stdlib parser)
+ 
+-add_executable(chai src/main.cpp ${Chai_INCLUDES})
+-target_link_libraries(chai ${LIBS} ${CHAISCRIPT_LIBS})
++#add_executable(chai src/main.cpp ${Chai_INCLUDES})
++#target_link_libraries(chai ${LIBS} ${CHAISCRIPT_LIBS})
+ 
+ add_library(chaiscript INTERFACE)
+ target_include_directories(chaiscript INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+@@ -425,7 +425,7 @@
+ endif()
+ 
+ 
+-install(TARGETS chai chaiscript_stdlib-${CHAI_VERSION} ${MODULES} RUNTIME DESTINATION bin LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/chaiscript")
++install(TARGETS chaiscript_stdlib-${CHAI_VERSION} ${MODULES} RUNTIME DESTINATION bin LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/chaiscript")
+ 
+ install(DIRECTORY include/chaiscript DESTINATION include
+   PATTERN "*.hpp"

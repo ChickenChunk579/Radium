@@ -1,0 +1,639 @@
+{
+    "name": "Main",
+    "nodes": [
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        -300.0,
+                        -191.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Floor1",
+                    "origin": 1,
+                    "position": [
+                        -300.0,
+                        -190.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        342.0,
+                        197.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        1850.0,
+                        342.0,
+                        197.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        42.0,
+                        -191.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Floor2",
+                    "origin": 1,
+                    "position": [
+                        42.0,
+                        -190.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        342.0,
+                        197.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        1850.0,
+                        342.0,
+                        197.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        384.0,
+                        -191.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Floor3",
+                    "origin": 1,
+                    "position": [
+                        384.0,
+                        -190.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        342.0,
+                        197.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        1850.0,
+                        342.0,
+                        197.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                },
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        726.0,
+                        -191.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Floor4",
+                    "origin": 1,
+                    "position": [
+                        726.0,
+                        -190.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        342.0,
+                        197.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        1850.0,
+                        342.0,
+                        197.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "globalPosition": [
+                0.0,
+                -1.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                0.0,
+                0.0
+            ],
+            "name": "FloorGroup",
+            "position": [
+                0.0,
+                -1.0
+            ],
+            "rotation": 0.0,
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "b": 1.0,
+            "batchTag": "blocks",
+            "children": [],
+            "flags": 0,
+            "g": 1.0,
+            "globalPosition": [
+                0.0,
+                210.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                1280.0,
+                640.0
+            ],
+            "name": "Background",
+            "origin": 0,
+            "position": [
+                0.0,
+                210.0
+            ],
+            "r": 1.0,
+            "rotation": 0.0,
+            "size": [
+                1280.0,
+                640.0
+            ],
+            "sourceRect": [
+                0.0,
+                0.0,
+                2000.0,
+                1000.0
+            ],
+            "textureHeight": 2048,
+            "textureWidth": 2048,
+            "type": "Radium::Nodes::Sprite2D",
+            "z": -10.0
+        },
+        {
+            "b": 1.0,
+            "batchTag": "blocks",
+            "children": [],
+            "flags": 0,
+            "g": 1.0,
+            "globalPosition": [
+                1280.0,
+                200.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                1280.0,
+                640.0
+            ],
+            "name": "Background2",
+            "origin": 0,
+            "position": [
+                1280.0,
+                200.0
+            ],
+            "r": 1.0,
+            "rotation": 0.0,
+            "size": [
+                1280.0,
+                640.0
+            ],
+            "sourceRect": [
+                0.0,
+                0.0,
+                2000.0,
+                1000.0
+            ],
+            "textureHeight": 2048,
+            "textureWidth": 2048,
+            "type": "Radium::Nodes::Sprite2D",
+            "z": -10.0
+        },
+        {
+            "angularDamping": 10.0,
+            "awake": true,
+            "bodyType": 0,
+            "bullet": false,
+            "children": [],
+            "collisionType": 0,
+            "enabled": true,
+            "fixedRotation": false,
+            "globalPosition": [
+                0.0,
+                -210.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                10000.0,
+                210.0
+            ],
+            "linearDamping": 1000.0,
+            "mass": 10.0,
+            "name": "FloorCollision",
+            "position": [
+                0.0,
+                -210.0
+            ],
+            "rotation": 0.0,
+            "size": [
+                10000.0,
+                210.0
+            ],
+            "type": "Radium::Nodes::RigidBody"
+        },
+        {
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        -350.0,
+                        0.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        0.0,
+                        0.0
+                    ],
+                    "name": "Sprite",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        89.0,
+                        279.0
+                    ],
+                    "sourceRect": [
+                        0.0,
+                        1010.0,
+                        269.0,
+                        840.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": -2.0
+                }
+            ],
+            "globalPosition": [
+                -350.0,
+                0.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                0.0,
+                0.0
+            ],
+            "name": "Launcher",
+            "position": [
+                -350.0,
+                0.0
+            ],
+            "rotation": 0.0,
+            "size": [
+                0.0,
+                0.0
+            ],
+            "type": "Radium::Nodes::Node2D"
+        },
+        {
+            "angularDamping": 3.1410000324249268,
+            "awake": true,
+            "bodyType": 1,
+            "bullet": false,
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        -350.0,
+                        75.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        8100.0,
+                        7744.0
+                    ],
+                    "name": "Sprite",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        90.0,
+                        88.0
+                    ],
+                    "sourceRect": [
+                        520.0,
+                        1602.0,
+                        181.0,
+                        180.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "collisionType": 1,
+            "enabled": false,
+            "fixedRotation": false,
+            "globalPosition": [
+                -350.0,
+                75.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                90.0,
+                88.0
+            ],
+            "linearDamping": 0.20000000298023224,
+            "mass": 10.0,
+            "name": "Bird",
+            "position": [
+                -350.0,
+                75.0
+            ],
+            "rotation": 0.0,
+            "script": {
+                "path": "assets/scripts/bird.lua",
+                "type": "LuaScript"
+            },
+            "size": [
+                90.0,
+                88.0
+            ],
+            "type": "Radium::Nodes::RigidBody"
+        },
+        {
+            "angularDamping": 3.1410000324249268,
+            "awake": true,
+            "bodyType": 1,
+            "bullet": false,
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        0.0,
+                        0.0
+                    ],
+                    "globalRotation": 90.0,
+                    "globalSize": [
+                        27889.0,
+                        2025.0
+                    ],
+                    "name": "Sprite",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        167.0,
+                        45.0
+                    ],
+                    "sourceRect": [
+                        950.0,
+                        1944.0,
+                        334.0,
+                        90.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "collisionType": 0,
+            "enabled": true,
+            "fixedRotation": false,
+            "globalPosition": [
+                0.0,
+                0.0
+            ],
+            "globalRotation": 90.0,
+            "globalSize": [
+                167.0,
+                45.0
+            ],
+            "linearDamping": 0.20000000298023224,
+            "mass": 1.0,
+            "name": "Beam",
+            "position": [
+                0.0,
+                0.0
+            ],
+            "rotation": 90.0,
+            "size": [
+                167.0,
+                45.0
+            ],
+            "type": "Radium::Nodes::RigidBody"
+        },
+        {
+            "angularDamping": 3.1410000324249268,
+            "awake": true,
+            "bodyType": 1,
+            "bullet": false,
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        100.0,
+                        0.0
+                    ],
+                    "globalRotation": 90.0,
+                    "globalSize": [
+                        27889.0,
+                        2025.0
+                    ],
+                    "name": "Sprite",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        167.0,
+                        45.0
+                    ],
+                    "sourceRect": [
+                        950.0,
+                        1944.0,
+                        334.0,
+                        90.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "collisionType": 0,
+            "enabled": true,
+            "fixedRotation": false,
+            "globalPosition": [
+                100.0,
+                0.0
+            ],
+            "globalRotation": 90.0,
+            "globalSize": [
+                167.0,
+                45.0
+            ],
+            "linearDamping": 0.20000000298023224,
+            "mass": 1.0,
+            "name": "Beam2",
+            "position": [
+                100.0,
+                0.0
+            ],
+            "rotation": 90.0,
+            "size": [
+                167.0,
+                45.0
+            ],
+            "type": "Radium::Nodes::RigidBody"
+        },
+        {
+            "angularDamping": 3.1410000324249268,
+            "awake": true,
+            "bodyType": 1,
+            "bullet": false,
+            "children": [
+                {
+                    "b": 1.0,
+                    "batchTag": "blocksCenter",
+                    "children": [],
+                    "flags": 0,
+                    "g": 1.0,
+                    "globalPosition": [
+                        50.0,
+                        115.0
+                    ],
+                    "globalRotation": 0.0,
+                    "globalSize": [
+                        27889.0,
+                        2025.0
+                    ],
+                    "name": "Sprite",
+                    "origin": 1,
+                    "position": [
+                        0.0,
+                        0.0
+                    ],
+                    "r": 1.0,
+                    "rotation": 0.0,
+                    "size": [
+                        167.0,
+                        45.0
+                    ],
+                    "sourceRect": [
+                        950.0,
+                        1944.0,
+                        334.0,
+                        90.0
+                    ],
+                    "textureHeight": 2048,
+                    "textureWidth": 2048,
+                    "type": "Radium::Nodes::Sprite2D",
+                    "z": 0.0
+                }
+            ],
+            "collisionType": 0,
+            "enabled": true,
+            "fixedRotation": false,
+            "globalPosition": [
+                50.0,
+                115.0
+            ],
+            "globalRotation": 0.0,
+            "globalSize": [
+                167.0,
+                45.0
+            ],
+            "linearDamping": 0.20000000298023224,
+            "mass": 1.0,
+            "name": "Beam3",
+            "position": [
+                50.0,
+                115.0
+            ],
+            "rotation": 0.0,
+            "size": [
+                167.0,
+                45.0
+            ],
+            "type": "Radium::Nodes::RigidBody"
+        }
+    ]
+}

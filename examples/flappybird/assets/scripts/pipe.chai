@@ -1,0 +1,21 @@
+def onLoad() {
+    print("I am a pipe");
+}
+
+def onTick(dt) {
+    var me = self.GetMe();
+    var pos = me.GetPosition();
+    var x = pos.GetX();
+
+    pos.SetX(x - 3);
+    if (x < -500) {
+        pos.SetX(500);
+        var y = randf_floatbetween(-100, 100);
+        pos.SetY(y);
+    }
+    me.SetPosition(pos);
+}
+
+def onRender() { }
+
+def onImgui() { }

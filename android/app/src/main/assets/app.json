@@ -1,0 +1,18 @@
+{
+    "title": "Angry Birds - Radium Demo",
+    "preferedSize": [1280, 720],
+    "gravity": [0, -300],
+    "initialScene": "assets/scenes/Main.rscn",
+    "spriteBatches": [
+        {
+            "tag": "blocksCenter",
+            "path": "assets/sprites/blocks.png",
+            "origin": 1
+        },
+        {
+            "tag": "blocks",
+            "path": "assets/sprites/blocks.png",
+            "origin": 0
+        }
+    ]
+}
