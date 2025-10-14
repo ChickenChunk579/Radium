@@ -3,6 +3,7 @@
 #include <Radium/Input.hpp>
 #include <Rune/Rune.hpp>
 #include <Flux/Flux.hpp>
+#include <Iris/Iris.hpp>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include "backends/imgui_impl_sdl2.h"
@@ -19,8 +20,6 @@
 #ifdef __ANDROID__
 
 #endif
-
-#include <SDL_image.h>
 
 const char *SDL_SYSWMTypeToString(SDL_SYSWM_TYPE type)
 {
@@ -86,7 +85,9 @@ namespace Radium
 			exit(1);
 		}
 
-		IMG_Init(IMG_INIT_PNG);
+		Iris::codecs.push_back(std::make_unique<Iris::PNGCodec>());
+		Iris::codecs.push_back(std::make_unique<Iris::BMPCodec>());
+
 		Flux::Trace("Initialized SDL successfuly");
 		Flux::Trace("Creating window");
 
@@ -318,7 +319,6 @@ namespace Radium
 		OnRelease();
 		SpriteBatchRegistry::Clear();
 		ImGui_ImplRune_Shutdown();
-		IMG_Quit();
 		SDL_Quit();
 	}
 

@@ -58,10 +58,8 @@ endif()
 add_subdirectory(subprojects/box2d)
 add_subdirectory(subprojects/SDL)
 add_subdirectory(subprojects/SDL_ttf)
-add_subdirectory(subprojects/SDL_image)
 add_subdirectory(subprojects/tracy)
 add_subdirectory(subprojects/ChaiScript)
-# add_subdirectory(subprojects/sol2)
 add_subdirectory(subprojects/tiny-process-library)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -111,9 +109,9 @@ target_include_directories(Radium PUBLIC subprojects/lua)
 
 target_link_libraries(Radium PUBLIC
     SDL2::SDL2
-    SDL2_image
     SDL2_ttf
     SDL2main
+    Iris
     Flux
     Rune
     imgui

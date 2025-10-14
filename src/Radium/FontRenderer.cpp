@@ -1,5 +1,4 @@
 #include <Radium/FontRenderer.hpp>
-#include <SDL_image.h>
 #include <SDL2/SDL_surface.h>
 #include <iostream>
 #include <Flux/Flux.hpp>

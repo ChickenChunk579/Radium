@@ -4,44 +4,16 @@
 #include <Radium/Application.hpp>
 
 // Helper to set a pixel at (x, y) with RGBA color
-void SetPixelRGBA(SDL_Surface *surface, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void SetPixelRGBA(void *surface, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-    if (!surface)
-        return;
 
-    // Only lock if necessary
-    if (SDL_MUSTLOCK(surface))
-    {
-        if (SDL_LockSurface(surface) != 0)
-            return;
-    }
-
-    // Ensure x and y are in bounds
-    if (x < 0 || x >= surface->w || y < 0 || y >= surface->h)
-    {
-        if (SDL_MUSTLOCK(surface))
-            SDL_UnlockSurface(surface);
-        return;
-    }
-
-    // Get the pixel format's RGBA pixel value
-    Uint32 pixelColor = SDL_MapRGBA(surface->format, r, g, b, a);
-
-    // Calculate the address of the pixel
-    Uint8 *pixelPtr = (Uint8 *)surface->pixels + y * surface->pitch + x * 4;
-    *(Uint32 *)pixelPtr = pixelColor;
-
-    if (SDL_MUSTLOCK(surface))
-    {
-        SDL_UnlockSurface(surface);
-    }
 }
 
 namespace Radium::Nodes
 {
 
-    TileChunk::TileChunk(SDL_Surface *source, Vector2i tileSize, Vector2i tileOffset, Vector2i tileSeperation)
-        : sourceSurface(source), texture(nullptr), data(nullptr), tileSize(tileSize), tileOffset(tileOffset), tileSeperation(tileSeperation)
+    TileChunk::TileChunk(void *source, Vector2i tileSize, Vector2i tileOffset, Vector2i tileSeperation)
+        : texture(nullptr), data(nullptr), tileSize(tileSize), tileOffset(tileOffset), tileSeperation(tileSeperation)
     {
         data = new Vector2i[width * height];
 
@@ -63,49 +35,6 @@ namespace Radium::Nodes
 
     void TileChunk::GenerateTexture()
     {
-        SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(
-            0,
-            width * tileSize.x,
-            height * tileSize.y,
-            32,
-            SDL_PIXELFORMAT_RGBA32);
-
-        if (!surface)
-            return;
-
-        // Optional: Fill with transparent color
-        SDL_FillRect(surface, nullptr, SDL_MapRGBA(surface->format, 0, 0, 0, 0));
-
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                int index = y * width + x;
-                Vector2i srcTile = data[index];
-
-                if (srcTile.x < 0 || srcTile.y < 0)
-                    continue; // skip empty tiles
-
-                SDL_Rect srcRect;
-                srcRect.x = tileOffset.x + srcTile.x * (tileSize.x + tileSeperation.x);
-                srcRect.y = tileOffset.y + srcTile.y * (tileSize.y + tileSeperation.y);
-                srcRect.w = tileSize.x;
-                srcRect.h = tileSize.y;
-
-                SDL_Rect dstRect;
-                dstRect.x = x * tileSize.x;
-                dstRect.y = y * tileSize.y;
-                dstRect.w = tileSize.x;
-                dstRect.h = tileSize.y;
-
-                SDL_BlitSurface(sourceSurface, &srcRect, surface, &dstRect);
-            }
-        }
-
-
-        // Store the generated surface
-        texture = new Rune::Texture(width * tileSize.x, width * tileSize.y, (width * tileSize.x) * 4, surface->pixels, Rune::SamplingMode::Nearest);
-        SDL_FreeSurface(surface);
     }
 
     TileMap2D::TileMap2D()
@@ -134,7 +63,7 @@ namespace Radium::Nodes
 
     void TileMap2D::LoadSourceTexture(std::string path)
     {
-        sourceSurface = IMG_Load(path.c_str());
+        //sourceSurface = IMG_Load(path.c_str());
     }
 
     void TileMap2D::Register()
@@ -203,9 +132,7 @@ namespace Radium::Nodes
 
     void TileMap2D::AddChunk(Vector2i pos)
     {
-        TileChunk *chunk = new TileChunk(sourceSurface, tileSize, tileOffset, tileSeperation);
-
-        chunks[pos] = chunk;
+        
     }
 
     TileChunk* TileMap2D::GetChunk(Vector2i pos) {

@@ -2,8 +2,6 @@
 
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Rune/SpriteBatch.hpp>
-#include <SDL2/SDL.h>
-#include <SDL_image.h>
 
 namespace Radium::Nodes {
     /// @brief One chunk in the tilemap
@@ -15,8 +13,6 @@ namespace Radium::Nodes {
         static const int width = 16;
         static const int height = 16;
 
-        /// @brief The texture generated texture of the chunk
-        SDL_Surface* sourceSurface;
         Rune::Texture* texture;
 
         /// @brief The size of the tiles
@@ -29,7 +25,7 @@ namespace Radium::Nodes {
         Vector2i tileSeperation;
 
         /// @brief Create a tilemap chunk with a SDL_Surface source texture
-        TileChunk(SDL_Surface* source, Vector2i tileSize, Vector2i tileOffset, Vector2i tileSeperation);
+        TileChunk(void* source, Vector2i tileSize, Vector2i tileOffset, Vector2i tileSeperation);
 
         /**
          * @brief Set a tile at a position in the chunk
@@ -47,7 +43,6 @@ namespace Radium::Nodes {
     class TileMap2D : public Node2D {
     private:
         Rune::SpriteBatch* batch;
-        SDL_Surface* sourceSurface;
 
         std::unordered_map<Vector2i, TileChunk*> chunks;
 
