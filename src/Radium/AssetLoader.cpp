@@ -1,6 +1,6 @@
 #include <Radium/AssetLoader.hpp>
 #include <SDL2/SDL.h>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <iostream>
 #include <algorithm> // for std::replace
 
@@ -10,7 +10,7 @@ namespace Radium
 
     std::string ReadFileToString(std::string filename, bool external)
     {
-        spdlog::info("Asset base: {}", assetBase);
+        Flux::Info("Asset base: {}", assetBase);
         std::string expandedFileName = assetBase + filename;
 
         // Use backslashes on Windows (MSVC)
@@ -18,7 +18,7 @@ namespace Radium
         std::replace(expandedFileName.begin(), expandedFileName.end(), '/', '\\');
 #endif
 
-        spdlog::trace("Reading file: {}", expandedFileName);
+        Flux::Trace("Reading file: {}", expandedFileName);
 
         SDL_RWops *file = SDL_RWFromFile(expandedFileName.c_str(), "rb");
 
@@ -33,10 +33,10 @@ namespace Radium
 #else
             std::string altPath = "assets/" + filename;
 #endif
-            spdlog::trace("Attempting odd read");
+            Flux::Trace("Attempting odd read");
             file = SDL_RWFromFile(altPath.c_str(), "rb");
         } else {
-            spdlog::trace("Opened");
+            Flux::Trace("Opened");
         }
 
         if (!file)
@@ -46,7 +46,7 @@ namespace Radium
         }
 
         Sint64 res_size = SDL_RWsize(file);
-        spdlog::trace("Got size: {}", res_size);
+        Flux::Trace("Got size: {}", res_size);
         std::string content;
         content.resize(res_size);
 
@@ -55,13 +55,13 @@ namespace Radium
 
         while (nb_read_total < res_size && nb_read != 0)
         {
-            spdlog::trace("Reading...");
+            Flux::Trace("Reading...");
             nb_read = SDL_RWread(file, buf + nb_read_total, 1, res_size - nb_read_total);
             nb_read_total += nb_read;
         }
 
         SDL_RWclose(file);
-        spdlog::trace("Closed");
+        Flux::Trace("Closed");
 
         if (nb_read_total != res_size)
         {

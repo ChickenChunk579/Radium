@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vector>
 #include <Rune/GeometryRenderer.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <unordered_map>
 #undef Status
 
@@ -24,7 +24,7 @@ bool ImGui_ImplRune_Init()
 {
     if (!ImGui::GetCurrentContext())
     {
-        spdlog::error("ImGui context not created before calling ImGui_ImplRune_Init!");
+        Flux::Error("ImGui context not created before calling ImGui_ImplRune_Init!");
         return false;
     }
 
@@ -32,20 +32,20 @@ bool ImGui_ImplRune_Init()
     IMGUI_CHECKVERSION();
     IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
 
-    spdlog::trace("No backend yet!");
+    Flux::Trace("No backend yet!");
 
     ImGui_ImplRune_Data *bd = IM_NEW(ImGui_ImplRune_Data)();
     memset(bd, 0, sizeof(ImGui_ImplRune_Data));
-    spdlog::trace("Created backend data");
+    Flux::Trace("Created backend data");
     bd->renderer = new Rune::GeometryRenderer(nullptr);
 
-    spdlog::trace("Created renderer");
+    Flux::Trace("Created renderer");
 
     io.BackendRendererUserData = (void *)bd;
     io.BackendRendererName = "imgui_impl_rune";
     io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
 
-    spdlog::trace("Set backend data");
+    Flux::Trace("Set backend data");
     return true;
 }
 
@@ -169,7 +169,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         int h = tex->Height;
         Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
 
-        spdlog::info("Create texture");
+        Flux::Info("Create texture");
 
         uintptr_t fakeTexID = reinterpret_cast<uintptr_t>(rtex);
         tex->SetTexID((ImTextureID)fakeTexID);
@@ -195,7 +195,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
         int h = tex->Height;
         Rune::Texture *rtex = new Rune::Texture(w, h, tex->GetPitch(), pixels, Rune::SamplingMode::Linear);
 
-        spdlog::info("Update texture");
+        Flux::Info("Update texture");
 
         tex->SetStatus(ImTextureStatus_OK);
 
@@ -203,7 +203,7 @@ void ImGui_ImplRune_UpdateTexture(ImTextureData *tex)
     }
     else if (tex->Status == ImTextureStatus_WantDestroy)
     {
-        spdlog::info("Delete");
+        Flux::Info("Delete");
         delete textures[tex->TexID];
 
         tex->SetTexID(ImTextureID_Invalid);

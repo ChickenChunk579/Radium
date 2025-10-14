@@ -157,7 +157,7 @@ namespace Radium::Nodes
             Vector2i pos = pair.first;
             TileChunk* chunk = pair.second;
 
-            spdlog::info("Drawing chunk at {}, {}", pos.x, pos.y);
+            Flux::Info("Drawing chunk at {}, {}", pos.x, pos.y);
 
             Vector2f scaledPosition = Vector2f((TileChunk::width * tileSize.x) * pos.x, (TileChunk::height * tileSize.y) * pos.y);
         

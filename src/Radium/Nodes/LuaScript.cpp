@@ -6,7 +6,7 @@
 #include <Radium/DebugRenderer.hpp>
 #include <Radium/Key.hpp>
 #include <Radium/Input.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -741,35 +741,35 @@ namespace Radium::Nodes
     int LuaScript::lua_info(lua_State *L)
     {
         const char *message = luaL_checkstring(L, 1);
-        spdlog::info("[Lua] {}", message);
+        Flux::Info("[Lua] {}", message);
         return 0;
     }
 
     int LuaScript::lua_error(lua_State *L)
     {
         const char *message = luaL_checkstring(L, 1);
-        spdlog::error("[Lua] {}", message);
+        Flux::Error("[Lua] {}", message);
         return 0;
     }
 
     int LuaScript::lua_warn(lua_State *L)
     {
         const char *message = luaL_checkstring(L, 1);
-        spdlog::warn("[Lua] {}", message);
+        Flux::Warn("[Lua] {}", message);
         return 0;
     }
 
     int LuaScript::lua_debug(lua_State *L)
     {
         const char *message = luaL_checkstring(L, 1);
-        spdlog::debug("[Lua] {}", message);
+        Flux::Debug("[Lua] {}", message);
         return 0;
     }
 
     int LuaScript::lua_trace(lua_State *L)
     {
         const char *message = luaL_checkstring(L, 1);
-        spdlog::trace("[Lua] {}", message);
+        Flux::Trace("[Lua] {}", message);
         return 0;
     }
 
@@ -779,7 +779,7 @@ namespace Radium::Nodes
 
         if (!script)
         {
-            spdlog::warn("script doenst have me!");
+            Flux::Warn("script doenst have me!");
             return 0;
         }
 
@@ -1263,7 +1263,7 @@ namespace Radium::Nodes
             int result = luaL_loadstring(L, script.c_str());
             if (result != LUA_OK)
             {
-                spdlog::error("Failed to load Lua script: {}", lua_tostring(L, -1));
+                Flux::Error("Failed to load Lua script: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
                 return;
             }
@@ -1272,16 +1272,16 @@ namespace Radium::Nodes
             result = lua_pcall(L, 0, 0, 0);
             if (result != LUA_OK)
             {
-                spdlog::error("Failed to execute Lua script: {}", lua_tostring(L, -1));
+                Flux::Error("Failed to execute Lua script: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
                 return;
             }
 
-            spdlog::info("Lua script loaded successfully: {}", path);
+            Flux::Info("Lua script loaded successfully: {}", path);
         }
         catch (const std::exception &e)
         {
-            spdlog::error("Lua script error: {}", e.what());
+            Flux::Error("Lua script error: {}", e.what());
         }
     }
 
@@ -1307,7 +1307,7 @@ namespace Radium::Nodes
             int result = lua_pcall(L, 0, 0, 0);
             if (result != LUA_OK)
             {
-                spdlog::error("Lua OnLoad error: {}", lua_tostring(L, -1));
+                Flux::Error("Lua OnLoad error: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }
@@ -1331,7 +1331,7 @@ namespace Radium::Nodes
             int result = lua_pcall(L, 0, 0, 0);
             if (result != LUA_OK)
             {
-                spdlog::error("Lua OnTick error: {}", lua_tostring(L, -1));
+                Flux::Error("Lua OnTick error: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }
@@ -1355,7 +1355,7 @@ namespace Radium::Nodes
             int result = lua_pcall(L, 0, 0, 0);
             if (result != LUA_OK)
             {
-                spdlog::error("Lua OnRender error: {}", lua_tostring(L, -1));
+                Flux::Error("Lua OnRender error: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }
@@ -1379,7 +1379,7 @@ namespace Radium::Nodes
             int result = lua_pcall(L, 0, 0, 0);
             if (result != LUA_OK)
             {
-                spdlog::error("Lua OnImgui error: {}", lua_tostring(L, -1));
+                Flux::Error("Lua OnImgui error: {}", lua_tostring(L, -1));
                 lua_pop(L, 1);
             }
         }

@@ -1,6 +1,6 @@
 #include <Radium/Nodes/Node.hpp>
 #include <Radium/Nodes/LuaScript.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 
 namespace Radium::Nodes {
     Node::Node() : parent(nullptr) {
@@ -63,7 +63,7 @@ namespace Radium::Nodes {
         for (auto& child : children) {
             if (child) {
                 if (child->name.data()) {
-                    spdlog::info("{}", child->name);
+                    Flux::Info("{}", child->name);
                     if (child->name == name) {
                         return child;
                     }

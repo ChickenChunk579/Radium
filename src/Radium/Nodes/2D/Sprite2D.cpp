@@ -3,7 +3,7 @@
 #include <Radium/PixelScaleUtil.hpp>
 #include <Radium/Application.hpp>
 #include <Rune/SpriteBatch.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 
 namespace Radium::Nodes {
 
@@ -31,7 +31,7 @@ void Sprite2D::OnRender() {
     batch = Radium::SpriteBatchRegistry::Get(batchTag);
     
     if (!batch) {
-        spdlog::error("Sprite2D: No sprite batch with tag '{}'", batchTag);
+        Flux::Error("Sprite2D: No sprite batch with tag '{}'", batchTag);
         return;
     }
     

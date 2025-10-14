@@ -1,7 +1,7 @@
 #include <Radium/Nodes/2D/RigidBody.hpp>
 #include <Radium/Application.hpp>
 #include <Radium/Nodes/LuaScript.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <box2d/box2d.h>
 #include <Radium/DebugRenderer.hpp>
 
@@ -44,7 +44,7 @@ namespace Radium::Nodes
             float x = lua_tonumber(L, 2);  // fix: use 2 and 3 instead of 1 and 2
             float y = lua_tonumber(L, 3);
             
-            spdlog::info("Apply force: {}, {}", x, y);
+            Flux::Info("Apply force: {}, {}", x, y);
             instance->ApplyForce({x, y});
             return 0; });
 
@@ -213,7 +213,7 @@ namespace Radium::Nodes
         {
             // Ensure the body stays disabled
             if (b2Body_IsEnabled(bodyId)) {
-                spdlog::info("Disabled body");
+                Flux::Info("Disabled body");
                 b2Body_Disable(bodyId);
             }
         }
@@ -225,7 +225,7 @@ namespace Radium::Nodes
     void RigidBody::TeleportMove() {
         teleported = true;
         UpdateGlobals();
-        spdlog::info("Global position: {}, {}", globalPosition.x, globalPosition.y);
+        Flux::Info("Global position: {}, {}", globalPosition.x, globalPosition.y);
         b2Body_SetTransform(bodyId, ToB2Vec2(globalPosition), b2Rot_identity);
     }
 
@@ -365,7 +365,7 @@ namespace Radium::Nodes
         bodyId = b2CreateBody(Radium::currentApplication->worldId, &bodyDef);
         if (bodyId.index1 == b2_nullBodyId.index1)
         {
-            spdlog::error("Failed to create Box2D body");
+            Flux::Error("Failed to create Box2D body");
             return;
         }
 
@@ -397,7 +397,7 @@ namespace Radium::Nodes
         }
 
         bodyCreated = true;
-        spdlog::debug("Created body {} at position ({}, {}) with size ({}, {}) and collision type {}", 
+        Flux::Debug("Created body {} at position ({}, {}) with size ({}, {}) and collision type {}", 
                      name, globalPosition.x, globalPosition.y, size.x, size.y, 
                      collisionType == CollisionType::Circle ? "Circle" : "Rectangle");
     }
@@ -409,7 +409,7 @@ namespace Radium::Nodes
             b2DestroyBody(bodyId);
             bodyId = b2_nullBodyId;
             bodyCreated = false;
-            spdlog::debug("Destroyed Box2D body for RigidBody node: {}", name);
+            Flux::Debug("Destroyed Box2D body for RigidBody node: {}", name);
         }
     }
 

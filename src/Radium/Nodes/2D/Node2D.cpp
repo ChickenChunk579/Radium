@@ -1,6 +1,6 @@
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Nodes/LuaScript.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include "Node2D.hpp"
 
 namespace Radium::Nodes {

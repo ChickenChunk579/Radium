@@ -114,7 +114,7 @@ target_link_libraries(Radium PUBLIC
     SDL2_image
     SDL2_ttf
     SDL2main
-    spdlog::spdlog
+    Flux
     Rune
     imgui
     box2d

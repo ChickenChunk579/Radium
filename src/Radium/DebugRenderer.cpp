@@ -772,7 +772,7 @@ namespace Radium::DebugRenderer {
 
     void AddGlyph(char c, Vector2f pos, float r, float g, float b, float thickness) {
         if (c < 32 || c > 126) {
-            spdlog::error("Character out of range: {}", c);
+            Flux::Error("Character out of range: {}", c);
             return;
         }
 

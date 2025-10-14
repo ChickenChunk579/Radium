@@ -1,7 +1,7 @@
 #include <Radium/Math.hpp>
 #include <Radium/Nodes/LuaScript.hpp>
 #include <cmath>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 
 namespace Radium
 {

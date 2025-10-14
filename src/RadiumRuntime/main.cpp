@@ -16,7 +16,7 @@
 #include <Radium/AssetLoader.hpp>
 #include <Rune/GeometryRenderer.hpp>
 #include "imgui.h"
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <Radium/Random.hpp>
 #include <Radium/GameDataParser.hpp>
 
@@ -37,7 +37,7 @@ public:
             configPath = "app.json";
         }
         std::string appConfig = Radium::ReadFileToString(configPath);
-        spdlog::info("App config file: {}", appConfig);
+        Flux::Info("App config file: {}", appConfig);
         json j = json::parse(appConfig);
         config = j.get<Radium::GameConfig>();
     }
@@ -67,7 +67,7 @@ public:
         #endif
 
         for (auto batchInfo : config.spriteBatches) {
-            spdlog::info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
+            Flux::Info("Add batch {} from {}", batchInfo.tag, batchInfo.path);
             Radium::SpriteBatchRegistry::Add(batchInfo.tag, batchInfo.path, batchInfo.origin, Rune::SamplingMode::Nearest);
         }
 
@@ -85,7 +85,7 @@ public:
         Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::BodyType>();
         Radium::Nodes::ClassDB::RegisterEnum<Radium::Nodes::CollisionType>();
         
-        spdlog::info("Running app at {}", appBase);
+        Flux::Info("Running app at {}", appBase);
 
         tree.Deserialize(config.initialScene);
     }

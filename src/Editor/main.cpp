@@ -10,8 +10,7 @@
 #include <Radium/Nodes/2D/Sprite2D.hpp>
 #include <Radium/Nodes/2D/RigidBody.hpp>
 #include "imgui.h"
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/base_sink.h>
+#include <Flux/Flux.hpp>
 #include <mutex>
 #include <vector>
 #include <string>
@@ -39,54 +38,6 @@ std::string MakeRelativeToCWD(const std::string &filePathName)
     fs::path relative = fs::relative(absPath, cwd);
     return relative.string();
 }
-
-// Simple thread-safe console buffer used by the ImGui sink and UI
-struct ImGuiConsole
-{
-    std::mutex mutex;
-    std::vector<std::string> lines;
-    bool autoScroll = true;
-
-    void AddLine(const std::string &s)
-    {
-        std::lock_guard<std::mutex> lk(mutex);
-        lines.emplace_back(s);
-    }
-
-    void Clear()
-    {
-        std::lock_guard<std::mutex> lk(mutex);
-        lines.clear();
-    }
-
-    std::vector<std::string> Snapshot()
-    {
-        std::lock_guard<std::mutex> lk(mutex);
-        return lines;
-    }
-};
-
-static ImGuiConsole g_imguiConsole;
-
-// custom sink forwarding formatted messages to g_imguiConsole
-class ImGuiSink : public spdlog::sinks::base_sink<std::mutex>
-{
-public:
-    ImGuiConsole *console;
-    explicit ImGuiSink(ImGuiConsole *c) : console(c) {}
-
-protected:
-    void sink_it_(const spdlog::details::log_msg &msg) override
-    {
-        spdlog::memory_buf_t formatted;
-        base_sink<std::mutex>::formatter_->format(msg, formatted);
-        std::string s(formatted.data(), formatted.size());
-        if (console)
-            console->AddLine(s);
-    }
-
-    void flush_() override {}
-};
 
 // credit to https://github.com/simongeilfus/Cinder-ImGui
 void imguiTheme()
@@ -472,8 +423,6 @@ public:
     TextEditor *editor;
     Radium::SubViewport *scene;
     ImTextureID sceneTexture;
-    // Keep the sink alive for the lifetime of the application
-    std::shared_ptr<spdlog::sinks::sink> imguiSink;
     Radium::Nodes::Node *selectedNode = nullptr;
     std::string projectFolder = "none";
     json copiedNodeJson = "";
@@ -506,7 +455,7 @@ public:
         }
         catch (const std::filesystem::filesystem_error &e)
         {
-            spdlog::error("Failed to refresh assets at '{}': {}", path, e.what());
+            Flux::Error("Failed to refresh assets at '{}': {}", path, e.what());
         }
     }
 
@@ -555,9 +504,6 @@ public:
 
     void OnEarlyLoad() override
     {
-        // attach the previously-declared ImGuiSink so spdlog messages are shown in the UI console
-        auto sink = std::make_shared<ImGuiSink>(&g_imguiConsole);
-        imguiSink = sink;
         // if (spdlog::default_logger())
         //{
         //     spdlog::default_logger()->sinks().push_back(sink);
@@ -784,7 +730,7 @@ public:
 
                 case 1: // open
                     openPath = relativePath;
-                    spdlog::info("Open path: {}", openPath);
+                    Flux::Info("Open path: {}", openPath);
                     scene->tree.Deserialize(relativePath, true, true);
                     break;
 
@@ -808,7 +754,7 @@ public:
 
                     Radium::assetBase = projectFolder + "/";
 
-                    spdlog::info("Opened project: {}", projectFolder);
+                    Flux::Info("Opened project: {}", projectFolder);
 
                     RefreshAssets(projectFolder);
 
@@ -830,8 +776,8 @@ public:
                     break;
                 }
 
-                spdlog::info("dialogState: {}", dialogState);
-                spdlog::info("openPath: {}", openPath);
+                Flux::Info("dialogState: {}", dialogState);
+                Flux::Info("openPath: {}", openPath);
             }
 
             // close
@@ -890,7 +836,7 @@ public:
                         }
                         else
                         {
-                            spdlog::info("Open path {}", openPath);
+                            Flux::Info("Open path {}", openPath);
                             scene->tree.Serialize((fs::path(projectFolder) / openPath).generic_string());
                         }
                     }
@@ -952,7 +898,7 @@ public:
                     }
                     else
                     {
-                        spdlog::info("Open path {}", openPath);
+                        Flux::Info("Open path {}", openPath);
                         scene->tree.Serialize((fs::path(projectFolder) / openPath).generic_string());
                     }
                 }
@@ -1122,7 +1068,7 @@ public:
                         {
                             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("RADIUM_NODE"))
                             {
-                                spdlog::info("Got payload");
+                                Flux::Info("Got payload");
                                 Radium::Nodes::Node *dropped = *(Radium::Nodes::Node **)payload->Data;
 
                                 if (ptr && dropped != selectedNode)
@@ -1233,7 +1179,7 @@ public:
                             if (openPath != "")
                                 scene->tree.Serialize(openPath);
                             fs::path path = fs::path(folder) / file;
-                            spdlog::info("Scene: {}", path.generic_string());
+                            Flux::Info("Scene: {}", path.generic_string());
                             scene->tree.Deserialize(path.generic_string(), true, true);
                             openPath = path.generic_string();
                         }
@@ -1253,7 +1199,7 @@ public:
                 {
                     // Serialize selected node to string
                     copiedNodeJson = Radium::Nodes::SerializeNode(selectedNode); // Assumes you have SerializeToString()
-                    spdlog::info("Copied node: {}", selectedNode->name);
+                    Flux::Info("Copied node: {}", selectedNode->name);
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Paste"))
@@ -1267,11 +1213,11 @@ public:
                             cloned->name += "_copy";
                             scene->tree.nodes.push_back(cloned);
                             selectedNode = cloned;
-                            spdlog::info("Pasted node as: {}", cloned->name);
+                            Flux::Info("Pasted node as: {}", cloned->name);
                         }
                         else
                         {
-                            spdlog::error("Failed to paste node.");
+                            Flux::Error("Failed to paste node.");
                         }
                     }
                 }
@@ -1283,7 +1229,7 @@ public:
                     if (it != siblings.begin() && it != siblings.end())
                     {
                         std::iter_swap(it, it - 1);
-                        spdlog::info("Moved node up: {}", selectedNode->name);
+                        Flux::Info("Moved node up: {}", selectedNode->name);
                     }
                 }
 
@@ -1295,7 +1241,7 @@ public:
                     if (it != siblings.end() && (it + 1) != siblings.end())
                     {
                         std::iter_swap(it, it + 1);
-                        spdlog::info("Moved node down: {}", selectedNode->name);
+                        Flux::Info("Moved node down: {}", selectedNode->name);
                     }
                 }
 
@@ -1357,7 +1303,7 @@ public:
 
                 selectedItem = -1;
 
-                spdlog::info("Selected: {}", selected);
+                Flux::Info("Selected: {}", selected);
 
                 auto node = (Radium::Nodes::Node *)Radium::Nodes::ClassDB::Create(selected);
 
@@ -1374,31 +1320,7 @@ public:
         {
             ImGui::Begin("Console");
 
-            // toolbar
-            if (ImGui::Button("Clear"))
-            {
-                g_imguiConsole.Clear();
-            }
-            ImGui::SameLine();
-            bool autoScroll = g_imguiConsole.autoScroll;
-            if (ImGui::Checkbox("Auto-scroll", &autoScroll))
-            {
-                g_imguiConsole.autoScroll = autoScroll;
-            }
-
             ImGui::Separator();
-
-            ImGui::BeginChild("ConsoleScrollRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-            auto snapshot = g_imguiConsole.Snapshot();
-            for (const auto &line : snapshot)
-            {
-                ImGui::TextUnformatted(line.c_str());
-            }
-            if (g_imguiConsole.autoScroll)
-            {
-                ImGui::SetScrollHereY(1.0f);
-            }
-            ImGui::EndChild();
 
             ImGui::End();
         }

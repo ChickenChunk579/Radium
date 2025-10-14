@@ -2,7 +2,7 @@
 #include <Radium/DebugRenderer.hpp>
 #include <Radium/Input.hpp>
 #include <Rune/Rune.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include "backends/imgui_impl_sdl2.h"
@@ -17,59 +17,6 @@
 #include <tracy/Tracy.hpp>
 #include <tracy/TracyC.h>
 #ifdef __ANDROID__
-#include <android/log.h>
-#include <mutex>
-#include <spdlog/sinks/base_sink.h>
-
-template <typename Mutex>
-class android_sink : public spdlog::sinks::base_sink<Mutex>
-{
-public:
-	explicit android_sink(const std::string &tag = "spdlog") : tag_(tag) {}
-
-protected:
-	void sink_it_(const spdlog::details::log_msg &msg) override
-	{
-		// Format the message
-		spdlog::memory_buf_t formatted;
-		spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-		// Map SPDLOG levels to Android levels
-		android_LogPriority priority = ANDROID_LOG_DEFAULT;
-		switch (msg.level)
-		{
-		case spdlog::level::trace:
-			priority = ANDROID_LOG_VERBOSE;
-			break;
-		case spdlog::level::debug:
-			priority = ANDROID_LOG_DEBUG;
-			break;
-		case spdlog::level::info:
-			priority = ANDROID_LOG_INFO;
-			break;
-		case spdlog::level::warn:
-			priority = ANDROID_LOG_WARN;
-			break;
-		case spdlog::level::err:
-			priority = ANDROID_LOG_ERROR;
-			break;
-		case spdlog::level::critical:
-			priority = ANDROID_LOG_FATAL;
-			break;
-		default:
-			priority = ANDROID_LOG_UNKNOWN;
-			break;
-		}
-
-		// Send to Android logcat
-		__android_log_print(priority, tag_.c_str(), "%s",
-							fmt::to_string(formatted).c_str());
-	}
-
-	void flush_() override {} // Nothing to flush
-
-private:
-	std::string tag_;
-};
 
 #endif
 
@@ -120,34 +67,28 @@ namespace Radium
 
 	Application::Application()
 	{
-		spdlog::set_level(spdlog::level::trace);
 #ifdef __ANDROID__
-
-		auto sink = std::make_shared<android_sink<std::mutex>>("MyNativeApp");
-		auto logger = std::make_shared<spdlog::logger>("android", sink);
-		spdlog::set_default_logger(logger);
-		spdlog::set_level(spdlog::level::trace); // Optional
 
 #endif
 
-		spdlog::trace("Constructed application {}", this->GetTitle());
+		Flux::Trace("Constructed application {}", this->GetTitle());
 	}
 
 	void Application::Run()
 	{
 		OnEarlyLoad();
 
-		spdlog::trace("Initializing SDL");
+		Flux::Trace("Initializing SDL");
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 		{
-			spdlog::error("Failed to initialize SDL: {}", SDL_GetError());
+			Flux::Error("Failed to initialize SDL: {}", SDL_GetError());
 			SDL_Quit();
 			exit(1);
 		}
 
 		IMG_Init(IMG_INIT_PNG);
-		spdlog::trace("Initialized SDL successfuly");
-		spdlog::trace("Creating window");
+		Flux::Trace("Initialized SDL successfuly");
+		Flux::Trace("Creating window");
 
 		Radium::Vector2i size = this->GetPreferredSize();
 
@@ -164,18 +105,18 @@ namespace Radium
 							 SDL_WINDOWPOS_CENTERED, size.x, size.y, flags);
 		if (!window)
 		{
-			spdlog::error("Failed to create window: {}", SDL_GetError());
+			Flux::Error("Failed to create window: {}", SDL_GetError());
 			exit(1);
 		}
-		spdlog::trace("Created window");
-		spdlog::trace("Getting window info...");
+		Flux::Trace("Created window");
+		Flux::Trace("Getting window info...");
 #if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
 #if defined(__linux__)
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION(&wmInfo.version);
 		if (!SDL_GetWindowWMInfo(window, &wmInfo))
 		{
-			spdlog::error("Failed to get window info");
+			Flux::Error("Failed to get window info");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -184,7 +125,7 @@ namespace Radium
 		Display *x11Display = nullptr;
 		uint32_t x11Window = 0;
 
-		spdlog::info("WM subsystem: {}", SDL_SYSWMTypeToString(wmInfo.subsystem));
+		Flux::Info("WM subsystem: {}", SDL_SYSWMTypeToString(wmInfo.subsystem));
 		if (wmInfo.subsystem == SDL_SYSWM_X11)
 		{
 			x11Display = wmInfo.info.x11.display;
@@ -200,7 +141,7 @@ namespace Radium
 			wayland = true;
 		}
 
-		spdlog::info("Display: {}, Window: {}", static_cast<void *>(x11Display),
+		Flux::Info("Display: {}, Window: {}", static_cast<void *>(x11Display),
 					 x11Window);
 #else
 
@@ -210,7 +151,7 @@ namespace Radium
 		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
 			wmInfo.subsystem != SDL_SYSWM_COCOA)
 		{
-			spdlog::error("Failed to get MacOS window info");
+			Flux::Error("Failed to get MacOS window info");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -226,7 +167,7 @@ namespace Radium
 		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
 			wmInfo.subsystem != SDL_SYSWM_UIKIT)
 		{
-			spdlog::error("Failed to get UIKit window info");
+			Flux::Error("Failed to get UIKit window info");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -240,7 +181,7 @@ namespace Radium
 		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
 			wmInfo.subsystem != SDL_SYSWM_WINDOWS)
 		{
-			spdlog::error("Failed to get Windows window info");
+			Flux::Error("Failed to get Windows window info");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -275,7 +216,7 @@ namespace Radium
 		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
 			wmInfo.subsystem != SDL_SYSWM_ANDROID)
 		{
-			spdlog::error("Failed to get wm info");
+			Flux::Error("Failed to get wm info");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -291,12 +232,12 @@ namespace Radium
 #endif
 #endif
 
-		spdlog::trace("Got window info.");
-		spdlog::trace("Initializing Rune...");
+		Flux::Trace("Got window info.");
+		Flux::Trace("Initializing Rune...");
 
 		if (!Rune::Initialize(x11Display, x11Window, size.x, size.y, wayland))
 		{
-			spdlog::error("Rune initialization failed.");
+			Flux::Error("Rune initialization failed.");
 			SDL_DestroyWindow(window);
 			SDL_Quit();
 			exit(1);
@@ -307,31 +248,31 @@ namespace Radium
 			delete handles;
 		}
 
-		spdlog::trace("Successfully initialized Rune.");
-		spdlog::info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
+		Flux::Trace("Successfully initialized Rune.");
+		Flux::Info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
 #if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
-		spdlog::trace("Setting up imgui...");
+		Flux::Trace("Setting up imgui...");
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
-		spdlog::trace("Created context");
+		Flux::Trace("Created context");
 
 		ImGuiIO &io = ImGui::GetIO();
 		(void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		spdlog::trace("Setting style");
+		Flux::Trace("Setting style");
 
 		ImGui::StyleColorsDark();
 
-		spdlog::trace("Creating renderer");
+		Flux::Trace("Creating renderer");
 
 		ImGui_ImplRune_Init();
 		ImGui_ImplSDL2_InitForOther(window);
 
-		spdlog::trace("Done!");
+		Flux::Trace("Done!");
 
 		ImGui::StyleColorsDark();
 		ImGuiStyle &style = ImGui::GetStyle();
@@ -344,20 +285,20 @@ namespace Radium
 
 		Radium::DebugRenderer::Setup();
 
-		spdlog::trace("Creating physics stuff");
+		Flux::Trace("Creating physics stuff");
 
 		b2WorldDef worldDef = b2DefaultWorldDef();
 		worldDef.gravity = {GetGravity().x, GetGravity().y};
 
 		worldId = b2CreateWorld(&worldDef);
 
-		spdlog::trace("Done");
+		Flux::Trace("Done");
 
-		spdlog::trace("Running user OnLoad");
+		Flux::Trace("Running user OnLoad");
 		this->OnLoad();
 		tree.OnLoad();
-		spdlog::trace("Done");
-		spdlog::trace("Starting main loop...");
+		Flux::Trace("Done");
+		Flux::Trace("Starting main loop...");
 
 #ifdef __EMSCRIPTEN__
 		emscripten_set_main_loop([]()
@@ -413,7 +354,7 @@ namespace Radium
 			Radium::Input::Update();
 		}
 
-		//spdlog::info("FPS: {:.1f}", ImGui::GetIO().Framerate);
+		//Flux::Info("FPS: {:.1f}", ImGui::GetIO().Framerate);
 		{
 			ZoneScopedN("Physics Tick");
 			b2World_Step(worldId, 1.0f / 60.0f, 4);

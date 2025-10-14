@@ -4,30 +4,30 @@
 #include <Radium/Random.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <Radium/AssetLoader.hpp>
 
 namespace Radium::Nodes
 {
     void infoWrap(std::string log)
     {
-        spdlog::info("[Chai] {}", log);
+        Flux::Info("[Chai] {}", log);
     }
     void errorWrap(std::string log)
     {
-        spdlog::error("[Chai] {}", log);
+        Flux::Error("[Chai] {}", log);
     }
     void warnWrap(std::string log)
     {
-        spdlog::warn("[Chai] {}", log);
+        Flux::Warn("[Chai] {}", log);
     }
     void traceWrap(std::string log)
     {
-        spdlog::trace("[Chai] {}", log);
+        Flux::Trace("[Chai] {}", log);
     }
     void debugWrap(std::string log)
     {
-        spdlog::debug("[Chai] {}", log);
+        Flux::Debug("[Chai] {}", log);
     }
 
     Node *ChaiScript::GetMe()

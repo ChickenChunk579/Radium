@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 
 namespace Radium::SpriteBatchRegistry {
     std::unordered_map<std::string, Rune::SpriteBatch*> map;
@@ -16,10 +16,10 @@ namespace Radium::SpriteBatchRegistry {
         std::string resolvedPath = Radium::assetBase + texturePath;
         SDL_Surface* surface = IMG_Load(resolvedPath.c_str());
 
-        spdlog::info("Loading texture at {}", resolvedPath);
+        Flux::Info("Loading texture at {}", resolvedPath);
 
         if (!surface) {
-            spdlog::error("Failed to load image: {}", SDL_GetError());
+            Flux::Error("Failed to load image: {}", SDL_GetError());
             return;
         }
         

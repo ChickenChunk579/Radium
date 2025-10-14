@@ -2,7 +2,7 @@
 #include <SDL_image.h>
 #include <SDL2/SDL_surface.h>
 #include <iostream>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <Radium/PixelScaleUtil.hpp>
 
 bool ttfInitialized = false;
@@ -12,7 +12,7 @@ namespace Radium {
     FontBatch::FontBatch(std::string fontName, int ptSize) {
         if (!ttfInitialized) {
             if (TTF_Init() != 0) {
-                spdlog::error("Failed to init TTF: {}", TTF_GetError());
+                Flux::Error("Failed to init TTF: {}", TTF_GetError());
                 return;
             }
         }
@@ -24,7 +24,7 @@ namespace Radium {
         font = TTF_OpenFont(fontName.c_str(), ptSize);
         #endif
         if (!font) {
-            spdlog::error("Failed to load font: {}", TTF_GetError());
+            Flux::Error("Failed to load font: {}", TTF_GetError());
             return;
         }
 
@@ -33,7 +33,7 @@ namespace Radium {
         const int atlasHeight = 896;
         SDL_Surface* atlas = SDL_CreateRGBSurfaceWithFormat(0, atlasWidth, atlasHeight, 32, SDL_PIXELFORMAT_RGBA32);
         if (!atlas) {
-            spdlog::error("Failed to create atlas surface: {}", SDL_GetError());
+            Flux::Error("Failed to create atlas surface: {}", SDL_GetError());
             return;
         }
 
@@ -46,7 +46,7 @@ namespace Radium {
             // Render the glyph to a surface
             SDL_Surface* glyphSurface = TTF_RenderGlyph_Blended(font, c, SDL_Color{255, 255, 255, 255});
             if (!glyphSurface) {
-                spdlog::error("Failed to render glyph {}: {}", static_cast<char>(c), TTF_GetError());
+                Flux::Error("Failed to render glyph {}: {}", static_cast<char>(c), TTF_GetError());
                 continue;
             }
 
@@ -62,7 +62,7 @@ namespace Radium {
 
             int minx, maxx, miny, maxy, advance;
             if (TTF_GlyphMetrics(font, c, &minx, &maxx, &miny, &maxy, &advance) != 0) {
-                spdlog::warn("Failed to get glyph metrics for {}: {}", static_cast<char>(c), TTF_GetError());
+                Flux::Warn("Failed to get glyph metrics for {}: {}", static_cast<char>(c), TTF_GetError());
                 advance = glyphSurface->w; // fallback
             }
 
@@ -101,18 +101,18 @@ namespace Radium {
 
         batch = new Rune::SpriteBatch(texture, Rune::SpriteOrigin::TopLeft);
         if (!batch) {
-            spdlog::error("SpriteBatch is null in FontBatch::FontBatch()");
+            Flux::Error("SpriteBatch is null in FontBatch::FontBatch()");
             return;
         }
 
-        spdlog::info("Created SpriteBatch: {}", static_cast<void*>(batch));
+        Flux::Info("Created SpriteBatch: {}", static_cast<void*>(batch));
 
         SDL_FreeSurface(atlas);
     }
 
     void FontBatch::Begin() {
         if (!batch) {
-            spdlog::error("SpriteBatch is null in FontBatch::Begin()");
+            Flux::Error("SpriteBatch is null in FontBatch::Begin()");
             return;
         }
 
@@ -121,7 +121,7 @@ namespace Radium {
 
     void FontBatch::End() {
         if (!batch) {
-            spdlog::error("SpriteBatch is null in FontBatch::End()");
+            Flux::Error("SpriteBatch is null in FontBatch::End()");
             return;
         }
 

@@ -6,7 +6,7 @@
 #include <Radium/AssetLoader.hpp>
 #include <fstream>
 #include <ostream>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 
 namespace Radium::Nodes
 {
@@ -181,17 +181,17 @@ namespace Radium::Nodes
         std::string typeName = nodeJson.value("type", "");
         if (typeName.empty())
         {
-            spdlog::warn("Node type missing");
+            Flux::Warn("Node type missing");
             return nullptr;
         }
 
-        spdlog::trace("Creating type: {}", typeName);
+        Flux::Trace("Creating type: {}", typeName);
 
         Node *node = dynamic_cast<Node *>(ClassDB::Create(typeName));
-        spdlog::trace("Post create");
+        Flux::Trace("Post create");
         if (!node)
         {
-            spdlog::error("Failed to create node of type {}", typeName);
+            Flux::Error("Failed to create node of type {}", typeName);
             return nullptr;
         }
 
@@ -215,7 +215,7 @@ namespace Radium::Nodes
                 }
                 else
                 {
-                    spdlog::error("Failed to create ChaiScript instance during deserialization");
+                    Flux::Error("Failed to create ChaiScript instance during deserialization");
                 }
             }
             else if (scriptType == "LuaScript") {
@@ -233,12 +233,12 @@ namespace Radium::Nodes
                 }
                 else
                 {
-                    spdlog::error("Failed to create LuaScript instance during deserialization");
+                    Flux::Error("Failed to create LuaScript instance during deserialization");
                 }
             }
             else
             {
-                spdlog::warn("Unsupported script type during deserialization: {}", scriptType);
+                Flux::Warn("Unsupported script type during deserialization: {}", scriptType);
             }
         }
 
@@ -252,7 +252,7 @@ namespace Radium::Nodes
             
             try
             {
-                spdlog::info("Is it a string or not: {}", prop.type);
+                Flux::Info("Is it a string or not: {}", prop.type);
 
                 if (ClassDB::IsEnum(prop.type)) {
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
@@ -311,7 +311,7 @@ namespace Radium::Nodes
             }
             catch (std::exception &e)
             {
-                spdlog::error("Error deserializing property {}: {}", prop.name, e.what());
+                Flux::Error("Error deserializing property {}: {}", prop.name, e.what());
             }
         }
 
@@ -338,24 +338,24 @@ namespace Radium::Nodes
     {
         std::string file = Radium::ReadFileToString(path, external);
 
-        spdlog::trace("Got file: {}", file);
+        Flux::Trace("Got file: {}", file);
 
         json j = json::parse(file);
-        spdlog::trace("Created json");
+        Flux::Trace("Created json");
 
         name = j.value("name", "UnnamedScene");
-        spdlog::trace("Name: {}", name);
+        Flux::Trace("Name: {}", name);
         nodes.clear();
-        spdlog::trace("Cleared nodes");
+        Flux::Trace("Cleared nodes");
 
         for (const auto &nodeJson : j["nodes"])
         {
-            spdlog::trace("Before deserialize");
+            Flux::Trace("Before deserialize");
             Node *node = DeserializeNode(nodeJson, this, nullptr, stubScripts);
-            spdlog::trace("Post deserialize");
+            Flux::Trace("Post deserialize");
             if (node)
             {
-                spdlog::trace("Added node: {}", node->name);
+                Flux::Trace("Added node: {}", node->name);
                 nodes.push_back(node);
             }
         }

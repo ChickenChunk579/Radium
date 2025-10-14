@@ -7,8 +7,10 @@
 #include <vector>
 #include <unordered_map>
 #include <typeinfo>
-#include <spdlog/spdlog.h>
+#include <Flux/Flux.hpp>
 #include <algorithm>
+#include <functional>
+#include <stdexcept>
 
 /**
  * @brief Calculate the offset of a member variable within a class.
@@ -132,18 +134,18 @@ namespace Radium::Nodes
             std::string typeName = Demangle(typeid(T).name());
             std::string parentName = Demangle(typeid(P).name());
 
-            spdlog::info("Registering type {} with parent {}", typeName, parentName);
+            Flux::Info("Registering type {} with parent {}", typeName, parentName);
 
             if (registeredClasses.find(typeName) != registeredClasses.end())
             {
-                spdlog::info("Already registered");
+                Flux::Info("Already registered");
                 return;
             }
 
             // Ensure parent is registered
             if (registeredClasses.find(parentName) == registeredClasses.end())
             {
-                spdlog::info("Need to register: {}", parentName);
+                Flux::Info("Need to register: {}", parentName);
                 Register<P>();
             }
 
@@ -155,7 +157,7 @@ namespace Radium::Nodes
             };
             info.name = typeName;
             registeredClasses[typeName] = info;
-            spdlog::info("Register finished!");
+            Flux::Info("Register finished!");
         }
 
         /**
@@ -350,7 +352,7 @@ namespace Radium::Nodes
         {
             if (!instance)
             {
-                spdlog::error("No instance!");
+                Flux::Error("No instance!");
                 return nullptr;
             }
 
@@ -359,7 +361,7 @@ namespace Radium::Nodes
 
             if (it == Radium::Nodes::ClassDB::registeredClasses.end())
             {
-                spdlog::error("Class not registered: {}", typeName);
+                Flux::Error("Class not registered: {}", typeName);
                 return nullptr;
             }
 
@@ -404,14 +406,14 @@ namespace Radium::Nodes
         inline Object *Create(const std::string &className)
         {
             auto it = registeredClasses.find(className);
-            spdlog::trace("Post find");
+            Flux::Trace("Post find");
             if (it == registeredClasses.end())
             {
-                spdlog::error("Class not registered: " + className);
+                Flux::Error("Class not registered: ", className);
                 abort();
             }
 
-            spdlog::trace("Found: {}", it->second.name);
+            Flux::Trace("Found: {}", it->second.name);
 
             if (!it->second.factory)
             {
