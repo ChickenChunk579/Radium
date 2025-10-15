@@ -1,15 +1,15 @@
 #include <Radium/Application.hpp>
 #include <Radium/DebugRenderer.hpp>
 #include <Radium/Input.hpp>
+#include <Nova/Nova.hpp>
 #include <Rune/Rune.hpp>
 #include <Flux/Flux.hpp>
 #include <Iris/Iris.hpp>
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
-#include "backends/imgui_impl_sdl2.h"
 #include "imgui.h"
 #include "imgui_impl_rune.h"
-#include <SDL2/SDL_syswm.h>
+#include "imgui_impl_nova.h"
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -20,45 +20,6 @@
 #ifdef __ANDROID__
 
 #endif
-
-const char *SDL_SYSWMTypeToString(SDL_SYSWM_TYPE type)
-{
-	switch (type)
-	{
-	case SDL_SYSWM_UNKNOWN:
-		return "UNKNOWN";
-	case SDL_SYSWM_WINDOWS:
-		return "WINDOWS";
-	case SDL_SYSWM_X11:
-		return "X11";
-	case SDL_SYSWM_DIRECTFB:
-		return "DIRECTFB";
-	case SDL_SYSWM_COCOA:
-		return "COCOA";
-	case SDL_SYSWM_UIKIT:
-		return "UIKIT";
-	case SDL_SYSWM_WAYLAND:
-		return "WAYLAND";
-	case SDL_SYSWM_MIR:
-		return "MIR";
-	case SDL_SYSWM_WINRT:
-		return "WINRT";
-	case SDL_SYSWM_ANDROID:
-		return "ANDROID";
-	case SDL_SYSWM_VIVANTE:
-		return "VIVANTE";
-	case SDL_SYSWM_OS2:
-		return "OS2";
-	case SDL_SYSWM_HAIKU:
-		return "HAIKU";
-	case SDL_SYSWM_KMSDRM:
-		return "KMSDRM";
-	case SDL_SYSWM_RISCOS:
-		return "RISCOS";
-	default:
-		return "UNKNOWN";
-	}
-}
 
 namespace Radium
 {
@@ -78,12 +39,6 @@ namespace Radium
 		OnEarlyLoad();
 
 		Flux::Trace("Initializing SDL");
-		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
-		{
-			Flux::Error("Failed to initialize SDL: {}", SDL_GetError());
-			SDL_Quit();
-			exit(1);
-		}
 
 		Iris::codecs.push_back(std::make_unique<Iris::PNGCodec>());
 		Iris::codecs.push_back(std::make_unique<Iris::BMPCodec>());
@@ -96,151 +51,19 @@ namespace Radium
 		bool wayland = false;
 		void **handles = nullptr;
 
-		Uint32 flags = SDL_WINDOW_SHOWN;
-#ifdef __ANDROID__
-		flags |= SDL_WINDOW_VULKAN;
-#endif
+		window = new Nova::Window(GetTitle(), GetPreferredSize().x, GetPreferredSize().y);
 
-		this->window =
-			SDL_CreateWindow(this->GetTitle().c_str(), SDL_WINDOWPOS_CENTERED,
-							 SDL_WINDOWPOS_CENTERED, size.x, size.y, flags);
-		if (!window)
-		{
-			Flux::Error("Failed to create window: {}", SDL_GetError());
-			exit(1);
-		}
 		Flux::Trace("Created window");
 		Flux::Trace("Getting window info...");
-#if !defined(__ANDROID__) && !defined(__EMSCRIPTEN__)
-#if defined(__linux__)
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		if (!SDL_GetWindowWMInfo(window, &wmInfo))
-		{
-			Flux::Error("Failed to get window info");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			exit(1);
-		}
 
-		Display *x11Display = nullptr;
-		uint32_t x11Window = 0;
-
-		Flux::Info("WM subsystem: {}", SDL_SYSWMTypeToString(wmInfo.subsystem));
-		if (wmInfo.subsystem == SDL_SYSWM_X11)
-		{
-			x11Display = wmInfo.info.x11.display;
-			x11Window = static_cast<uint32_t>(wmInfo.info.x11.window);
-		}
-		if (wmInfo.subsystem == SDL_SYSWM_WAYLAND)
-		{
-			handles = new void *[2];
-
-			handles[0] = (void *)wmInfo.info.wl.display;
-			handles[1] = (void *)wmInfo.info.wl.surface;
-			x11Display = (Display *)handles;
-			wayland = true;
-		}
-
-		Flux::Info("Display: {}, Window: {}", static_cast<void *>(x11Display),
-					 x11Window);
-#else
-
-#if !defined(TARGET_OS_IOS) && !defined(_MSC_VER)
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
-			wmInfo.subsystem != SDL_SYSWM_COCOA)
-		{
-			Flux::Error("Failed to get MacOS window info");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			exit(1);
-		}
-
-		Display *x11Display = wmInfo.info.cocoa.window;
-		uint32_t x11Window = 0;
-
-#else
-#ifdef TARGET_OS_IOS
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
-			wmInfo.subsystem != SDL_SYSWM_UIKIT)
-		{
-			Flux::Error("Failed to get UIKit window info");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			exit(1);
-		}
-
-		Display *x11Display = wmInfo.info.uikit.window;
-		uint32_t x11Window = 0;
-#else
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
-			wmInfo.subsystem != SDL_SYSWM_WINDOWS)
-		{
-			Flux::Error("Failed to get Windows window info");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			exit(1);
-		}
-
-		Display *x11Display = nullptr;
-		uint32_t x11Window = 0;
-
-		handles = new void *[2];
-
-		handles[0] = (void *)wmInfo.info.win.window;
-		handles[1] = (void *)wmInfo.info.win.hinstance;
-		x11Display = (Display *)handles;
-
-#endif
-
-#endif
-
-#endif
-
-#else
-#ifndef __ANDROID__
-		Display *x11Display = nullptr;
-		uint32_t x11Window = 0;
-#else
-
-		uint32_t x11Window = 0;
-		Display *x11Display = nullptr;
-
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		if (!SDL_GetWindowWMInfo(window, &wmInfo) ||
-			wmInfo.subsystem != SDL_SYSWM_ANDROID)
-		{
-			Flux::Error("Failed to get wm info");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
-			exit(1);
-		}
-		x11Display = wmInfo.info.android.window;
-
-		int w, h = 0;
-
-		SDL_GetWindowSizeInPixels(window, &w, &h);
-		size.x = w;
-		size.y = h;
-
-#endif
-#endif
+		Nova::X11PlatformData* platformData = (Nova::X11PlatformData*)window->platformData;
 
 		Flux::Trace("Got window info.");
 		Flux::Trace("Initializing Rune...");
 
-		if (!Rune::Initialize(x11Display, x11Window, size.x, size.y, wayland))
+		if (!Rune::Initialize(platformData->display, static_cast<uint32_t>(platformData->window), size.x, size.y, wayland))
 		{
 			Flux::Error("Rune initialization failed.");
-			SDL_DestroyWindow(window);
-			SDL_Quit();
 			exit(1);
 		}
 
@@ -270,8 +93,8 @@ namespace Radium
 
 		Flux::Trace("Creating renderer");
 
+		ImGui_ImplNova_Init(window);
 		ImGui_ImplRune_Init();
-		ImGui_ImplSDL2_InitForOther(window);
 
 		Flux::Trace("Done!");
 
@@ -319,13 +142,11 @@ namespace Radium
 		OnRelease();
 		SpriteBatchRegistry::Clear();
 		ImGui_ImplRune_Shutdown();
-		SDL_Quit();
 	}
 
 	Radium::Vector2i Application::GetSize()
 	{
 		int w, h = 0;
-		SDL_GetWindowSizeInPixels(window, &w, &h);
 
 		return {w, h};
 	}
@@ -341,17 +162,15 @@ namespace Radium
 
 		{
 			ZoneScopedN("Event Poll");
-			SDL_Event event;
-			while (SDL_PollEvent(&event))
-			{
-#if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
-				ImGui_ImplSDL2_ProcessEvent(&event);
-#endif
-				if (event.type == SDL_QUIT)
-					this->running = false;
+
+			running = window->PollEvents();
+
+			while (window->HasEvents()){
+				Nova::Event* event = window->PopEvent();
+				ImGui_ImplNova_ProcessEvent(event);
 			}
 
-			Radium::Input::Update();
+			//Radium::Input::Update();
 		}
 
 		//Flux::Info("FPS: {:.1f}", ImGui::GetIO().Framerate);
@@ -412,7 +231,6 @@ namespace Radium
 		{
 			ZoneScopedN("ImGui setup");
 			ImGui_ImplRune_NewFrame();
-			ImGui_ImplSDL2_NewFrame();
 			ImGui::NewFrame();
 		}
 		{

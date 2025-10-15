@@ -1,6 +1,6 @@
 #pragma once
 #include <Radium/Application.hpp>
-#include <Radium/Key.hpp>
+#include <Nova/Key.hpp>
 
 namespace Radium {
     namespace Input {

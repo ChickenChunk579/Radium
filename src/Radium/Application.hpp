@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <Radium/Math.hpp>
-#include <SDL2/SDL.h>
+#include <Nova/Nova.hpp>
 #include <Radium/Nodes/Tree.hpp>
 #include <box2d/box2d.h>
 #include <Radium/Nodes/Tree.hpp>
@@ -144,8 +144,8 @@ namespace Radium {
         Application();
 
     private:
-        /** @brief Pointer to the SDL window. */
-        SDL_Window* window;
+        /** @brief Pointer to the Nova window. */
+        Nova::Window* window;
 
         /** @brief Indicates whether the main loop is still running. */
         bool running = true;

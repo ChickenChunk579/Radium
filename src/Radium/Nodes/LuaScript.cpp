@@ -4,7 +4,7 @@
 #include <Radium/PixelScaleUtil.hpp>
 #include <Radium/AssetLoader.hpp>
 #include <Radium/DebugRenderer.hpp>
-#include <Radium/Key.hpp>
+#include <Nova/Key.hpp>
 #include <Radium/Input.hpp>
 #include <Flux/Flux.hpp>
 #include <fstream>

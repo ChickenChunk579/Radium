@@ -4,7 +4,7 @@
 #include <Radium/Application.hpp>
 
 // Helper to set a pixel at (x, y) with RGBA color
-void SetPixelRGBA(void *surface, int x, int y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void SetPixelRGBA(void *surface, int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 
 }

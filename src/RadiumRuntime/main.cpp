@@ -7,8 +7,6 @@
 #include <Radium/Nodes/2D/RigidBody.hpp>
 #include <Radium/Nodes/Node.hpp>
 #include <Radium/Nodes/Node.hpp>
-#include <Radium/Nodes/ChaiScript.hpp>
-#include <Radium/FontRenderer.hpp>
 #include <Radium/PhysicsUtil.hpp>
 #include <Radium/Input.hpp>
 #include <Rune/Texture.hpp>

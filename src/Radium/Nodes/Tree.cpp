@@ -1,5 +1,4 @@
 #include <Radium/Nodes/Tree.hpp>
-#include <Radium/Nodes/ChaiScript.hpp>
 #include <Radium/Nodes/LuaScript.hpp>
 #include <Radium/Nodes/2D/Node2D.hpp>
 #include <Radium/Math.hpp>
@@ -71,16 +70,6 @@ namespace Radium::Nodes
         if (ClassDB::HasProperty("script", node))
         {
             auto script = ClassDB::GetProperty<Radium::Nodes::Script*>("script", node);
-            if (auto chaiScript = dynamic_cast<Radium::Nodes::ChaiScript*>(script))
-            {
-                json scriptInfo = {
-                    {"type", "ChaiScript"},
-                    {"path", chaiScript->path},
-                };
-
-                nodeJson["script"] = scriptInfo;
-
-            }
             if (auto luaScript = dynamic_cast<Radium::Nodes::LuaScript*>(script))
             {
                 json scriptInfo = {
@@ -199,26 +188,7 @@ namespace Radium::Nodes
         {
             const auto& scriptJson = nodeJson["script"];
             std::string scriptType = scriptJson.value("type", "");
-            if (scriptType == "ChaiScript")
-            {
-                // Create a ChaiScript instance
-                // Set the path property from JSON
-                if (scriptJson.contains("path"))
-                {
-                    std::string path = scriptJson["path"].get<std::string>();
-                    auto chaiScript = new Radium::Nodes::ChaiScript(path, tree, !stubScripts);
-
-                    chaiScript->me = node;
-
-                    // Assign script property on the node
-                    ClassDB::SetProperty<Radium::Nodes::Script*>("script", node, chaiScript);
-                }
-                else
-                {
-                    Flux::Error("Failed to create ChaiScript instance during deserialization");
-                }
-            }
-            else if (scriptType == "LuaScript") {
+            if (scriptType == "LuaScript") {
                 // Create a LuaScript instance
                 // Set the path property from JSON
                 if (scriptJson.contains("path"))

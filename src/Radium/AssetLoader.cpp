@@ -1,8 +1,10 @@
 #include <Radium/AssetLoader.hpp>
 #include <SDL2/SDL.h>
 #include <Flux/Flux.hpp>
-#include <iostream>
-#include <algorithm> // for std::replace
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <stdexcept>
 
 namespace Radium
 {
@@ -13,62 +15,25 @@ namespace Radium
         Flux::Info("Asset base: {}", assetBase);
         std::string expandedFileName = assetBase + filename;
 
-        // Use backslashes on Windows (MSVC)
-#ifdef _MSC_VER
+    #ifdef _MSC_VER
         std::replace(expandedFileName.begin(), expandedFileName.end(), '/', '\\');
-#endif
+    #endif
 
-        Flux::Trace("Reading file: {}", expandedFileName);
-
-        SDL_RWops *file = SDL_RWFromFile(expandedFileName.c_str(), "rb");
-
-        
-
-        // Try as an asset if not found on filesystem (Android case or fallback)
-        if (!file)
-        {
-#ifdef _MSC_VER
-            std::string altPath = "assets\\" + filename;
-            std::replace(altPath.begin(), altPath.end(), '/', '\\');
-#else
-            std::string altPath = "assets/" + filename;
-#endif
-            Flux::Trace("Attempting odd read");
-            file = SDL_RWFromFile(altPath.c_str(), "rb");
-        } else {
-            Flux::Trace("Opened");
+        std::ifstream file(expandedFileName, std::ios::in | std::ios::binary);
+        if (!file.is_open()) {
+            Flux::Error("Failed to open file: {}", expandedFileName);
+            return "";
         }
 
-        if (!file)
-        {
-            std::cerr << "Failed to open file: " << expandedFileName << "\n";
-            return {};
-        }
+        std::stringstream buffer;
+        buffer << file.rdbuf(); // Read entire file contents
+        file.close();
 
-        Sint64 res_size = SDL_RWsize(file);
-        Flux::Trace("Got size: {}", res_size);
-        std::string content;
-        content.resize(res_size);
+        std::string contents = buffer.str();
+        Flux::Info("Read file '{}' ({} bytes)", expandedFileName, contents.size());
 
-        Sint64 nb_read_total = 0, nb_read = 1;
-        char *buf = &content[0];
-
-        while (nb_read_total < res_size && nb_read != 0)
-        {
-            Flux::Trace("Reading...");
-            nb_read = SDL_RWread(file, buf + nb_read_total, 1, res_size - nb_read_total);
-            nb_read_total += nb_read;
-        }
-
-        SDL_RWclose(file);
-        Flux::Trace("Closed");
-
-        if (nb_read_total != res_size)
-        {
-            std::cerr << "Read error\n";
-            return {};
-        }
-
-        return content;
+        return contents;
     }
+
+
 }

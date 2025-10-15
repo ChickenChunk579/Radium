@@ -33,33 +33,12 @@ endif()
 
 add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX -DTRACY_NO_INVARIANT_CHECK=1)
 
-set(SDL2IMAGE_AVIF OFF CACHE BOOL "Support loading AVIF images" FORCE)
-set(SDL2IMAGE_BMP OFF CACHE BOOL "Support loading BMP images" FORCE)
-set(SDL2IMAGE_GIF OFF CACHE BOOL "Support loading GIF images" FORCE)
-set(SDL2IMAGE_JPG OFF CACHE BOOL "Support loading JPEG images" FORCE)
-set(SDL2IMAGE_JXL OFF CACHE BOOL "Support loading JXL images" FORCE)
-set(SDL2IMAGE_LBM OFF CACHE BOOL "Support loading LBM images" FORCE)
-set(SDL2IMAGE_PCX OFF CACHE BOOL "Support loading PCX images" FORCE)
-set(SDL2IMAGE_PNG ON CACHE BOOL "Support loading PNG images" FORCE)  # Enable only PNG
-set(SDL2IMAGE_PNM OFF CACHE BOOL "Support loading PNM images" FORCE)
-set(SDL2IMAGE_QOI OFF CACHE BOOL "Support loading QOI images" FORCE)
-set(SDL2IMAGE_SVG OFF CACHE BOOL "Support loading SVG images" FORCE)
-set(SDL2IMAGE_TGA OFF CACHE BOOL "Support loading TGA images" FORCE)
-set(SDL2IMAGE_TIF OFF CACHE BOOL "Support loading TIFF images" FORCE)
-set(SDL2IMAGE_WEBP OFF CACHE BOOL "Support loading WEBP images" FORCE)
-set(SDL2IMAGE_XCF OFF CACHE BOOL "Support loading XCF images" FORCE)
-set(SDL2IMAGE_XPM OFF CACHE BOOL "Support loading XPM images" FORCE)
-set(SDL2IMAGE_XV OFF CACHE BOOL "Support loading XV images" FORCE)
-
 if(ANDROID)
     link_libraries(log)
 endif()
 
 add_subdirectory(subprojects/box2d)
-add_subdirectory(subprojects/SDL)
-add_subdirectory(subprojects/SDL_ttf)
 add_subdirectory(subprojects/tracy)
-add_subdirectory(subprojects/ChaiScript)
 add_subdirectory(subprojects/tiny-process-library)
 
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -73,10 +52,9 @@ add_library(imgui STATIC
     subprojects/imgui/imgui_tables.cpp
     subprojects/imgui/imgui_widgets.cpp
     subprojects/imgui/imgui.cpp
-    subprojects/imgui/backends/imgui_impl_sdl2.cpp
 )
 
-target_link_libraries(imgui PUBLIC SDL2::SDL2)
+target_link_libraries(imgui PUBLIC)
 
 target_include_directories(imgui PUBLIC subprojects/imgui)
 
@@ -84,10 +62,10 @@ add_library(Radium STATIC
     subprojects/ImGuiColorTextEdit/TextEditor.cpp
     subprojects/ImGuiFileDialog/ImGuiFileDialog.cpp
     src/Radium/Application.cpp
-    src/Radium/FontRenderer.cpp
     src/Radium/Math.cpp
     src/Radium/SpriteBatchRegistry.cpp
     src/Radium/imgui_impl_rune.cpp
+    src/Radium/imgui_impl_nova.cpp
     src/Radium/Input.cpp
     src/Radium/AssetLoader.cpp
     src/Radium/DebugRenderer.cpp
@@ -95,7 +73,6 @@ add_library(Radium STATIC
     src/Radium/SubViewport.cpp
     src/Radium/Nodes/Tree.cpp
     src/Radium/Nodes/Node.cpp
-    src/Radium/Nodes/ChaiScript.cpp
     src/Radium/Nodes/LuaScript.cpp
     src/Radium/Nodes/ClassDB.cpp
     src/Radium/Nodes/2D/Node2D.cpp
@@ -105,18 +82,23 @@ add_library(Radium STATIC
     subprojects/lua/onelua.c
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(Radium PRIVATE TRACY_ENABLE)
+else()
+    # Disable profiling in Release
+    target_compile_definitions(Radium PRIVATE TRACY_NO_INVARIANT_CHECK=1)
+endif()
+
+
 target_include_directories(Radium PUBLIC subprojects/lua)
 
 target_link_libraries(Radium PUBLIC
-    SDL2::SDL2
-    SDL2_ttf
-    SDL2main
+    Nova
     Iris
     Flux
     Rune
     imgui
     box2d
-    chaiscript
     tiny-process-library
 )
 if (MSVC)
