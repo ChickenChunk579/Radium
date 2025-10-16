@@ -1,5 +1,6 @@
 #pragma once
 #include <Radium/Application.hpp>
+#include <Nova/Nova.hpp>
 #include <Nova/Key.hpp>
 
 namespace Radium {
@@ -36,5 +37,10 @@ namespace Radium {
 
         /// @brief Called internally by Application, manages input for WasKeyPressedThisFrame
         void LateUpdate();
+
+        /// @brief Internal: Process an event (to be called from application)
+        /// @param event Event pointer to process
+        void ProcessEvent(Nova::Event* event);
+
     }
 }

@@ -69,6 +69,7 @@ add_library(Radium STATIC
     src/Radium/Input.cpp
     src/Radium/AssetLoader.cpp
     src/Radium/DebugRenderer.cpp
+    src/Radium/FontRenderer.cpp
     src/Radium/Camera.cpp
     src/Radium/SubViewport.cpp
     src/Radium/Nodes/Tree.cpp
@@ -90,7 +91,7 @@ else()
 endif()
 
 
-target_include_directories(Radium PUBLIC subprojects/lua)
+target_include_directories(Radium PUBLIC subprojects/lua subprojects/earcut.hpp/include/mapbox)
 
 target_link_libraries(Radium PUBLIC
     Nova

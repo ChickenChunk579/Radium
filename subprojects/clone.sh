@@ -11,3 +11,4 @@ git clone --recursive https://github.com/libsdl-org/SDL_image "SDL_image" && cd 
 git clone --recursive https://github.com/libsdl-org/SDL_ttf "SDL_ttf" && cd "SDL_ttf" && git checkout 8f8e77248c1ec1b1b54972e68f44d57ff9851582 && cd ..
 git clone --recursive https://github.com/eidheim/tiny-process-library "tiny-process-library" && cd "tiny-process-library" && git checkout 5bc47531a97f80ac07092ac3ed56a26139c748b3 && cd ..
 git clone --recursive https://github.com/wolfpld/tracy "tracy" && cd "tracy" && git checkout 863bcc46357bc117d8d2080845c9c43ad84b9304 && cd ..
+git clone https://github.com/mapbox/earcut.hpp/tree/master --depth 1

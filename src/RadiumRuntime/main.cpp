@@ -1,4 +1,6 @@
 #include <Radium/Application.hpp>
+#include <Radium/DebugRenderer.hpp>
+#include <Radium/FontRenderer.hpp>
 #include <Radium/Camera.hpp>
 #include <Radium/SpriteBatchRegistry.hpp>
 #include <Radium/Nodes/2D/Sprite2D.hpp>
@@ -25,6 +27,7 @@ public:
     Rune::GeometryRenderer* geometry;
     std::string appBase = "";
     Radium::GameConfig config;
+    Radium::TTFFont* font;
 
     void OnPreLoad(int argc, char* argv[]) override {
         if (argc > 1) {
@@ -86,11 +89,13 @@ public:
         Flux::Info("Running app at {}", appBase);
 
         tree.Deserialize(config.initialScene);
+
+        font = new Radium::TTFFont("arial.ttf", 128);
     }
 
     void OnTick(float dt) override
     {
-        
+        font->AddString("Among us", {100, -100});
     }
 
     void OnPreRender() override {

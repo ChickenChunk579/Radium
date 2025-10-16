@@ -222,8 +222,6 @@ namespace Radium::Nodes
             
             try
             {
-                Flux::Info("Is it a string or not: {}", prop.type);
-
                 if (ClassDB::IsEnum(prop.type)) {
                     ClassDB::SetProperty<int>(prop.name, node, nodeJson[prop.name].get<int>());
                 }

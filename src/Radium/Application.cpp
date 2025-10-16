@@ -168,6 +168,7 @@ namespace Radium
 			while (window->HasEvents()){
 				Nova::Event* event = window->PopEvent();
 				ImGui_ImplNova_ProcessEvent(event);
+				Input::ProcessEvent(event);
 			}
 
 			//Radium::Input::Update();

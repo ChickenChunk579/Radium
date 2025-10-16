@@ -613,6 +613,44 @@ namespace Radium::DebugRenderer {
         renderer = new Rune::GeometryRenderer(tex);
     }
 
+    void AddQuadraticBezier(Vector2f p0, Vector2f p1, Vector2f p2, float r, float g, float b, float thickness, int segments, Radium::Nodes::CoordinateOrigin origin) {
+        if (segments < 2) segments = 2;
+        
+        Vector2f prevPoint = p0;
+        
+        for (int i = 1; i <= segments; i++) {
+            float t = (float)i / (float)segments;
+            float oneMinusT = 1.0f - t;
+            
+            Vector2f newPoint = {};
+            newPoint.x = (oneMinusT * oneMinusT) * p0.x + (2 * oneMinusT) * t * p1.x + (t * t) * p2.x;
+            newPoint.y = (oneMinusT * oneMinusT) * p0.y + (2 * oneMinusT) * t * p1.y + (t * t) * p2.y;
+        
+            AddLine(prevPoint, newPoint, r, g, b, thickness, origin);
+            prevPoint = newPoint;
+        }
+    }
+
+    void AddCubicBezier(Vector2f p0, Vector2f p1, Vector2f p2, Vector2f p3, float r, float g, float b, float thickness, int segments, Radium::Nodes::CoordinateOrigin origin) {
+        if (segments < 2) segments = 2;
+        
+        Vector2f prevPoint = p0;
+        
+        for (int i = 1; i <= segments; i++) {
+            float t = (float)i / (float)segments;
+            float oneMinusT = 1.0f - t;
+            float oneMinusT2 = oneMinusT * oneMinusT;
+            float oneMinusT3 = oneMinusT * oneMinusT * oneMinusT;
+            
+            Vector2f newPoint = {};
+            newPoint.x = oneMinusT3 * p0.x + (3 * oneMinusT) * (3 * oneMinusT) * t * p1.x + (3 * oneMinusT) * (3 * oneMinusT) * t * t * p2.x + t * t * t * p3.x;
+            newPoint.y = oneMinusT3 * p0.y + (3 * oneMinusT) * (3 * oneMinusT) * t * p1.y + (3 * oneMinusT) * (3 * oneMinusT) * t * t * p2.y + t * t * t * p3.x;
+        
+            AddLine(prevPoint, newPoint, r, g, b, thickness, origin);
+            prevPoint = newPoint;
+        }
+    }
+
     void AddPoint(Vector2f pos, float r, float g, float b, float radius, float resolution, Radium::Nodes::CoordinateOrigin origin) {
         pos = ConvertToRenderCoords(pos, origin);
         radius *= Radium::GetPixelScale();
