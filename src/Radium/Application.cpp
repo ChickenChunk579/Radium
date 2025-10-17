@@ -73,7 +73,6 @@ namespace Radium
 		}
 
 		Flux::Trace("Successfully initialized Rune.");
-		Flux::Info("surface format: {}", static_cast<int>(Rune::caps.formats[0]));
 
 #if (defined(__linux__) && !defined(__ANDROID__)) || defined(_MSC_VER)
 		Flux::Trace("Setting up imgui...");

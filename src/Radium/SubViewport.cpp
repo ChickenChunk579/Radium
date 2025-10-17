@@ -32,6 +32,9 @@ namespace Radium {
                     .pad = 0
                 };
                 // write the per-batch resolution buffer so the shader uses the subviewport size
+                
+                // REENABLE ME IF IT FAILS
+                
                 wgpuQueueWriteBuffer(Rune::queue, batch->resolutionBuffer, 0, &resData, sizeof(resData));
             }
         }
